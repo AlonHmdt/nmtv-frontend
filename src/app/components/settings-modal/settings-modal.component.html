@@ -1,0 +1,141 @@
+<div class="settings-modal" [class.open]="isOpen()">
+  @if (isOpen()) {
+    <!-- Overlay -->
+    <div class="modal-overlay" (click)="close()"></div>
+    
+    <!-- Modal Content -->
+    <div class="modal-content">
+      <!-- Header -->
+      <div class="modal-header">
+        <h2>⚙️ Custom Playlists</h2>
+        <button class="close-button" (click)="close()">✕</button>
+      </div>
+
+      <!-- Channel Tabs -->
+      <div class="channel-tabs">
+        @for (channel of channels; track channel.id) {
+          <button 
+            class="channel-tab"
+            [class.active]="isChannelActive(channel.id)"
+            (click)="selectChannel(channel.id)">
+            <span class="channel-icon">{{ channel.icon }}</span>
+            <span class="channel-name">{{ channel.name }}</span>
+            @if (customPlaylistService.getChannelCount(channel.id) > 0) {
+              <span class="playlist-badge">{{ customPlaylistService.getChannelCount(channel.id) }}</span>
+            }
+          </button>
+        }
+      </div>
+
+      <!-- Content Area -->
+      <div class="modal-body">
+        <!-- Info Message -->
+        <div class="info-message">
+          <p>
+            <strong>Add your own YouTube playlists to this channel!</strong><br>
+            Your custom playlists will make up 50% of the videos played.
+          </p>
+          <p class="limit-info">
+            📊 <strong>Limit:</strong> Only the first <strong>100 videos</strong> from each playlist will be used for better performance.
+          </p>
+          <p class="warning">
+            ⚠️ <strong>Note:</strong> Don't add private or deleted playlists - they won't work.
+          </p>
+        </div>
+
+        <!-- Current Playlists -->
+        <div class="playlists-section">
+          <h3>
+            Custom Playlists 
+            <span class="count">({{ playlistCount() }}/5)</span>
+          </h3>
+
+          @if (currentPlaylists().length === 0) {
+            <div class="empty-state">
+              <p>No custom playlists yet. Add one below!</p>
+            </div>
+          } @else {
+            <div class="playlists-list">
+              @for (playlist of currentPlaylists(); track playlist.id) {
+                <div class="playlist-item">
+                  <div class="playlist-info">
+                    <span class="playlist-icon">📋</span>
+                    <div class="playlist-details">
+                      <span class="playlist-name">{{ playlist.name }}</span>
+                      <a 
+                        [href]="'https://www.youtube.com/playlist?list=' + playlist.id" 
+                        target="_blank"
+                        class="playlist-link">
+                        View on YouTube ↗
+                      </a>
+                    </div>
+                  </div>
+                  <button 
+                    class="delete-button"
+                    (click)="removePlaylist(playlist.id)"
+                    title="Remove playlist">
+                    🗑️
+                  </button>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Add Playlist Form -->
+        @if (canAddMore()) {
+          <div class="add-playlist-section">
+            <h3>Add New Playlist</h3>
+            <div class="input-group">
+              <input 
+                type="text"
+                class="playlist-input"
+                [(ngModel)]="playlistUrl"
+                placeholder="Paste YouTube playlist URL here..."
+                [disabled]="isAdding()"
+                (keyup.enter)="validateAndAdd()">
+              <button 
+                class="add-button"
+                (click)="validateAndAdd()"
+                [disabled]="isAdding() || !playlistUrl()">
+                {{ isAdding() ? 'Adding...' : 'Add' }}
+              </button>
+            </div>
+            
+            @if (errorMessage()) {
+              <div class="error-message">
+                ❌ {{ errorMessage() }}
+              </div>
+            }
+
+            <div class="url-examples">
+              <p><strong>Example URLs:</strong></p>
+              <code>https://www.youtube.com/playlist?list=PLxxxxxx</code><br>
+              <code>https://www.youtube.com/watch?v=xxxxx&list=PLxxxxxx</code>
+            </div>
+          </div>
+        } @else {
+          <div class="max-reached">
+            <p>✋ Maximum of 5 playlists reached for this channel.</p>
+            <p>Remove a playlist to add a new one.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Modal Footer with Apply Button -->
+      <div class="modal-footer">
+        <button 
+          class="apply-button"
+          (click)="applyChanges()"
+          [disabled]="isApplying()">
+          @if (isApplying()) {
+            <span class="spinner">⏳</span>
+            <span>Applying Changes...</span>
+          } @else {
+            <span>✓ Apply & Reload Videos</span>
+          }
+        </button>
+      </div>
+    </div>
+  }
+</div>

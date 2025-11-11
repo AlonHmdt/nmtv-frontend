@@ -1,0 +1,58 @@
+@if (isOpen()) {
+  <div class="modal-backdrop" (click)="close()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="close-button" (click)="close()" aria-label="Close modal">
+        ✕
+      </button>
+      
+      <div class="modal-header">
+        <h2>About NMTV</h2>
+        <div class="subtitle">Your Personal Music Television Experience</div>
+      </div>
+      
+      <div class="modal-body">
+        <div class="about-text">
+          <p>
+            <strong>NMTV</strong> is a tribute to the golden era of music television, 
+            recreating the experience of watching MTV in its heyday. This app lets you 
+            curate your own music video channels, mixing official playlists with your 
+            personal favorites, complete with bumpers and that authentic broadcast feel.
+          </p>
+          <p>
+            Built with modern web technologies, NMTV brings back the joy of discovering 
+            music videos without algorithms or interruptions - just pure music television 
+            the way it was meant to be.
+          </p>
+          <p>
+            Switch between decades, explore different genres, and enjoy an endless stream 
+            of music videos from YouTube, all presented in that classic MTV style we all 
+            remember and love.
+          </p>
+        </div>
+        
+        <div class="video-section">
+          <h3>A Tribute to MTV's Legacy</h3>
+          <p class="video-caption">
+            The Very First Two Hours Of MTV - August 1, 1981
+          </p>
+          <div class="video-container">
+            <iframe
+              [src]="videoUrl"
+              title="The Very First Two Hours Of MTV"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+        
+        <!-- Placeholder for future additions -->
+        <div class="future-section">
+          <!-- Social media links will go here -->
+          <!-- GitHub link will go here -->
+          <!-- Tip button will go here -->
+        </div>
+      </div>
+    </div>
+  </div>
+}

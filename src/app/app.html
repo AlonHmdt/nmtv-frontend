@@ -1,0 +1,6 @@
+<app-power-button (powerOn)="onPowerOn()" />
+
+@if (isPoweredOn()) {
+  <app-video-player />
+  <app-channel-selector />
+}

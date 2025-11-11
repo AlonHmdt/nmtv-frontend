@@ -1,0 +1,52 @@
+<div class="channel-selector">
+  <!-- Floating Remote Button -->
+  <button class="remote-button" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="6" y="4" width="12" height="16" rx="2"/>
+      <circle cx="12" cy="10" r="2"/>
+      <line x1="12" y1="14" x2="12" y2="14"/>
+      <line x1="12" y1="17" x2="12" y2="17"/>
+      <line x1="12" y1="20" x2="12" y2="20"/>
+    </svg>
+  </button>
+
+  <!-- Side Menu -->
+  <div class="menu-overlay" [class.hidden]="!isMenuOpen()" (click)="toggleMenu()"></div>
+  <div class="side-menu" [class.open]="isMenuOpen()">
+    <div class="menu-header">
+      <h2>SELECT CHANNEL</h2>
+      <button class="close-button" (click)="toggleMenu()">✕</button>
+    </div>
+      
+      <div class="channel-list">
+        @for (channel of channels; track channel.id) {
+          <button 
+            class="channel-item" 
+            [class.active]="isActive(channel.id)"
+            (click)="selectChannel(channel.id)">
+            <span class="channel-icon">{{ channel.icon }}</span>
+            <span class="channel-name">{{ channel.name }}</span>
+            @if (isActive(channel.id)) {
+              <span class="active-indicator">●</span>
+            }
+          </button>
+        }
+      </div>
+      
+      <div class="menu-footer">
+        <button class="settings-button" (click)="openSettings()">
+          <span class="settings-icon">⚙️</span>
+          <span class="settings-text">Custom Playlists</span>
+        </button>
+        <button class="about-button" (click)="openAbout()">
+          <span class="about-icon">ℹ️</span>
+          <span class="about-text">About NMTV</span>
+        </button>
+        <p class="retro-text">MTV MUSIC CHANNEL</p>
+      </div>
+    </div>
+
+  <!-- Modals -->
+  <app-settings-modal></app-settings-modal>
+  <app-about-modal></app-about-modal>
+</div>

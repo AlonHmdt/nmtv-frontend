@@ -1,0 +1,20 @@
+<div class="crt-off-screen" [class.powering-on]="isAnimating()">
+  @if (!isAnimating()) {
+    <div class="power-button-container">
+      <div class="tv-text">MTV</div>
+      <div class="red-dot"></div>
+      <button class="power-button" (click)="onPowerClick()">
+        <div class="button-inner">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v10M16.24 7.76a6 6 0 1 1-8.48 0"/>
+          </svg>
+        </div>
+      </button>
+      <div class="power-text">PRESS TO START</div>
+    </div>
+  }
+  
+  @if (isAnimating()) {
+    <div class="crt-scan-line"></div>
+  }
+</div>

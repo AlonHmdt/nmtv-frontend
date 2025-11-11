@@ -1,0 +1,51 @@
+<div class="video-player-container">
+  <div id="youtube-player"></div>
+  
+  <!-- Transparent overlay to block all interaction with video -->
+  <div class="interaction-blocker"></div>
+  
+  <!-- MTV Logo with Channel -->
+  <div class="mtv-logo-container">
+    <div class="mtv-logo">MTV</div>
+    <div class="channel-badge">{{ currentChannel() }}</div>
+  </div>
+  
+  <!-- Playing Now Overlay -->
+  @if (showPlayingNow() && currentVideo()) {
+    <div class="overlay playing-now" [class.animating-out]="playingNowAnimating()">
+      <div class="overlay-content">
+        <div class="label">PLAYING NOW</div>
+        @if (currentVideo()!.artist && currentVideo()!.song) {
+          <div class="artist">{{ currentVideo()!.artist }}</div>
+          <div class="song">{{ currentVideo()!.song }}</div>
+        } @else {
+          <div class="title">{{ currentVideo()!.title }}</div>
+        }
+        @if (currentVideo()!.year) {
+          <div class="year">({{ currentVideo()!.year }})</div>
+        }
+        @if (currentVideo()!.playlistName) {
+          <div class="playlist-badge">🎵 {{ currentVideo()!.playlistName }}</div>
+        }
+      </div>
+    </div>
+  }
+  
+  <!-- Playing Next Overlay -->
+  @if (showPlayingNext() && upcomingVideo()) {
+    <div class="overlay playing-next" [class.animating-out]="playingNextAnimating()">
+      <div class="overlay-content">
+        <div class="label">COMING UP NEXT</div>
+        @if (upcomingVideo()!.artist && upcomingVideo()!.song) {
+          <div class="artist">{{ upcomingVideo()!.artist }}</div>
+          <div class="song">{{ upcomingVideo()!.song }}</div>
+        } @else {
+          <div class="title">{{ upcomingVideo()!.title }}</div>
+        }
+        @if (upcomingVideo()!.playlistName) {
+          <div class="playlist-badge">🎵 {{ upcomingVideo()!.playlistName }}</div>
+        }
+      </div>
+    </div>
+  }
+</div>
