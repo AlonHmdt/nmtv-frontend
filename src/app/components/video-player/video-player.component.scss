@@ -121,77 +121,77 @@
   letter-spacing: 2px;
 
   .label {
-    font-size: 14px;
+    font-size: 10px;
     color: #ffcc00;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 
     @media (max-width: 768px) {
-      font-size: 12px;
-      margin-bottom: 10px;
+      font-size: 8px;
+      margin-bottom: 7px;
     }
   }
 
   .title {
-    font-size: 32px;
+    font-size: 22px;
     font-weight: bold;
-    margin-bottom: 10px;
+    margin-bottom: 7px;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
     line-height: 1.2;
-
-    @media (max-width: 768px) {
-      font-size: 20px;
-    }
-  }
-
-  .artist {
-    font-size: 28px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #fff;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
-
-    @media (max-width: 768px) {
-      font-size: 18px;
-    }
-  }
-
-  .song {
-    font-size: 24px;
-    font-weight: normal;
-    color: #ddd;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-
-    @media (max-width: 768px) {
-      font-size: 16px;
-    }
-  }
-
-  .year {
-    font-size: 18px;
-    color: #aaa;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 
     @media (max-width: 768px) {
       font-size: 14px;
     }
   }
 
+  .artist {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #fff;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
+
+    @media (max-width: 768px) {
+      font-size: 13px;
+    }
+  }
+
+  .song {
+    font-size: 17px;
+    font-weight: normal;
+    color: #ddd;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+
+    @media (max-width: 768px) {
+      font-size: 11px;
+    }
+  }
+
+  .year {
+    font-size: 13px;
+    color: #aaa;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+
+    @media (max-width: 768px) {
+      font-size: 10px;
+    }
+  }
+
   .playlist-badge {
-    margin-top: 12px;
-    font-size: 16px;
+    margin-top: 8px;
+    font-size: 11px;
     color: #ffcc00;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9);
     background: rgba(0, 0, 0, 0.5);
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 4px 8px;
+    border-radius: 14px;
     display: inline-block;
 
     @media (max-width: 768px) {
-      font-size: 13px;
-      padding: 4px 10px;
+      font-size: 9px;
+      padding: 3px 7px;
     }
   }
 }
