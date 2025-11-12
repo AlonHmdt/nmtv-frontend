@@ -38,4 +38,22 @@ export class YoutubeService {
       params: { title }
     });
   }
+
+  async checkBackendReady(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.backendUrl}/ready`, {
+        method: 'GET',
+        signal: AbortSignal.timeout(5000) // 5 second timeout
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        return data.ready === true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Backend readiness check failed:', error);
+      return false;
+    }
+  }
 }
