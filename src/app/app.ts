@@ -15,6 +15,7 @@ import { Channel } from './models/video.model';
 export class App implements OnInit {
   private queueService = inject(QueueService);
   isPoweredOn = signal(false);
+  isLoading = signal(true);
 
   async ngOnInit(): Promise<void> {
     // Load the last selected channel or default to Rock
@@ -23,6 +24,8 @@ export class App implements OnInit {
       await this.queueService.initializeQueue(lastChannel);
     } catch (error) {
       console.error('Error initializing queue:', error);
+    } finally {
+      this.isLoading.set(false);
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, signal, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, output, input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -10,10 +10,13 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PowerButtonComponent {
+  isLoading = input<boolean>(false);
   powerOn = output<void>();
   isAnimating = signal(false);
 
   onPowerClick(): void {
+    if (this.isLoading()) return; // Don't allow click while loading
+    
     this.isAnimating.set(true);
     
     // Wait for animation to complete before emitting

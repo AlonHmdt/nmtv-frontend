@@ -1,4 +1,4 @@
-<app-power-button (powerOn)="onPowerOn()" />
+<app-power-button [isLoading]="isLoading()" (powerOn)="onPowerOn()" />
 
 @if (isPoweredOn()) {
   <app-video-player />
