@@ -55,6 +55,14 @@
     height: auto;
     display: block;
     filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.8));
+    
+    @media (max-width: 768px) and (orientation: portrait) {
+      width: 70px;
+    }
+    
+    @media (max-width: 932px) and (orientation: landscape) {
+      width: 50px;
+    }
   }
   
   .channel-badge {
@@ -67,6 +75,19 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Arial', sans-serif;
+    
+    @media (max-width: 932px) and (orientation: landscape) {
+      padding: 2px 5px;
+      font-size: 8px;
+    }
+  }
+  
+  // Portrait mode - center the logo at top
+  @media (max-width: 768px) and (orientation: portrait) {
+    top: 10px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
