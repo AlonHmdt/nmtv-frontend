@@ -1,7 +1,7 @@
 <div class="crt-off-screen" [class.powering-on]="isAnimating()">
   @if (!isAnimating()) {
     <div class="power-button-container">
-      <img src="/images/nmtv-logo.png" alt="NMTV" class="ntv-logo">
+      <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
       <div class="red-dot"></div>
       <button class="power-button" (click)="onPowerClick()" [disabled]="isLoading()">
         <div class="button-inner">

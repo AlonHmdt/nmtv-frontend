@@ -37,6 +37,11 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
   private loadAttempts = 0;
   private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
   private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
+  
+  // Touch gesture tracking
+  private touchStartY = 0;
+  private touchEndY = 0;
+  private minSwipeDistance = 50; // Minimum distance for a swipe to register
 
   constructor() {
     // Watch for when video changes (initial load or channel switch)
@@ -79,6 +84,10 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     
     // Add keyboard shortcut for testing: Press 'N' to skip to next video
     window.addEventListener('keydown', this.handleKeyPress.bind(this));
+    
+    // Add touch event listeners for swipe gestures
+    window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
+    window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
   }
 
   ngOnDestroy(): void {
@@ -91,6 +100,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
       this.player.destroy();
     }
     window.removeEventListener('keydown', this.handleKeyPress.bind(this));
+    window.removeEventListener('touchstart', this.handleTouchStart.bind(this));
+    window.removeEventListener('touchend', this.handleTouchEnd.bind(this));
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
@@ -103,6 +114,28 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault(); // Prevent page scroll
       this.switchToNextChannel(event.key === 'ArrowUp');
+    }
+  }
+  
+  private handleTouchStart(event: TouchEvent): void {
+    this.touchStartY = event.touches[0].clientY;
+  }
+  
+  private handleTouchEnd(event: TouchEvent): void {
+    this.touchEndY = event.changedTouches[0].clientY;
+    this.handleSwipe();
+  }
+  
+  private handleSwipe(): void {
+    const swipeDistance = this.touchStartY - this.touchEndY;
+    
+    // Swipe up (finger moves up) - next channel
+    if (swipeDistance > this.minSwipeDistance) {
+      this.switchToNextChannel(false); // Same as arrow down
+    }
+    // Swipe down (finger moves down) - previous channel
+    else if (swipeDistance < -this.minSwipeDistance) {
+      this.switchToNextChannel(true); // Same as arrow up
     }
   }
 
