@@ -24,7 +24,7 @@
 
 .nmtv-logo{
   width: 300px;
-  opacity: 0.5;
+  filter: brightness(0.3) drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
 }
 
 .tv-text {
@@ -34,14 +34,6 @@
   font-family: 'Arial Black', sans-serif;
   letter-spacing: 4px;
   text-transform: uppercase;
-}
-
-.tv-logo {
-  width: 200px;
-  height: auto;
-  display: block;
-  filter: brightness(0.3) drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
-  opacity: 0.8;
 }
 
 .red-dot {
