@@ -292,7 +292,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
               }
             });
             this.yearFetchTimeout = null;
-          }, 10000); // Wait 10 seconds before fetching
+          }, 5000); // Wait 10 seconds before fetching
         }
         
         // Small delay to ensure getDuration() returns valid value
