@@ -5,6 +5,7 @@ import { PowerButtonComponent } from './components/power-button/power-button.com
 import { QueueService } from './services/queue.service';
 import { YoutubeService } from './services/youtube.service';
 import { Channel } from './models/video.model';
+import { inject as injectAnalytics } from '@vercel/analytics';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,9 @@ export class App implements OnInit {
   isLoading = signal(true);
 
   async ngOnInit(): Promise<void> {
+    // Initialize Vercel Analytics
+    injectAnalytics();
+    
     try {
       // Wait for backend to be ready with data first
       const backendReady = await this.waitForBackend();
