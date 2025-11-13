@@ -26,7 +26,7 @@ export class ChannelSelectorComponent {
     { id: Channel.ROCK, name: 'Rock', icon: '🎸' },
     { id: Channel.HIP_HOP, name: 'Hip Hop / Rap', icon: '🎤' },
     { id: Channel.DECADE_2000S, name: '2000s', icon: '💿' },
-    { id: Channel.DECADE_1990S, name: '1990s', icon: '🎧' },
+    { id: Channel.DECADE_1990S, name: '1990s', icon: '📼' },
     { id: Channel.DECADE_1980S, name: '1980s', icon: '📻' },
     { id: Channel.LIVE, name: 'Live', icon: '🎬' }
   ];
