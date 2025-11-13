@@ -2,39 +2,45 @@
   <div class="modal-backdrop" (click)="close()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <button class="close-button" (click)="close()" aria-label="Close modal">
-        ✕
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="4" y1="4" x2="16" y2="16"/>
+          <line x1="16" y1="4" x2="4" y2="16"/>
+        </svg>
       </button>
       
       <div class="modal-header">
-        <h2>About NMTV</h2>
-        <div class="subtitle">Your Personal Music Television Experience</div>
+        <div class="logo-wrapper">
+          <h2>NMTV</h2>
+          <div class="tagline">Music Television Reimagined</div>
+        </div>
       </div>
       
       <div class="modal-body">
-        <div class="about-text">
-          <p>
-            <strong>NMTV</strong> is a tribute to the golden era of music television, 
-            recreating the experience of watching MTV in its heyday. This app lets you 
-            curate your own music video channels, mixing official playlists with your 
-            personal favorites, complete with bumpers and that authentic broadcast feel.
-          </p>
-          <p>
-            Built with modern web technologies, NMTV brings back the joy of discovering 
-            music videos without algorithms or interruptions - just pure music television 
-            the way it was meant to be.
-          </p>
-          <p>
-            Switch between decades, explore different genres, and enjoy an endless stream 
-            of music videos from YouTube, all presented in that classic MTV style we all 
-            remember and love.
-          </p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="card-icon">🎸</div>
+            <h3>Classic Experience</h3>
+            <p>Relive the golden era of music television with curated channels and authentic broadcast feel.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="card-icon">📺</div>
+            <h3>Your Channels</h3>
+            <p>Mix official playlists with your personal favorites. Create custom channels that match your taste.</p>
+          </div>
+          
+          <div class="info-card">
+            <div class="card-icon">🎵</div>
+            <h3>Endless Music</h3>
+            <p>Stream music videos from YouTube across decades and genres without interruptions.</p>
+          </div>
         </div>
         
         <div class="video-section">
-          <h3>A Tribute to MTV's Legacy</h3>
-          <p class="video-caption">
-            The Very First Two Hours Of MTV - August 1, 1981
-          </p>
+          <div class="section-header">
+            <h3>A Tribute to MTV's Legacy</h3>
+            <p>The Very First Two Hours Of MTV - August 1, 1981</p>
+          </div>
           <div class="video-container">
             <iframe
               [src]="videoUrl"
@@ -46,11 +52,8 @@
           </div>
         </div>
         
-        <!-- Placeholder for future additions -->
-        <div class="future-section">
-          <!-- Social media links will go here -->
-          <!-- GitHub link will go here -->
-          <!-- Tip button will go here -->
+        <div class="footer-section">
+          <p>Built with ❤️ for music lovers everywhere</p>
         </div>
       </div>
     </div>
