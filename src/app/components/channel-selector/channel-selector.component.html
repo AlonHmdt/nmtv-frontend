@@ -14,8 +14,6 @@
   <div class="menu-overlay" [class.hidden]="!isMenuOpen()" (click)="toggleMenu()"></div>
   <div class="side-menu" [class.open]="isMenuOpen()">
     <div class="menu-header">
-      <h2>SELECT CHANNEL</h2>
-      <button class="close-button" (click)="toggleMenu()">✕</button>
     </div>
       
       <div class="channel-list">
@@ -24,23 +22,32 @@
             class="channel-item" 
             [class.active]="isActive(channel.id)"
             (click)="selectChannel(channel.id)">
-            <span class="channel-icon">{{ channel.icon }}</span>
-            <span class="channel-name">{{ channel.name }}</span>
+            <div class="channel-content">
+              <span class="channel-icon">{{ channel.icon }}</span>
+              <span class="channel-name">{{ channel.name }}</span>
+            </div>
             @if (isActive(channel.id)) {
-              <span class="active-indicator">●</span>
+              <span class="active-indicator">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+                  <circle cx="6" cy="6" r="6"/>
+                </svg>
+              </span>
             }
           </button>
         }
       </div>
       
-      <div class="menu-footer">
+      <div class="menu-actions">
         <button class="settings-button" (click)="openSettings()">
           <span class="settings-icon">⚙️</span>
           <span class="settings-text">Custom Playlists</span>
         </button>
+      </div>
+
+      <div class="menu-footer">
         <button class="about-button" (click)="openAbout()">
           <span class="about-icon">ℹ️</span>
-          <span class="about-text">About NMTV</span>
+          <span class="about-text">About</span>
         </button>
       </div>
     </div>
