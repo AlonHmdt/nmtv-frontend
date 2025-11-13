@@ -88,6 +88,13 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     // Add touch event listeners for swipe gestures
     window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
     window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    
+    // Listen for force play event (for iOS)
+    window.addEventListener('forceVideoPlay', () => {
+      if (this.player && typeof this.player.playVideo === 'function') {
+        this.player.playVideo();
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -108,18 +115,6 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     // Press 'N' or 'n' to skip to next video (for testing)
     if (event.key === 'n' || event.key === 'N') {
       this.playNextVideo();
-    }
-    
-    // Press 'Q' or 'q' to show/hide "Playing Now" overlay (for debugging)
-    if (event.key === 'q' || event.key === 'Q') {
-      this.showPlayingNow.set(!this.showPlayingNow());
-      this.playingNowAnimating.set(false);
-    }
-    
-    // Press 'W' or 'w' to show/hide "Playing Next" overlay (for debugging)
-    if (event.key === 'w' || event.key === 'W') {
-      this.showPlayingNext.set(!this.showPlayingNext());
-      this.playingNextAnimating.set(false);
     }
     
     // Arrow Up/Down to change channels
@@ -237,6 +232,16 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     event.target.unMute();
     event.target.setVolume(100);
     
+    // For iOS: Try to play immediately on player ready
+    // This helps if the player becomes ready close to the user interaction
+    if (event.target && typeof event.target.playVideo === 'function') {
+      try {
+        event.target.playVideo();
+      } catch (e) {
+        console.log('Initial playVideo attempt:', e);
+      }
+    }
+    
     setTimeout(() => {
       if (this.isFirstVideo) {
         // Seek to 2 minutes 15 seconds (135 seconds) only for first video
@@ -286,8 +291,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         }
         
         // Debounce the year fetch to avoid excessive API calls when switching channels rapidly
-        // Skip year fetching for Live channel
-        if (video && channel !== Channel.LIVE) {
+        // Skip year fetching for Live channel and bumpers
+        if (video && channel !== Channel.LIVE && !video.isBumper) {
           const searchTitle = video.artist && video.song 
             ? `${video.artist} ${video.song}` 
             : video.title || '';
@@ -304,7 +309,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
               }
             });
             this.yearFetchTimeout = null;
-          }, 5000); // Wait 10 seconds before fetching
+          }, 5000); // Wait 5 seconds before fetching
         }
         
         // Small delay to ensure getDuration() returns valid value

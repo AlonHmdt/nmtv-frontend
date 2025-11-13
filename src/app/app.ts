@@ -62,5 +62,11 @@ export class App implements OnInit {
 
   onPowerOn(): void {
     this.isPoweredOn.set(true);
+    
+    // For iOS: Give the video player a moment to initialize, then trigger play
+    setTimeout(() => {
+      // Dispatch a custom event that the video player can listen to
+      window.dispatchEvent(new CustomEvent('forceVideoPlay'));
+    }, 500);
   }
 }
