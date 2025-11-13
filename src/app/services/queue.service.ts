@@ -60,7 +60,6 @@ export class QueueService {
     // Save the current channel to localStorage
     localStorage.setItem('lastChannel', channel);
     
-    console.log('Switching to channel:', channel);
     this.currentChannelSignal.set(channel);
     this.currentIndexSignal.set(0);
     this.queueSignal.set([]);

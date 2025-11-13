@@ -17,10 +17,8 @@ export enum Channel {
   DECADE_1980S = '1980s',
   LIVE = 'live'
 }
-
 export interface ChannelConfig {
   id: Channel;
   name: string;
   icon: string;
-  searchQuery: string;
 }

@@ -23,12 +23,12 @@ export class ChannelSelectorComponent {
   currentChannel = this.queueService.currentChannel;
   
   channels: ChannelConfig[] = [
-    { id: Channel.ROCK, name: 'Rock', icon: '🎸', searchQuery: 'rock music' },
-    { id: Channel.HIP_HOP, name: 'Hip Hop / Rap', icon: '🎤', searchQuery: 'hip hop rap' },
-    { id: Channel.DECADE_2000S, name: '2000s', icon: '💿', searchQuery: '2000s music' },
-    { id: Channel.DECADE_1990S, name: '1990s', icon: '🎧', searchQuery: '1990s music' },
-    { id: Channel.DECADE_1980S, name: '1980s', icon: '📻', searchQuery: '1980s music' },
-    { id: Channel.LIVE, name: 'Live', icon: '🎬', searchQuery: 'live music' }
+    { id: Channel.ROCK, name: 'Rock', icon: '🎸' },
+    { id: Channel.HIP_HOP, name: 'Hip Hop / Rap', icon: '🎤' },
+    { id: Channel.DECADE_2000S, name: '2000s', icon: '💿' },
+    { id: Channel.DECADE_1990S, name: '1990s', icon: '🎧' },
+    { id: Channel.DECADE_1980S, name: '1980s', icon: '📻' },
+    { id: Channel.LIVE, name: 'Live', icon: '🎬' }
   ];
 
   toggleMenu(): void {
