@@ -110,6 +110,18 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
       this.playNextVideo();
     }
     
+    // Press 'Q' or 'q' to show/hide "Playing Now" overlay (for debugging)
+    if (event.key === 'q' || event.key === 'Q') {
+      this.showPlayingNow.set(!this.showPlayingNow());
+      this.playingNowAnimating.set(false);
+    }
+    
+    // Press 'W' or 'w' to show/hide "Playing Next" overlay (for debugging)
+    if (event.key === 'w' || event.key === 'W') {
+      this.showPlayingNext.set(!this.showPlayingNext());
+      this.playingNextAnimating.set(false);
+    }
+    
     // Arrow Up/Down to change channels
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault(); // Prevent page scroll

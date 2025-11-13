@@ -217,17 +217,12 @@
 }
 
 .playing-next {
-  bottom: 120px;
   background: rgba(0, 0, 30, 0.9);
   border-color: #00ffff;
   box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
 
   .label {
     color: #00ffff;
-  }
-
-  @media (max-width: 768px) {
-    bottom: 100px;
   }
 }
 
