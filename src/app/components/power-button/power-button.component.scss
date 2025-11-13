@@ -3,7 +3,8 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Modern browsers */
   background: #000;
   z-index: 10000;
   display: flex;

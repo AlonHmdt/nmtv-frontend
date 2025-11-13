@@ -70,7 +70,8 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Modern browsers */
   background: rgba(0, 0, 0, 0.8);
   z-index: 999;
   opacity: 1;
@@ -88,7 +89,8 @@
   top: 0;
   left: -320px;
   width: 320px;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Modern browsers */
   background: #000;
   border-right: 1px solid #333;
   box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);

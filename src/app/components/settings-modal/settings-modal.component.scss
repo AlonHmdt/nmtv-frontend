@@ -32,7 +32,8 @@
   border-radius: 12px;
   width: 90%;
   max-width: 700px;
-  max-height: 90vh;
+  max-height: 90vh; /* Fallback */
+  max-height: 90dvh; /* Modern browsers */
   overflow: hidden;
   display: flex;
   flex-direction: column;

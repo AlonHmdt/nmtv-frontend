@@ -3,7 +3,8 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Modern browsers */
   background: #000;
   overflow: hidden;
   z-index: 1;
@@ -14,8 +15,10 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 177.77vh; /* 16:9 aspect ratio */
-  height: 100vh;
+  width: 177.77vh; /* 16:9 aspect ratio - fallback */
+  width: 177.77dvh; /* 16:9 aspect ratio - modern browsers */
+  height: 100vh; /* Fallback */
+  height: 100dvh; /* Modern browsers */
   min-width: 100vw;
   min-height: 56.25vw; /* 16:9 aspect ratio */
   pointer-events: none;
