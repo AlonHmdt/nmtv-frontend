@@ -63,4 +63,8 @@ export class App implements OnInit {
   onPowerOn(): void {
     this.isPoweredOn.set(true);
   }
+
+  onPowerOff(): void {
+    this.isPoweredOn.set(false);
+  }
 }

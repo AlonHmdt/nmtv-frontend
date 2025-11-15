@@ -146,7 +146,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         classList.contains('modal-backdrop') ||
         classList.contains('settings-modal') ||
         classList.contains('about-modal') ||
-        classList.contains('side-menu')
+        classList.contains('side-menu') ||
+        classList.contains('menu-overlay')
       )) {
         return true;
       }
@@ -155,7 +156,18 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     return false;
   }
   
+  private isMenuOpen(): boolean {
+    // Check if the side menu is currently open by looking for visible menu-overlay
+    const menuOverlay = document.querySelector('.menu-overlay');
+    return menuOverlay ? !menuOverlay.classList.contains('hidden') : false;
+  }
+  
   private handleSwipe(): void {
+    // Don't handle swipes if the menu is open
+    if (this.isMenuOpen()) {
+      return;
+    }
+    
     const swipeDistance = this.touchStartY - this.touchEndY;
     
     // Swipe up (finger moves up) - next channel

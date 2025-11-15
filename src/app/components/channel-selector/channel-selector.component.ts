@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { Channel, ChannelConfig } from '../../models/video.model';
@@ -18,6 +18,8 @@ export class ChannelSelectorComponent {
   
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
+  
+  powerOff = output<void>();
   
   isMenuOpen = signal(false);
   currentChannel = this.queueService.currentChannel;
@@ -59,5 +61,10 @@ export class ChannelSelectorComponent {
   openAbout(): void {
     this.isMenuOpen.set(false);
     this.aboutModal?.open();
+  }
+
+  turnOff(): void {
+    this.isMenuOpen.set(false);
+    this.powerOff.emit();
   }
 }

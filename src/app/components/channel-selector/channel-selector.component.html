@@ -36,13 +36,6 @@
               <span class="channel-icon">{{ channel.icon }}</span>
               <span class="channel-name">{{ channel.name }}</span>
             </div>
-            @if (isActive(channel.id)) {
-              <span class="active-indicator">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
-                  <circle cx="6" cy="6" r="6"/>
-                </svg>
-              </span>
-            }
           </button>
         }
       </div>
@@ -59,6 +52,10 @@
       </div>
 
       <div class="menu-footer">
+        <button class="power-off-button" (click)="turnOff()">
+          <div class="green-dot"></div>
+          <span class="power-off-text">Turn Off</span>
+        </button>
       </div>
     </div>
 

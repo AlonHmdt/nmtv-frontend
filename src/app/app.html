@@ -1,6 +1,6 @@
-<app-power-button [isLoading]="isLoading()" (powerOn)="onPowerOn()" />
+<app-power-button [isLoading]="isLoading()" [isPoweredOn]="isPoweredOn()" (powerOn)="onPowerOn()" />
 
 @if (isPoweredOn()) {
   <app-video-player />
-  <app-channel-selector />
+  <app-channel-selector (powerOff)="onPowerOff()" />
 }

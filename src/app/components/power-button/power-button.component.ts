@@ -1,4 +1,4 @@
-import { Component, signal, output, input, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, output, input, ChangeDetectionStrategy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -11,8 +11,18 @@ import { CommonModule } from '@angular/common';
 })
 export class PowerButtonComponent {
   isLoading = input<boolean>(false);
+  isPoweredOn = input<boolean>(false);
   powerOn = output<void>();
   isAnimating = signal(false);
+
+  constructor() {
+    // Reset animation state when powered off
+    effect(() => {
+      if (!this.isPoweredOn()) {
+        this.isAnimating.set(false);
+      }
+    });
+  }
 
   onPowerClick(): void {
     if (this.isLoading()) return; // Don't allow click while loading
