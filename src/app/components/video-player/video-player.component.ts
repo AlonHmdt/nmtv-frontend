@@ -118,12 +118,40 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
   }
   
   private handleTouchStart(event: TouchEvent): void {
+    // Ignore touches that start inside a modal
+    const target = event.target as HTMLElement;
+    if (this.isInsideModal(target)) {
+      return;
+    }
     this.touchStartY = event.touches[0].clientY;
   }
   
   private handleTouchEnd(event: TouchEvent): void {
+    // Ignore touches that end inside a modal
+    const target = event.target as HTMLElement;
+    if (this.isInsideModal(target)) {
+      return;
+    }
     this.touchEndY = event.changedTouches[0].clientY;
     this.handleSwipe();
+  }
+  
+  private isInsideModal(element: HTMLElement): boolean {
+    // Check if the element or any of its parents is a modal
+    let current: HTMLElement | null = element;
+    while (current) {
+      const classList = current.classList;
+      if (classList && (
+        classList.contains('modal-content') ||
+        classList.contains('modal-backdrop') ||
+        classList.contains('settings-modal') ||
+        classList.contains('about-modal')
+      )) {
+        return true;
+      }
+      current = current.parentElement;
+    }
+    return false;
   }
   
   private handleSwipe(): void {

@@ -121,6 +121,13 @@
       left: 0;
     }
   }
+
+  @media (max-width: 932px) and (orientation: landscape) {
+    &.open {
+      width: 50%;
+      left: 0;
+    }
+  }
 }
 
 .menu-header {
@@ -211,6 +218,11 @@
     &:hover {
       background: rgba(255, 255, 255, 0.3);
     }
+  }
+
+  @media (max-width: 932px) and (orientation: landscape) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;  
   }
 }
 

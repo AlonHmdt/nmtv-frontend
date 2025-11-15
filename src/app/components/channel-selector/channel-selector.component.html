@@ -23,8 +23,8 @@
   <!-- Side Menu -->
   <div class="menu-overlay" [class.hidden]="!isMenuOpen()" (click)="toggleMenu()"></div>
   <div class="side-menu" [class.open]="isMenuOpen()">
-    <div class="menu-header">
-    </div>
+    <!-- <div class="menu-header">
+    </div> -->
       
       <div class="channel-list">
         @for (channel of channels; track channel.id) {

@@ -4,7 +4,7 @@
     <div class="modal-overlay" (click)="close()"></div>
     
     <!-- Modal Content -->
-    <div class="modal-content">
+    <div class="modal-content" (click)="$event.stopPropagation()">
       <!-- Header -->
       <div class="modal-header">
         <h2>⚙️ Custom Playlists</h2>

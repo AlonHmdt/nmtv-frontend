@@ -85,7 +85,7 @@
 }
 
 .modal-header {
-  padding: 50px 40px 40px;
+  padding: 10px 40px 10px;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
@@ -103,17 +103,11 @@
   }
 
   .logo-wrapper {
-    h2 {
-      font-size: 72px;
-      font-weight: 900;
-      margin: 0 0 10px 0;
-      background: linear-gradient(135deg, #fff 0%, #999 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-transform: uppercase;
-      letter-spacing: 8px;
-      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.5));
+    .nmtv-logo {
+      width: 120px;
+      height: auto;
+      filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.2));
+      animation: logoGlow 2s ease-in-out infinite alternate;
     }
 
     .tagline {
@@ -126,9 +120,13 @@
   }
 
   @media (max-width: 768px) {
-    padding: 40px 20px 30px;
+    padding: 10px 20px 10px;
 
     .logo-wrapper {
+      .nmtv-logo {
+        width: 80px;
+      }
+
       h2 {
         font-size: 48px;
         letter-spacing: 4px;
@@ -347,5 +345,14 @@
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+@keyframes logoGlow {
+  from {
+    filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.2));
+  }
+  to {
+    filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.4));
   }
 }
