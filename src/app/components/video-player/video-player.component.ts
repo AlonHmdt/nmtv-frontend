@@ -137,7 +137,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
   }
   
   private isInsideModal(element: HTMLElement): boolean {
-    // Check if the element or any of its parents is a modal
+    // Check if the element or any of its parents is a modal or menu
     let current: HTMLElement | null = element;
     while (current) {
       const classList = current.classList;
@@ -145,7 +145,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         classList.contains('modal-content') ||
         classList.contains('modal-backdrop') ||
         classList.contains('settings-modal') ||
-        classList.contains('about-modal')
+        classList.contains('about-modal') ||
+        classList.contains('side-menu')
       )) {
         return true;
       }
