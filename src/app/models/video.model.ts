@@ -15,7 +15,8 @@ export enum Channel {
   DECADE_2000S = '2000s',
   DECADE_1990S = '1990s',
   DECADE_1980S = '1980s',
-  LIVE = 'live'
+  LIVE = 'live',
+  SHOWS = 'shows'
 }
 export interface ChannelConfig {
   id: Channel;

@@ -28,7 +28,8 @@ export class ChannelSelectorComponent {
     { id: Channel.DECADE_2000S, name: '2000s', icon: '💿' },
     { id: Channel.DECADE_1990S, name: '1990s', icon: '📼' },
     { id: Channel.DECADE_1980S, name: '1980s', icon: '📻' },
-    { id: Channel.LIVE, name: 'Live', icon: '🎬' }
+    { id: Channel.LIVE, name: 'Live', icon: '🎬' },
+    { id: Channel.SHOWS, name: 'Shows', icon: '📺' }
   ];
 
   toggleMenu(): void {

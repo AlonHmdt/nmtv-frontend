@@ -81,6 +81,10 @@ export const MOCK_VIDEOS: { [key in Channel]: Video[] } = {
     { id: 'fjBw6QaiwoM', title: 'Live Performance Video 4' },
     { id: 'fjBw6QaiwoM', title: 'Live Performance Video 5' },
     { id: 'fjBw6QaiwoM', title: 'Live Performance Video 6' }
+  ],
+  [Channel.SHOWS]: [
+    { id: 'dQw4w9WgXcQ', title: 'Show Clip Video 1' },
+    { id: 'dQw4w9WgXcQ', title: 'Show Clip Video 2' },
   ]
 };
 
