@@ -22,7 +22,7 @@
 
   <!-- Side Menu -->
   <div class="menu-overlay" [class.hidden]="!isMenuOpen()" (click)="toggleMenu()"></div>
-  <div class="side-menu" [class.open]="isMenuOpen()">
+  <div class="side-menu" [class.open]="isMenuOpen()" (click)="$event.stopPropagation()">
     <!-- <div class="menu-header">
     </div> -->
       
