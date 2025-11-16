@@ -52,10 +52,15 @@
       </div>
 
       <div class="menu-footer">
-        <button class="power-off-button" (click)="turnOff()">
+        <div class="power-off-container">
           <div class="green-dot"></div>
+          <button class="power-off-button" (click)="turnOff()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2v10M16.24 7.76a6 6 0 1 1-8.48 0"/>
+            </svg>
+          </button>
           <span class="power-off-text">Turn Off</span>
-        </button>
+        </div>
       </div>
     </div>
 
