@@ -34,22 +34,20 @@
 
       <!-- Content Area -->
       <div class="modal-body">
-        <!-- Info Message -->
+        <!-- Info Message - Condensed for landscape -->
         <div class="info-message">
           <p>
-            <strong>Add your own YouTube playlists to this channel!</strong><br>
-            Your custom playlists will make up 50% of the videos played.
+            <strong>Add your own YouTube playlists!</strong> Your custom playlists will make up 50% of the videos played.
           </p>
           <p class="limit-info">
-            📊 <strong>Limit:</strong> Only the first <strong>100 videos</strong> from each playlist will be used for better performance.
-          </p>
-          <p class="warning">
-            ⚠️ <strong>Note:</strong> Don't add private or deleted playlists - they won't work.
+            📊 Only the first <strong>100 videos</strong> per playlist will be used.
           </p>
         </div>
 
-        <!-- Current Playlists -->
-        <div class="playlists-section">
+        <!-- Two Column Layout for Landscape -->
+        <div class="content-columns">
+          <!-- Left Column: Current Playlists -->
+          <div class="playlists-section">
           <h3>
             Custom Playlists 
             <span class="count">({{ playlistCount() }}/5)</span>
@@ -87,44 +85,46 @@
           }
         </div>
 
-        <!-- Add Playlist Form -->
-        @if (canAddMore()) {
-          <div class="add-playlist-section">
-            <h3>Add New Playlist</h3>
-            <div class="input-group">
-              <input 
-                type="text"
-                class="playlist-input"
-                [(ngModel)]="playlistUrl"
-                placeholder="Paste YouTube playlist URL here..."
-                [disabled]="isAdding()"
-                (keyup.enter)="validateAndAdd()">
-              <button 
-                class="add-button"
-                (click)="validateAndAdd()"
-                [disabled]="isAdding() || !playlistUrl()">
-                {{ isAdding() ? 'Adding...' : 'Add' }}
-              </button>
-            </div>
-            
-            @if (errorMessage()) {
-              <div class="error-message">
-                ❌ {{ errorMessage() }}
+        <!-- Right Column: Add Playlist Form -->
+        <div class="add-form-section">
+          @if (canAddMore()) {
+            <div class="add-playlist-section">
+              <h3>Add New Playlist</h3>
+              <div class="input-group">
+                <input 
+                  type="text"
+                  class="playlist-input"
+                  [(ngModel)]="playlistUrl"
+                  placeholder="Paste YouTube playlist URL..."
+                  [disabled]="isAdding()"
+                  (keyup.enter)="validateAndAdd()">
+                <button 
+                  class="add-button"
+                  (click)="validateAndAdd()"
+                  [disabled]="isAdding() || !playlistUrl()">
+                  {{ isAdding() ? 'Adding...' : 'Add' }}
+                </button>
               </div>
-            }
+              
+              @if (errorMessage()) {
+                <div class="error-message">
+                  ❌ {{ errorMessage() }}
+                </div>
+              }
 
-            <div class="url-examples">
-              <p><strong>Example URLs:</strong></p>
-              <code>https://www.youtube.com/playlist?list=PLxxxxxx</code><br>
-              <code>https://www.youtube.com/watch?v=xxxxx&list=PLxxxxxx</code>
+              <div class="url-examples">
+                <p><strong>Example:</strong></p>
+                <code>https://www.youtube.com/playlist?list=PLxxxxxx</code>
+              </div>
             </div>
-          </div>
-        } @else {
-          <div class="max-reached">
-            <p>✋ Maximum of 5 playlists reached for this channel.</p>
-            <p>Remove a playlist to add a new one.</p>
-          </div>
-        }
+          } @else {
+            <div class="max-reached">
+              <p>✋ Maximum of 5 playlists reached.</p>
+              <p>Remove a playlist to add a new one.</p>
+            </div>
+          }
+        </div>
+        </div>
       </div>
 
       <!-- Modal Footer with Apply Button -->
