@@ -187,7 +187,8 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
       Channel.DECADE_2000S,
       Channel.DECADE_1990S,
       Channel.DECADE_1980S,
-      Channel.LIVE
+      Channel.LIVE,
+      Channel.SHOWS
     ];
     
     const currentChannel = this.currentChannel();
