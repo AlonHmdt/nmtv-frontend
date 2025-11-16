@@ -40,6 +40,14 @@
   flex-direction: column;
   animation: slideUp 0.3s ease-out;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+
+  @media (max-width: 932px) and (orientation: landscape) {
+    width: 95%;
+    max-width: none;
+    max-height: 95vh;
+    max-height: 95dvh;
+    border-radius: 12px;
+  }
 }
 
 .modal-header {
@@ -71,6 +79,14 @@
     letter-spacing: 0.5px;
   }
 
+  @media (max-width: 932px) and (orientation: landscape) {
+    padding: 16px 20px;
+
+    h2 {
+      font-size: 18px;
+    }
+  }
+
   .close-button {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -97,6 +113,16 @@
         transform: rotate(90deg);
       }
     }
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      width: 28px;
+      height: 28px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
   }
 }
 
@@ -107,6 +133,11 @@
   background: #222;
   border-bottom: 1px solid #333;
   overflow-x: auto;
+
+  @media (max-width: 932px) and (orientation: landscape) {
+    padding: 10px 16px;
+    gap: 6px;
+  }
 
   .channel-tab {
     background: #2a2a2a;
@@ -123,8 +154,18 @@
     white-space: nowrap;
     position: relative;
 
+    @media (max-width: 932px) and (orientation: landscape) {
+      padding: 6px 12px;
+      font-size: 12px;
+      gap: 6px;
+    }
+
     .channel-icon {
       font-size: 18px;
+
+      @media (max-width: 932px) and (orientation: landscape) {
+        font-size: 14px;
+      }
     }
 
     .channel-name {
@@ -164,8 +205,16 @@
   overflow-y: auto;
   padding: 24px;
 
+  @media (max-width: 932px) and (orientation: landscape) {
+    padding: 16px;
+  }
+
   &::-webkit-scrollbar {
     width: 8px;
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      width: 4px;
+    }
   }
 
   &::-webkit-scrollbar-track {
@@ -190,12 +239,23 @@
   margin-bottom: 24px;
   color: #ddd;
 
+  @media (max-width: 932px) and (orientation: landscape) {
+    padding: 12px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+
   p {
     margin: 0 0 12px 0;
     line-height: 1.5;
 
     &:last-child {
       margin-bottom: 0;
+    }
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      margin: 0 0 8px 0;
+      line-height: 1.4;
     }
   }
 
@@ -206,16 +266,29 @@
     padding: 8px 12px;
     border-radius: 6px;
     border-left: 3px solid #4a9eff;
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
   }
 
   .warning {
     color: #ffcc00;
     font-size: 14px;
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      font-size: 12px;
+    }
   }
 }
 
 .playlists-section {
   margin-bottom: 32px;
+
+  @media (max-width: 932px) and (orientation: landscape) {
+    margin-bottom: 20px;
+  }
 
   h3 {
     margin: 0 0 16px 0;
@@ -225,10 +298,19 @@
     align-items: center;
     gap: 8px;
 
+    @media (max-width: 932px) and (orientation: landscape) {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+    }
+
     .count {
       color: #aaa;
       font-size: 14px;
       font-weight: normal;
+
+      @media (max-width: 932px) and (orientation: landscape) {
+        font-size: 12px;
+      }
     }
   }
 }
@@ -255,6 +337,10 @@
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s;
+
+  @media (max-width: 932px) and (orientation: landscape) {
+    padding: 10px 12px;
+  }
 
   &:hover {
     background: #333;
@@ -285,6 +371,10 @@
         font-size: 14px;
         overflow: hidden;
         text-overflow: ellipsis;
+
+        @media (max-width: 932px) and (orientation: landscape) {
+          font-size: 12px;
+        }
       }
 
       .playlist-link {
@@ -294,6 +384,10 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
+
+        @media (max-width: 932px) and (orientation: landscape) {
+          font-size: 10px;
+        }
 
         &:hover {
           text-decoration: underline;
@@ -312,6 +406,11 @@
     transition: all 0.2s;
     flex-shrink: 0;
 
+    @media (max-width: 932px) and (orientation: landscape) {
+      padding: 6px 10px;
+      font-size: 16px;
+    }
+
     &:hover {
       background: #ff6666;
       transform: scale(1.1);
@@ -324,12 +423,22 @@
     margin: 0 0 16px 0;
     font-size: 18px;
     color: #fff;
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      margin: 0 0 10px 0;
+      font-size: 15px;
+    }
   }
 
   .input-group {
     display: flex;
     gap: 12px;
     margin-bottom: 12px;
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      gap: 8px;
+      margin-bottom: 8px;
+    }
 
     .playlist-input {
       flex: 1;
@@ -341,6 +450,11 @@
       font-size: 14px;
       outline: none;
       transition: border-color 0.2s;
+
+      @media (max-width: 932px) and (orientation: landscape) {
+        padding: 8px 12px;
+        font-size: 12px;
+      }
 
       &:focus {
         border-color: #ff6b00;
@@ -367,6 +481,11 @@
       cursor: pointer;
       transition: all 0.2s;
       white-space: nowrap;
+
+      @media (max-width: 932px) and (orientation: landscape) {
+        padding: 8px 16px;
+        font-size: 12px;
+      }
 
       &:hover:not(:disabled) {
         background: #ff8533;
@@ -398,9 +517,18 @@
     font-size: 13px;
     color: #aaa;
 
+    @media (max-width: 932px) and (orientation: landscape) {
+      padding: 8px;
+      font-size: 11px;
+    }
+
     p {
       margin: 0 0 8px 0;
       color: #ddd;
+
+      @media (max-width: 932px) and (orientation: landscape) {
+        margin: 0 0 6px 0;
+      }
     }
 
     code {
@@ -413,6 +541,12 @@
       font-family: monospace;
       font-size: 12px;
       overflow-x: auto;
+
+      @media (max-width: 932px) and (orientation: landscape) {
+        padding: 4px 8px;
+        font-size: 10px;
+        margin: 3px 0;
+      }
     }
   }
 }
@@ -441,6 +575,10 @@
   background: #1a1a1a;
   border-top: 2px solid #333;
 
+  @media (max-width: 932px) and (orientation: landscape) {
+    padding: 12px 16px;
+  }
+
   .apply-button {
     width: 100%;
     padding: 14px 24px;
@@ -456,6 +594,11 @@
     justify-content: center;
     gap: 8px;
     transition: all 0.2s;
+
+    @media (max-width: 932px) and (orientation: landscape) {
+      padding: 10px 16px;
+      font-size: 13px;
+    }
 
     .spinner {
       animation: spin 1s linear infinite;
