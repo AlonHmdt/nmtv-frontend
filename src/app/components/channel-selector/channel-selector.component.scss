@@ -409,6 +409,75 @@
       box-shadow: 0 2px 8px rgba(145, 0, 0, 0.3);
     }
   }
+
+  .old-tv-button {
+    width: 90%;
+    margin: 0 auto;
+    padding: 12.6px 18px;
+    background: linear-gradient(135deg, #000 0%, #333 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12.6px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 9px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+    .old-tv-icon {
+      font-size: 16.2px;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    }
+
+    .old-tv-text {
+      letter-spacing: 0.45px;
+      flex: 1;
+      text-align: left;
+    }
+
+    .toggle-indicator {
+      font-size: 10px;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, #1a1a1a 0%, #444 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    &.active {
+      background: linear-gradient(135deg, #1a1a1a 0%, #8B4513 100%);
+      color: #fff;
+      border-color: rgba(139, 69, 19, 0.3);
+      box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+
+      .toggle-indicator {
+        background: rgba(139, 69, 19, 0.3);
+        color: #D2691E;
+      }
+
+      &:hover {
+        background: linear-gradient(135deg, #1a1a1a 0%, #A0522D 100%);
+        box-shadow: 0 4px 16px rgba(139, 69, 19, 0.4);
+      }
+    }
+  }
 }
 
 .menu-footer {

@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
 import { Video, Channel } from '../../models/video.model';
+import { OldTVEffect } from './tv-static-effect';
 
 declare var YT: any;
 
@@ -15,10 +16,12 @@ declare var YT: any;
   styleUrls: ['./video-player.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class VideoPlayerComponent implements OnInit, OnDestroy {
+export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
   private sanitizer = inject(DomSanitizer);
+  
+  @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
   
   player: any;
   showPlayingNow = signal(false);
@@ -28,6 +31,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
   currentVideo = this.queueService.currentVideo;
   upcomingVideo = this.queueService.upcomingVideo;
   currentChannel = this.queueService.currentChannel;
+  oldTVEnabled = this.queueService.oldTVEnabled;
   
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -37,6 +41,7 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
   private loadAttempts = 0;
   private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
   private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
+  private oldTVEffect: OldTVEffect | null = null;
   
   // Touch gesture tracking
   private touchStartY = 0;
@@ -77,6 +82,19 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    // Watch for Old TV effect toggle changes
+    effect(() => {
+      const enabled = this.oldTVEnabled();
+      
+      if (this.oldTVEffect) {
+        if (enabled) {
+          this.oldTVEffect.start();
+        } else {
+          this.oldTVEffect.stop();
+        }
+      }
+    });
   }
 
   ngOnInit(): void {
@@ -90,11 +108,27 @@ export class VideoPlayerComponent implements OnInit, OnDestroy {
     window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
   }
 
+  ngAfterViewInit(): void {
+    // Initialize Old TV effect after view is ready
+    if (this.staticCanvas) {
+      this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement);
+      
+      // Start if enabled
+      if (this.oldTVEnabled()) {
+        this.oldTVEffect.start();
+      }
+    }
+  }
+
   ngOnDestroy(): void {
     this.clearTimeouts();
     if (this.yearFetchTimeout) {
       clearTimeout(this.yearFetchTimeout);
       this.yearFetchTimeout = null;
+    }
+    if (this.oldTVEffect) {
+      this.oldTVEffect.destroy();
+      this.oldTVEffect = null;
     }
     if (this.player) {
       this.player.destroy();

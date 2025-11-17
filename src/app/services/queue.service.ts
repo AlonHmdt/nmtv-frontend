@@ -16,6 +16,9 @@ export class QueueService {
   private currentIndexSignal = signal<number>(0);
   private currentChannelSignal = signal<Channel>(Channel.DECADE_1990S);
   
+  // Old TV effect toggle (includes: vignette, snow, scanlines, vcr tracking, wobbly)
+  oldTVEnabled = signal<boolean>(false);
+  
   // Computed signals
   queue = computed(() => this.queueSignal());
   currentVideo = computed(() => this.queueSignal()[this.currentIndexSignal()]);

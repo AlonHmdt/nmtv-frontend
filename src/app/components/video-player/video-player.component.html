@@ -1,6 +1,9 @@
 <div class="video-player-container">
   <div id="youtube-player"></div>
   
+  <!-- Old TV Effect Canvas -->
+  <canvas #staticCanvas class="tv-static-canvas" [class.active]="oldTVEnabled()"></canvas>
+  
   <!-- Transparent overlay to block all interaction with video -->
   <div class="interaction-blocker"></div>
   

@@ -23,6 +23,7 @@ export class ChannelSelectorComponent {
   
   isMenuOpen = signal(false);
   currentChannel = this.queueService.currentChannel;
+  oldTVEnabled = this.queueService.oldTVEnabled;
   
   channels: ChannelConfig[] = [
     { id: Channel.ROCK, name: 'Rock', icon: '🎸' },
@@ -66,5 +67,9 @@ export class ChannelSelectorComponent {
   turnOff(): void {
     this.isMenuOpen.set(false);
     this.powerOff.emit();
+  }
+
+  toggleOldTV(): void {
+    this.queueService.oldTVEnabled.update(v => !v);
   }
 }
