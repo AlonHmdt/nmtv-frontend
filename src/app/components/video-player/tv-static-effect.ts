@@ -74,7 +74,7 @@ export class OldTVEffect {
     this.drawScanlines(width, height);
 
     // Layer 4: Vignette (always draw last for proper layering)
-    this.drawVignette(width, height);
+    // this.drawVignette(width, height);
 
     this.animationId = requestAnimationFrame(() => this.animate());
   }
