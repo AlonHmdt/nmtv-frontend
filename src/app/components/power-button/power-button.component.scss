@@ -1,3 +1,5 @@
+@import '../../../styles/breakpoints';
+
 .crt-off-screen {
   position: fixed;
   top: 0;
@@ -22,7 +24,7 @@
   align-items: center;
   gap: 30px;
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     gap: 10px;
     flex-direction: row;
   }
@@ -32,11 +34,11 @@
   width: 280px;
   filter: brightness(0.3) drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
 
-  @media (max-width: 768px) and (orientation: portrait) {
+  @media #{$tablet-portrait} {
     width: 180px;
   }
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     width: 150px;
   }
 }
@@ -133,7 +135,7 @@
   padding: 20px;
   border-top: 1px solid #222;
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     border-top: none;
     border-left: 1px solid #222;
     margin-top: 0px;

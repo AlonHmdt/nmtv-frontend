@@ -1,3 +1,5 @@
+@import '../../../styles/breakpoints';
+
 .channel-selector {
   position: fixed;
   z-index: 1000;
@@ -40,7 +42,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media #{$tablet} {
     width: 48px;
     height: 48px;
     bottom: 20px;
@@ -52,7 +54,7 @@
     }
   }
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     width: 40px;
     height: 40px;
     bottom: 20px;
@@ -107,7 +109,7 @@
     left: 0;
   }
 
-  @media (max-width: 768px) {
+  @media #{$tablet} {
     width: 280px;
     left: -280px;
 
@@ -116,7 +118,7 @@
     }
   }
 
-  @media (max-width: 480px) {
+  @media #{$mobile-portrait} {
     width: 100%;
     max-width: 280px;
     left: -280px;
@@ -126,7 +128,7 @@
     }
   }
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     &.open {
       width: 60%;
       left: 0;
@@ -167,7 +169,7 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
 
-    @media (max-width: 768px) {
+    @media #{$tablet} {
       font-size: 24px;
     }
   }
@@ -224,7 +226,7 @@
     }
   }
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
   }
@@ -245,7 +247,7 @@
   position: relative;
   overflow: hidden;
 
-  @media (max-width: 768px) {
+  @media #{$tablet} {
     font-size: 14px;
     margin: 4px 8px;
     max-height: 60px;
@@ -326,7 +328,7 @@
   flex-direction: column;
   gap: 12px;
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     flex-direction: row;
   }
 
@@ -487,7 +489,7 @@
   justify-content: center;
   align-items: center;
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     padding-bottom: 20px;
   }
 }
@@ -528,7 +530,7 @@
     }
   }
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     width: 40px;
     height: 40px;
 
@@ -547,7 +549,7 @@
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.5), 0 0 16px rgba(0, 255, 0, 0.3);
   animation: pulse 2s ease-in-out infinite;
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     width: 8px;
     height: 8px;
   }
@@ -560,7 +562,7 @@
   letter-spacing: 0.5px;
   text-transform: uppercase;
 
-  @media (max-width: 932px) and (orientation: landscape) {
+  @media #{$mobile-landscape} {
     font-size: 10px;
   }
 }
