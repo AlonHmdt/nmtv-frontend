@@ -66,6 +66,16 @@ export class ChannelSelectorComponent {
 
   turnOff(): void {
     this.isMenuOpen.set(false);
+    // Exit fullscreen if active
+    if (document.fullscreenElement) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) { /* Safari */
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) { /* IE11 */
+        (document as any).msExitFullscreen();
+      }
+    }
     this.powerOff.emit();
   }
 
