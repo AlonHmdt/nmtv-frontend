@@ -24,8 +24,19 @@ export class ChannelSelectorComponent {
   isMenuOpen = signal(false);
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
+  isFullscreen = signal(false);
   
   channels: ChannelConfig[] = Channels;
+
+  constructor() {
+    // Listen for fullscreen changes
+    document.addEventListener('fullscreenchange', () => {
+      this.isFullscreen.set(!!document.fullscreenElement);
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      this.isFullscreen.set(!!(document as any).webkitFullscreenElement);
+    });
+  }
   
   toggleMenu(): void {
     this.isMenuOpen.update(v => !v);
@@ -73,5 +84,28 @@ export class ChannelSelectorComponent {
 
   toggleOldTV(): void {
     this.queueService.oldTVEnabled.update(v => !v);
+  }
+
+  toggleFullscreen(): void {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
+        (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).msRequestFullscreen) { /* IE11 */
+        (elem as any).msRequestFullscreen();
+      }
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) { /* Safari */
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) { /* IE11 */
+        (document as any).msExitFullscreen();
+      }
+    }
   }
 }

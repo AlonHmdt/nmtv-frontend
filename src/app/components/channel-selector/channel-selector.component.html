@@ -3,20 +3,20 @@
   <button class="remote-button" (click)="toggleMenu()" [class.active]="isMenuOpen()">
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28" fill="none">
       <!-- Remote body -->
-      <rect x="8" y="2" width="12" height="24" rx="2" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="8" y="2" width="12" height="24" rx="2" stroke="currentColor" stroke-width="1.5" />
       <!-- Power symbol at top -->
-      <circle cx="14" cy="7" r="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <line x1="14" y1="5" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="14" cy="7" r="2" stroke="currentColor" stroke-width="1.5" fill="none" />
+      <line x1="14" y1="5" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
       <!-- Navigation buttons -->
-      <circle cx="14" cy="14" r="3.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
-      <circle cx="14" cy="14" r="1" fill="currentColor"/>
+      <circle cx="14" cy="14" r="3.5" stroke="currentColor" stroke-width="1.5" fill="none" />
+      <circle cx="14" cy="14" r="1" fill="currentColor" />
       <!-- Bottom buttons -->
-      <rect x="10" y="19" width="2" height="2" rx="0.5" fill="currentColor"/>
-      <rect x="13" y="19" width="2" height="2" rx="0.5" fill="currentColor"/>
-      <rect x="16" y="19" width="2" height="2" rx="0.5" fill="currentColor"/>
-      <rect x="10" y="22.5" width="2" height="2" rx="0.5" fill="currentColor"/>
-      <rect x="13" y="22.5" width="2" height="2" rx="0.5" fill="currentColor"/>
-      <rect x="16" y="22.5" width="2" height="2" rx="0.5" fill="currentColor"/>
+      <rect x="10" y="19" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="13" y="19" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="16" y="19" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="10" y="22.5" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="13" y="22.5" width="2" height="2" rx="0.5" fill="currentColor" />
+      <rect x="16" y="22.5" width="2" height="2" rx="0.5" fill="currentColor" />
     </svg>
   </button>
 
@@ -25,49 +25,65 @@
   <div class="side-menu" [class.open]="isMenuOpen()" (click)="$event.stopPropagation()">
     <!-- <div class="menu-header">
     </div> -->
-      
-      <div class="channel-list">
-        @for (channel of channels; track channel.id) {
-          <button 
-            class="channel-item" 
-            [class.active]="isActive(channel.id)"
-            (click)="selectChannel(channel.id)">
-            <div class="channel-content">
-              <span class="channel-icon">{{ channel.icon }}</span>
-              <span class="channel-name">{{ channel.name }}</span>
-            </div>
-          </button>
-        }
-      </div>
-      
-      <div class="menu-actions">
-        <button class="settings-button" (click)="openSettings()">
-          <span class="settings-icon">⚙️</span>
-          <span class="settings-text">Custom Playlists</span>
-        </button>
-        <button class="about-button" (click)="openAbout()">
-          <span class="about-icon">ℹ️</span>
-          <span class="about-text">About</span>
-        </button>
-        <button class="old-tv-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()">
-          <span class="old-tv-icon">✨</span>
-          <span class="old-tv-text">Old TV Effect</span>
-          <span class="toggle-indicator">{{ oldTVEnabled() ? 'ON' : 'OFF' }}</span>
-        </button>
-      </div>
 
-      <div class="menu-footer">
-        <div class="power-off-container">
-          <div class="green-dot"></div>
-          <button class="power-off-button" (click)="turnOff()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v10M16.24 7.76a6 6 0 1 1-8.48 0"/>
-            </svg>
-          </button>
-          <span class="power-off-text">Turn Off</span>
+    <div class="channel-list">
+      @for (channel of channels; track channel.id) {
+      <button class="channel-item" [class.active]="isActive(channel.id)" (click)="selectChannel(channel.id)">
+        <div class="channel-content">
+          <span class="channel-icon">{{ channel.icon }}</span>
+          <span class="channel-name">{{ channel.name }}</span>
         </div>
+      </button>
+      }
+    </div>
+
+    <div class="menu-actions">
+      <button class="settings-button" (click)="openSettings()">
+        <span class="settings-icon">⚙️</span>
+        <span class="settings-text">Custom Playlists</span>
+      </button>
+      <button class="about-button" (click)="openAbout()">
+        <span class="about-icon">ℹ️</span>
+        <span class="about-text">About</span>
+      </button>
+      <!-- <div class="toggle-content"> -->
+        <button class="old-tv-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()">
+          <div class="toggle-content">
+            <span class="old-tv-icon">✨</span>
+            <span class="old-tv-text">Vintage</span>
+          </div>
+          <div class="toggle-switch">
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </button>
+        <button class="fullscreen-button" (click)="toggleFullscreen()" [class.active]="isFullscreen()">
+          <div class="toggle-content">
+            <span class="fullscreen-icon">⛶</span>
+            <span class="fullscreen-text">Fullscreen</span>
+          </div>
+          <div class="toggle-switch">
+            <div class="toggle-track">
+              <div class="toggle-thumb"></div>
+            </div>
+          </div>
+        </button>
+      <!-- </div> -->
+    </div>
+
+    <div class="menu-footer">
+      <div class="power-off-container">
+        <div class="green-dot"></div>
+        <button class="power-off-button" (click)="turnOff()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v10M16.24 7.76a6 6 0 1 1-8.48 0" />
+          </svg>
+        </button>
+        <span class="power-off-text">Turn Off</span>
       </div>
     </div>
+  </div>
 
   <!-- Modals -->
   <app-settings-modal></app-settings-modal>
