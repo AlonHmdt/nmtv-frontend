@@ -219,6 +219,7 @@
   @media #{$mobile-and-tablet-landscape} {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    padding: 0px;
   }
 }
 
@@ -272,7 +273,7 @@
   .channel-name {
     flex: 1;
     text-align: left;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.5px;
   }
 
@@ -320,7 +321,7 @@
 
   @media #{$mobile-and-tablet-landscape} {
     flex-direction: row;
-    padding: 16px 20px;
+    padding: 10px 20px;
   }
 
   .settings-button {
@@ -331,7 +332,7 @@
     border-radius: 10px;
     color: #fff;
     font-size: 12.6px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -360,6 +361,10 @@
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
     }
+        @media #{$mobile-and-tablet} {
+      font-size: 11px;
+      padding: 5px;
+    }
   }
 
   .about-button {
@@ -370,7 +375,7 @@
     border-radius: 10px;
     color: #fff;
     font-size: 12.6px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -399,6 +404,11 @@
       transform: translateY(0);
       box-shadow: 0 2px 8px rgba(145, 0, 0, 0.3);
     }
+
+    @media #{$mobile-and-tablet} {
+      font-size: 11px;
+      padding: 5px;
+    }
   }
 
   .old-tv-button {
@@ -409,7 +419,7 @@
     border-radius: 10px;
     color: rgba(255, 255, 255, 0.7);
     font-size: 12.6px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -466,6 +476,11 @@
         background: linear-gradient(135deg, #1a1a1a 0%, #A0522D 100%);
         box-shadow: 0 4px 16px rgba(139, 69, 19, 0.4);
       }
+    }
+
+      @media #{$mobile-and-tablet} {
+      font-size: 11px;
+      padding: 5px;
     }
   }
 }
