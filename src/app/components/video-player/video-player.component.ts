@@ -465,6 +465,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     
     if (!this.player) return;
     
+    const currentVideo = this.currentVideo();
+    const upcomingVideo = this.upcomingVideo();
+    
+    // Don't show any overlays if current video is a bumper
+    if (currentVideo?.isBumper) {
+      return;
+    }
+    
     const duration = this.player.getDuration();
     const currentTime = this.player.getCurrentTime();
     const remainingTime = duration - currentTime;
@@ -512,27 +520,30 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             this.showPlayingNow.set(false);
             this.playingNowAnimating.set(false);
             
-            // "Playing Next" - appears 5s after "Playing Now" hides, stays for 10s
-            const timeout5 = window.setTimeout(() => {
-              this.showPlayingNext.set(true);
-              this.playingNextAnimating.set(false);
-              
-              const timeout6 = window.setTimeout(() => {
-                this.playingNextAnimating.set(true); // Start hide animation
+            // "Playing Next" - only show if upcoming video is not a bumper
+            // Appears 5s after "Playing Now" hides, stays for 10s
+            if (!upcomingVideo?.isBumper) {
+              const timeout5 = window.setTimeout(() => {
+                this.showPlayingNext.set(true);
+                this.playingNextAnimating.set(false);
                 
-                // Wait for animation to complete
-                const timeout6b = window.setTimeout(() => {
-                  this.showPlayingNext.set(false);
-                  this.playingNextAnimating.set(false);
-                }, 500); // Match animation duration
+                const timeout6 = window.setTimeout(() => {
+                  this.playingNextAnimating.set(true); // Start hide animation
+                  
+                  // Wait for animation to complete
+                  const timeout6b = window.setTimeout(() => {
+                    this.showPlayingNext.set(false);
+                    this.playingNextAnimating.set(false);
+                  }, 500); // Match animation duration
+                  
+                  this.overlayTimeouts.push(timeout6b);
+                }, 10000); // Show for 10 seconds
                 
-                this.overlayTimeouts.push(timeout6b);
-              }, 10000); // Show for 10 seconds
+                this.overlayTimeouts.push(timeout6);
+              }, 5000); // Show 5 seconds after "Playing Now" hides
               
-              this.overlayTimeouts.push(timeout6);
-            }, 5000); // Show 5 seconds after "Playing Now" hides
-            
-            this.overlayTimeouts.push(timeout5);
+              this.overlayTimeouts.push(timeout5);
+            }
           }, 500); // Match animation duration
           
           this.overlayTimeouts.push(timeout4b);

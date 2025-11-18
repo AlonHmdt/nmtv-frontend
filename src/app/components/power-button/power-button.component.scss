@@ -147,6 +147,19 @@
   align-items: center;
   gap: 16px;
   justify-content: center;
+
+  &.desktop {
+    @media #{$tablet} {
+      display: none;
+    }
+  }
+
+  &.mobile {
+    display: none;
+    @media #{$tablet} {
+      display: flex;
+    }
+  }
 }
 
 .key-hint {

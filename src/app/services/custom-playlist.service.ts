@@ -25,7 +25,7 @@ export interface PlaylistValidation {
 })
 export class CustomPlaylistService {
   private http = inject(HttpClient);
-  private readonly STORAGE_KEY = 'mtv_custom_playlists';
+  private readonly STORAGE_KEY = 'nmtv_custom_playlists';
   private readonly MAX_PLAYLISTS_PER_CHANNEL = 5;
   private backendUrl = environment.backendUrl;
   
