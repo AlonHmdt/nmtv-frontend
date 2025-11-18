@@ -61,18 +61,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: relative;
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, #fff, transparent);
-    opacity: 0.3;
-  }
-
   h2 {
     margin: 0;
     font-size: 24px;
@@ -103,17 +91,9 @@
     justify-content: center;
     padding: 0;
 
-    svg {
-      transition: transform 0.2s ease;
-    }
-
     &:hover {
       background: rgba(255, 255, 255, 0.1);
       border-color: rgba(255, 255, 255, 0.2);
-
-      svg {
-        transform: rotate(90deg);
-      }
     }
 
     @media #{$mobile-and-tablet-landscape} {
@@ -366,11 +346,6 @@
     padding: 10px 12px;
   }
 
-  &:hover {
-    background: #333;
-    border-color: #555;
-  }
-
   .playlist-info {
     display: flex;
     align-items: center;
@@ -412,10 +387,6 @@
         @media #{$mobile-and-tablet-landscape} {
           font-size: 10px;
         }
-
-        &:hover {
-          text-decoration: underline;
-        }
       }
     }
   }
@@ -433,11 +404,6 @@
     @media #{$mobile-and-tablet-landscape} {
       padding: 6px 10px;
       font-size: 16px;
-    }
-
-    &:hover {
-      background: #ff6666;
-      transform: scale(1.1);
     }
   }
 }
@@ -516,11 +482,6 @@
       @media #{$mobile-and-tablet-landscape} {
         padding: 8px 16px;
         font-size: 12px;
-      }
-
-      &:hover:not(:disabled) {
-        background: #ff8533;
-        transform: translateY(-2px);
       }
 
       &:disabled {
@@ -647,16 +608,6 @@
 
     .spinner {
       animation: spin 1s linear infinite;
-    }
-
-    &:hover:not(:disabled) {
-      background: #5aa9ff;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
     }
 
     &:disabled {
