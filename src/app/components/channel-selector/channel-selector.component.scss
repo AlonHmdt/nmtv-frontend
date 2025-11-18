@@ -271,7 +271,6 @@
 .menu-actions button {
   aspect-ratio: 1;
   padding: 8px;
-  border: none;
   border-radius: 10px;
   color: #fff;
   font-weight: 500;
@@ -309,6 +308,7 @@
 
 .settings-button {
   background: linear-gradient(135deg, #000, #fc0);
+  border: none;
 
   &:hover {
     background: linear-gradient(135deg, #1a1a1a, #ffd700);
@@ -317,6 +317,7 @@
 
 .about-button {
   background: linear-gradient(135deg, #000, #910000);
+  border: none;
 
   &:hover {
     background: linear-gradient(135deg, #1a1a1a, #a50000);
