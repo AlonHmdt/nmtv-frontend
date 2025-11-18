@@ -81,7 +81,7 @@
       width: 70px;
     }
     
-    @media #{$mobile-landscape} {
+    @media #{$mobile-and-tablet} {
       width: 50px;
     }
   }
@@ -97,14 +97,14 @@
     letter-spacing: 1px;
     font-family: 'Arial', sans-serif;
     
-    @media #{$mobile-landscape} {
+    @media #{$mobile-and-tablet} {
       padding: 2px 5px;
       font-size: 10px;
     }
   }
   
   // Portrait mode - center the logo at top
-  @media #{$tablet-portrait} {
+  @media #{$mobile-and-tablet-portrait} {
     top: 10px;
     right: auto;
     left: 50%;
@@ -168,7 +168,7 @@
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet} {
       font-size: 8px;
       margin-bottom: 7px;
     }
@@ -181,7 +181,7 @@
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
     line-height: 1.2;
 
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet} {
       font-size: 14px;
     }
   }
@@ -193,7 +193,7 @@
     color: #fff;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
 
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet} {
       font-size: 13px;
     }
   }
@@ -204,7 +204,7 @@
     color: #ddd;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet} {
       font-size: 11px;
     }
   }
@@ -214,7 +214,7 @@
     color: #aaa;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
 
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet} {
       font-size: 10px;
     }
   }
@@ -230,7 +230,7 @@
     border-radius: 14px;
     display: inline-block;
 
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet} {
       font-size: 9px;
       padding: 3px 7px;
     }

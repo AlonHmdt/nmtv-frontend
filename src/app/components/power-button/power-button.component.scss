@@ -24,7 +24,7 @@
   align-items: center;
   gap: 30px;
 
-  @media #{$mobile-landscape} {
+  @media #{$mobile-and-tablet-landscape} {
     gap: 10px;
     flex-direction: row;
   }
@@ -38,7 +38,7 @@
     width: 180px;
   }
 
-  @media #{$mobile-landscape} {
+  @media #{$mobile-and-tablet} {
     width: 150px;
   }
 }
@@ -135,7 +135,7 @@
   padding: 20px;
   border-top: 1px solid #222;
 
-  @media #{$mobile-landscape} {
+  @media #{$mobile-and-tablet-landscape} {
     border-top: none;
     border-left: 1px solid #222;
     margin-top: 0px;
@@ -149,14 +149,14 @@
   justify-content: center;
 
   &.desktop {
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet}, #{$big-tablet} {
       display: none;
     }
   }
 
   &.mobile {
     display: none;
-    @media #{$tablet} {
+    @media #{$mobile-and-tablet}, #{$big-tablet} {
       display: flex;
     }
   }

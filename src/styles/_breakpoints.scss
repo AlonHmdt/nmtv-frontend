@@ -1,24 +1,17 @@
-// Breakpoints
-// ==================================================
-// Central breakpoint definitions for the entire app
-// Usage: @media #{$mobile-portrait} { ... }
-//        @media #{$tablet} { ... }
-//        @media #{$mobile-landscape} { ... }
-// ==================================================
+$mobile-and-tablet: '(max-width: 932px)';
 
-// Mobile portrait (phones in portrait mode)
-$mobile-portrait: '(max-width: 480px)';
+// Mobile & tablet portrait
+$mobile-and-tablet-portrait: '(max-width: 768px) and (orientation: portrait)';
 
-// Tablet & mobile landscape (tablets and phones in landscape up to 768px)
-$tablet: '(max-width: 768px)';
+// Mobile & tablet landscape
+$mobile-and-tablet-landscape: '(max-width: 932px) and (orientation: landscape)';
 
 // Tablet portrait only
-$tablet-portrait: '(max-width: 768px) and (orientation: portrait)';
+$tablet-portrait: '(min-width: 601px) and (max-width: 768px) and (orientation: portrait)';
 
-// Mobile & tablet landscape (specific for landscape orientation)
-$mobile-landscape: '(max-width: 932px) and (orientation: landscape)';
+$big-tablet: '(min-width: 769px) and (max-width: 932px) and (orientation: landscape)';
 
-// Desktop breakpoint (for larger screens)
+// Desktop
 $desktop: '(min-width: 933px)';
 
 // Large desktop
