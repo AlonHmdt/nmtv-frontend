@@ -28,18 +28,9 @@
     height: 24px;
   }
 
-  &:hover {
-    transform: scale(1.05);
-    background: #1a1a1a;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-  }
-
+  &:hover,
   &.active {
     background: #1a1a1a;
-
-    svg {
-      color: #fff;
-    }
   }
 
   @media #{$mobile-and-tablet-portrait} {
@@ -165,19 +156,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
-
-    svg {
-      transition: transform 0.2s ease;
-    }
 
     &:hover {
       background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.2);
-
-      svg {
-        transform: rotate(90deg);
-      }
     }
   }
 }
@@ -244,15 +225,12 @@
   .channel-icon {
     font-size: 24px;
     min-width: 28px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    transition: transform 0.2s ease;
   }
 
   .channel-name {
     flex: 1;
     text-align: left;
     font-weight: 600;
-    letter-spacing: 0.5px;
   }
 
   &:hover {
@@ -289,14 +267,13 @@
   }
 }
 
-.settings-button {
+// Shared button styles
+.menu-actions button {
   aspect-ratio: 1;
   padding: 8px;
-  background: linear-gradient(135deg, #000 0%, #ffcc00 100%);
   border: none;
   border-radius: 10px;
   color: #fff;
-  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
@@ -304,10 +281,10 @@
   align-items: center;
   justify-content: center;
   gap: 3px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
   width: 85px;
+  position: relative;
 
   @media #{$mobile-and-tablet-landscape} {
     flex: 1;
@@ -316,121 +293,43 @@
     width: auto;
   }
 
-  .settings-icon {
-    font-size: 18px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  @media #{$mobile-and-tablet-portrait} {
+    width: 80px;
   }
 
-  .settings-text {
-    letter-spacing: 0.2px;
+  span {
     font-size: 12px;
     line-height: 1.1;
   }
 
   &:hover {
-    background: linear-gradient(135deg, #1a1a1a 0%, #ffd700 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(255, 204, 0, 0.4);
   }
+}
 
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+.settings-button {
+  background: linear-gradient(135deg, #000, #fc0);
+
+  &:hover {
+    background: linear-gradient(135deg, #1a1a1a, #ffd700);
   }
-
-  @media #{$mobile-and-tablet-portrait} {
-    width: 80px;
-  }
-
 }
 
 .about-button {
-  aspect-ratio: 1;
-  padding: 8px;
-  background: linear-gradient(135deg, #000 0%, #910000 100%);
-  border: none;
-  border-radius: 10px;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(145, 0, 0, 0.3);
-  width: 85px;
-
-  @media #{$mobile-and-tablet-landscape} {
-    flex: 1;
-    aspect-ratio: 0;
-    flex-direction: row;
-    width: auto;
-  }
-
-  .about-icon {
-    font-size: 18px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-  }
-
-  .about-text {
-    letter-spacing: 0.2px;
-    font-size: 12px;
-    line-height: 1.1;
-  }
+  background: linear-gradient(135deg, #000, #910000);
 
   &:hover {
-    background: linear-gradient(135deg, #1a1a1a 0%, #a50000 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(145, 0, 0, 0.4);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(145, 0, 0, 0.3);
-  }
-
-  @media #{$mobile-and-tablet-portrait} {
-    width: 80px;
+    background: linear-gradient(135deg, #1a1a1a, #a50000);
   }
 }
 
-.old-tv-button {
-  aspect-ratio: 1;
-  padding: 8px;
+.old-tv-button,
+.fullscreen-button {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 2px solid rgba(139, 69, 19, 0.3);
-  border-radius: 10px;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
   overflow: hidden;
-  width: 85px;
-
-  @media #{$mobile-and-tablet-landscape} {
-    flex: 1;
-    aspect-ratio: 0;
-    flex-direction: column;
-    width: auto;
-  }
-
-  @media #{$mobile-and-tablet-portrait} {
-    width: 80px;
-  }
 
   .toggle-content {
     display: flex;
@@ -443,21 +342,6 @@
     }
   }
 
-  .old-tv-icon {
-    font-size: 18px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    transition: transform 0.3s ease;
-  }
-
-  .old-tv-text {
-    letter-spacing: 0.2px;
-    text-align: center;
-    font-size: 12px;
-    line-height: 1.1;
-    transition: color 0.3s ease;
-  }
-
-  // Toggle Switch Styling
   .toggle-switch {
     display: flex;
     align-items: center;
@@ -469,182 +353,63 @@
     background: rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .toggle-thumb {
     width: 10px;
     height: 10px;
-    background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+    background: #fff;
     border-radius: 50%;
     position: absolute;
     top: 1px;
     left: 2px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.2),
-      0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s;
   }
 
   &:hover {
     background: rgba(255, 255, 255, 0.06);
-    transform: translateY(-2px);
-    border-color: rgba(139, 69, 19, 0.4);
   }
 
+  &.active .toggle-thumb {
+    left: 18px;
+  }
+}
+
+.old-tv-button {
+  border: 2px solid rgba(139, 69, 19, 0.3);
+
   &.active {
-    background: linear-gradient(135deg, rgba(139, 69, 19, 0.15) 0%, rgba(160, 82, 45, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.15), rgba(160, 82, 45, 0.15));
     color: #fff;
     border-color: rgba(139, 69, 19, 0.5);
 
     .toggle-track {
-      background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+      background: linear-gradient(135deg, #8B4513, #A0522D);
     }
 
-    .toggle-thumb {
-      left: 18px;
-    }
-
-    .old-tv-icon {
+    span:first-child {
       animation: sparkle 1.5s ease-in-out infinite;
     }
   }
 }
 
 .fullscreen-button {
-  aspect-ratio: 1;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border: 2px solid rgba(96, 125, 139, 0.3);
-  border-radius: 10px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  width: 85px;
-
-  @media #{$mobile-and-tablet-landscape} {
-    flex: 1;
-    aspect-ratio: 0;
-    flex-direction: column;
-    width: auto;
-  }
-
-  @media #{$mobile-and-tablet-portrait} {
-    width: 80px;
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg,
-        transparent,
-        rgba(96, 125, 139, 0.1),
-        transparent);
-    transition: left 0.6s ease;
-  }
-
-  &:hover::before {
-    left: 100%;
-  }
-
-  .toggle-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-
-    @media #{$mobile-and-tablet-landscape} {
-      flex-direction: row;
-    }
-  }
-
-  .fullscreen-icon {
-    font-size: 18px;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-    transition: transform 0.3s ease;
-  }
-
-  .fullscreen-text {
-    letter-spacing: 0.2px;
-    text-align: center;
-    font-size: 12px;
-    line-height: 1.1;
-    transition: color 0.3s ease;
-  }
-
-  // Toggle Switch Styling
-  .toggle-switch {
-    display: flex;
-    align-items: center;
-  }
-
-  .toggle-track {
-    width: 32px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    position: relative;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 2px solid rgba(255, 255, 255, 0.15);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-  }
-
-  .toggle-thumb {
-    width: 10px;
-    height: 10px;
-    background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
-    border-radius: 50%;
-    position: absolute;
-    top: 1px;
-    left: 2px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-      0 2px 4px rgba(0, 0, 0, 0.2),
-      0 1px 2px rgba(0, 0, 0, 0.1);
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.06);
-    transform: translateY(-2px);
-    border-color: rgba(96, 125, 139, 0.4);
-  }
 
   &.active {
-    background: linear-gradient(135deg, rgba(96, 125, 139, 0.15) 0%, rgba(69, 90, 100, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(96, 125, 139, 0.15), rgba(69, 90, 100, 0.15));
     color: #fff;
     border-color: rgba(96, 125, 139, 0.5);
 
     .toggle-track {
-      background: linear-gradient(135deg, #607D8B 0%, #455A64 100%);
+      background: linear-gradient(135deg, #607D8B, #455A64);
     }
 
-    .toggle-thumb {
-      left: 18px;
-    }
-
-    .fullscreen-icon {
+    span:first-child {
       animation: expand 1.5s ease-in-out infinite;
     }
   }
-
 }
 
 
@@ -681,19 +446,9 @@
   cursor: pointer;
   transition: all 0.2s ease;
 
-  svg {
-    transition: transform 0.2s ease;
-  }
-
   &:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: scale(1.05);
     color: #fff;
-
-    svg {
-      transform: scale(1.1);
-    }
   }
 
   @media #{$mobile-and-tablet-landscape} {
