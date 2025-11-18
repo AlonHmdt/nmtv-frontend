@@ -27,16 +27,6 @@ export class PowerButtonComponent {
   onPowerClick(): void {
     if (this.isLoading()) return; // Don't allow click while loading
 
-    // Request fullscreen on click
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
-      (elem as any).webkitRequestFullscreen();
-    } else if ((elem as any).msRequestFullscreen) { /* IE11 */
-      (elem as any).msRequestFullscreen();
-    }
-
     this.isAnimating.set(true);
 
     // Wait for animation to complete before emitting
