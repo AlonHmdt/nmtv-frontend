@@ -1,4 +1,4 @@
-@import '../../../styles/breakpoints';
+@use '../../../styles/breakpoints' as *;
 
 .channel-selector {
   position: fixed;
@@ -804,7 +804,7 @@
 
 
 .menu-footer {
-  padding-bottom: 40px;
+  padding-bottom: 30px;
   background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
   display: flex;
   justify-content: center;

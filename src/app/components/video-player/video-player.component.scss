@@ -1,4 +1,4 @@
-@import '../../../styles/breakpoints';
+@use '../../../styles/breakpoints' as *;
 
 .video-player-container {
   position: fixed;
