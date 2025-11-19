@@ -13,6 +13,9 @@ html, body {
   font-family: 'Arial', sans-serif;
   background: #000;
   color: #fff;
+  touch-action: pan-x pan-y; /* Prevent pinch zoom on iOS */
+  -webkit-user-select: none; /* Disable text selection on iOS */
+  user-select: none;
 }
 
 body {
@@ -42,6 +45,7 @@ body {
 button {
   outline: none;
   -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* Prevent double-tap zoom on iOS */
 }
 
 /* Prevent text selection on UI elements */
