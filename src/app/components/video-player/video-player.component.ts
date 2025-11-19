@@ -252,26 +252,45 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadYouTubeAPI(): void {
-    if (typeof YT === 'undefined' || typeof YT.Player === 'undefined') {
-      const tag = document.createElement('script');
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-      
-      (window as any).onYouTubeIframeAPIReady = () => {
-        this.apiReady.set(true);
-        // The effect() will handle initialization when video is available
-      };
-    } else {
+    // Check if YT API is already loaded
+    if ((window as any).YT && (window as any).YT.Player) {
       this.apiReady.set(true);
-      // The effect() will handle initialization when video is available
+      return;
     }
+
+    // Avoid double-injection if script tag exists but hasn't loaded yet
+    if (document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+      // Script is loading, callback will be called when ready
+      return;
+    }
+
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+
+    (window as any).onYouTubeIframeAPIReady = () => {
+      this.apiReady.set(true);
+    };
   }
 
   private initPlayer(): void {
+    // Destroy existing player instance to prevent memory leaks
+    if (this.player) {
+      this.player.destroy();
+      this.player = null;
+    }
+
     const video = this.currentVideo();
     if (!video) {
       console.warn('No video available to play');
+      return;
+    }
+
+    // Ensure container element exists in DOM
+    const playerElement = document.getElementById('youtube-player');
+    if (!playerElement) {
+      console.warn('Player element #youtube-player not found in DOM');
       return;
     }
 
@@ -286,7 +305,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         fs: 0,
         modestbranding: 1,
         rel: 0,
-        showinfo: 0,
         iv_load_policy: 3,
         playsinline: 1,
         enablejsapi: 1,
