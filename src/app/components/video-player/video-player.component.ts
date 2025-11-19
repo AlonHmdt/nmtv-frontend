@@ -32,6 +32,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   upcomingVideo = this.queueService.upcomingVideo;
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
+  showChannelSwitchStatic = signal(false); // Show static when switching channels
   
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -42,6 +43,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
   private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
   private oldTVEffect: OldTVEffect | null = null;
+  private channelSwitchTimeout: number | null = null; // Timeout for channel switch static
   
   // Touch gesture tracking
   private touchStartY = 0;
@@ -58,6 +60,20 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       // Check if channel changed
       if (this.previousChannel !== null && this.previousChannel !== channel) {
         this.isFirstVideo = true; // Mark as first video on channel change
+        
+        // Show static effect for 1 second when channel changes
+        this.showChannelSwitchStatic.set(true);
+        
+        // Clear any existing timeout
+        if (this.channelSwitchTimeout) {
+          clearTimeout(this.channelSwitchTimeout);
+        }
+        
+        // Hide static after 1 second
+        this.channelSwitchTimeout = window.setTimeout(() => {
+          this.showChannelSwitchStatic.set(false);
+          this.channelSwitchTimeout = null;
+        }, 700);
       }
       this.previousChannel = channel;
       
@@ -83,12 +99,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // Watch for Old TV effect toggle changes
+    // Watch for Old TV effect toggle changes or channel switch static
     effect(() => {
       const enabled = this.oldTVEnabled();
+      const channelSwitch = this.showChannelSwitchStatic();
       
       if (this.oldTVEffect) {
-        if (enabled) {
+        if (enabled || channelSwitch) {
           this.oldTVEffect.start();
         } else {
           this.oldTVEffect.stop();
@@ -125,6 +142,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.yearFetchTimeout) {
       clearTimeout(this.yearFetchTimeout);
       this.yearFetchTimeout = null;
+    }
+    if (this.channelSwitchTimeout) {
+      clearTimeout(this.channelSwitchTimeout);
+      this.channelSwitchTimeout = null;
     }
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
