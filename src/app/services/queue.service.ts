@@ -144,31 +144,6 @@ export class QueueService {
     });
   }
 
-  private async fillQueue(): Promise<void> {
-    // Fetch initial 30 videos from backend
-    console.log('QueueService: Fetching initial videos from backend...');
-    
-    const customPlaylistIds = this.customPlaylistService.getPlaylistIds(this.currentChannelSignal());
-    
-    return new Promise((resolve, reject) => {
-      this.youtubeService.getChannelVideos(this.currentChannelSignal(), customPlaylistIds)
-        .subscribe({
-          next: (videos) => {
-            console.log(`QueueService: Received ${videos.length} videos from backend`);
-            const enrichedVideos = this.enrichVideosWithPlaylistNames(videos);
-            this.queueSignal.set(enrichedVideos);
-            // Track all video IDs using rolling window
-            videos.forEach(v => this.addPlayedVideo(v.id));
-            resolve();
-          },
-          error: (err) => {
-            console.error('QueueService: Error fetching videos from backend:', err);
-            reject(err);
-          }
-        });
-    });
-  }
-
   private async fillQueueOfficial(): Promise<void> {
     // Fetch official playlists only (instant from cache)
     console.log('QueueService: Fetching official videos (skipCustom=true)...');
