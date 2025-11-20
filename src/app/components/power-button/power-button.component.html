@@ -11,9 +11,7 @@
               <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
             </svg>
           } @else {
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 2v10M16.24 7.76a6 6 0 1 1-8.48 0"/>
-            </svg>
+            <i class="bi bi-power"></i>
           }
         </div>
       </button>
@@ -21,13 +19,13 @@
         @if (isLoading()) {
           We'll be ready in a moment...
         } @else {
-          PRESS TO START
+          POWER ON <span class="desktop-hint">(or hit <kbd>Space</kbd>) TO BEGIN</span>
         }
       </div>
         <div class="user-guide">
           <div class="guide-item desktop">
-            <span class="key-hint">↑</span>
-            <span class="key-hint">↓</span>
+            <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
+            <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
             <span class="guide-text">Change Channels</span>
           </div>
           <div class="guide-item mobile">

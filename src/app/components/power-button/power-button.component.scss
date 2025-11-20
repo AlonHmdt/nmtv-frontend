@@ -5,8 +5,10 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Modern browsers */
+  height: 100vh;
+  /* Fallback */
+  height: 100dvh;
+  /* Modern browsers */
   background: #000;
   z-index: 10000;
   display: flex;
@@ -40,7 +42,7 @@
   @media #{$mobile-and-tablet} {
     width: 150px;
   }
-  
+
   @media #{$desktop} {
     width: 220px;
   }
@@ -122,12 +124,28 @@
   }
 }
 
+.power-button .bi-power {
+  font-size: 30px;
+  color: #fff;
+}
+
 .power-text {
   font-size: 14px;
   font-family: 'Arial', sans-serif;
   letter-spacing: 2px;
   text-transform: uppercase;
   font-weight: 700;
+
+  .desktop-hint {
+    display: inline;
+  }
+
+  @media #{$mobile-and-tablet} {
+    .desktop-hint {
+      display: none;
+    }
+  }
+
 }
 
 .user-guide {
@@ -152,14 +170,18 @@
   justify-content: center;
 
   &.desktop {
-    @media #{$mobile-and-tablet}, #{$big-tablet} {
+
+    @media #{$mobile-and-tablet},
+    #{$big-tablet} {
       display: none;
     }
   }
 
   &.mobile {
     display: none;
-    @media #{$mobile-and-tablet}, #{$big-tablet} {
+
+    @media #{$mobile-and-tablet},
+    #{$big-tablet} {
       display: flex;
     }
   }

@@ -10,6 +10,20 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PowerButtonComponent {
+  ngOnInit(): void {
+    // Listen for spacebar press on desktop
+    window.addEventListener('keydown', this.handleSpacebar);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('keydown', this.handleSpacebar);
+  }
+
+  handleSpacebar = (event: KeyboardEvent) => {
+    if (event.code === 'Space' && !this.isLoading() && !this.isPoweredOn()) {
+      this.onPowerClick();
+    }
+  };
   isLoading = input<boolean>(false);
   isPoweredOn = input<boolean>(false);
   powerOn = output<void>();
