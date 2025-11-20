@@ -73,7 +73,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.channelSwitchTimeout = window.setTimeout(() => {
           this.showChannelSwitchStatic.set(false);
           this.channelSwitchTimeout = null;
-        }, 700);
+        }, 800);
       }
       this.previousChannel = channel;
       
