@@ -22,6 +22,11 @@
           POWER ON <span class="desktop-hint">(or hit <kbd>Space</kbd>) TO BEGIN</span>
         }
       </div>
+      <div class="install-pwa" *ngIf="showInstallButton()">
+        <button class="install-app-button" (click)="onInstallClick()">
+          <i class="bi bi-download"></i> Install App
+        </button>
+      </div>
         <div class="user-guide">
           <div class="guide-item desktop">
             <span class="key-hint"><i class="bi bi-arrow-up"></i></span>

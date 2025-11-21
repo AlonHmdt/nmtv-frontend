@@ -10,13 +10,18 @@ import { CommonModule } from '@angular/common';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PowerButtonComponent {
+  deferredPrompt: any = null;
+  showInstallButton = signal(false);
+
   ngOnInit(): void {
     // Listen for spacebar press on desktop
     window.addEventListener('keydown', this.handleSpacebar);
+    window.addEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
   }
 
   ngOnDestroy(): void {
     window.removeEventListener('keydown', this.handleSpacebar);
+    window.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
   }
 
   handleSpacebar = (event: KeyboardEvent) => {
@@ -47,5 +52,21 @@ export class PowerButtonComponent {
     setTimeout(() => {
       this.powerOn.emit();
     }, 1500);
+  }
+
+  handleBeforeInstallPrompt = (event: Event) => {
+    event.preventDefault();
+    this.deferredPrompt = event;
+    this.showInstallButton.set(true);
+  };
+
+  onInstallClick(): void {
+    if (this.deferredPrompt) {
+      (this.deferredPrompt as any).prompt();
+      (this.deferredPrompt as any).userChoice.then((choiceResult: any) => {
+        this.deferredPrompt = null;
+        this.showInstallButton.set(false);
+      });
+    }
   }
 }
