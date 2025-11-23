@@ -58,6 +58,7 @@
             </div>
           </div>
         </button>
+        @if (shouldShowFullScreen()) {
         <button class="fullscreen-button" (click)="toggleFullscreen()" [class.active]="isFullscreen()">
           <div class="toggle-content">
             <span class="fullscreen-icon">⛶</span>
@@ -69,6 +70,7 @@
             </div>
           </div>
         </button>
+      }
       <!-- </div> -->
     </div>
 

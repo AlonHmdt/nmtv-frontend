@@ -1,5 +1,6 @@
-import { Component, signal, output, input, ChangeDetectionStrategy, effect } from '@angular/core';
+import { Component, signal, output, input, ChangeDetectionStrategy, effect, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HelpersService } from '../../services/helpers.service';
 
 @Component({
   selector: 'app-power-button',
@@ -12,7 +13,8 @@ import { CommonModule } from '@angular/common';
 export class PowerButtonComponent {
   deferredPrompt: any = null;
   showInstallButton = signal(false);
-
+  helpersService = inject(HelpersService);
+        
   ngOnInit(): void {
     // Listen for spacebar press on desktop
     window.addEventListener('keydown', this.handleSpacebar);
@@ -57,7 +59,9 @@ export class PowerButtonComponent {
   handleBeforeInstallPrompt = (event: Event) => {
     event.preventDefault();
     this.deferredPrompt = event;
-    this.showInstallButton.set(true);
+    if (!this.helpersService.isIOSDevice()) {
+      this.showInstallButton.set(true);
+    }
   };
 
   onInstallClick(): void {

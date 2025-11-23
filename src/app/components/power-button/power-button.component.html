@@ -1,46 +1,49 @@
 <div class="crt-off-screen" [class.powering-on]="isAnimating()">
   @if (!isAnimating()) {
-    <div class="power-button-container">
-      <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
-      <div class="red-dot"></div>
-      <button class="power-button" (click)="onPowerClick()" [disabled]="isLoading()">
-        <div class="button-inner">
-          @if (isLoading()) {
-            <svg class="spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
-              <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/>
-            </svg>
-          } @else {
-            <i class="bi bi-power"></i>
-          }
-        </div>
-      </button>
-      <div class="power-text">
+  <div class="power-button-container">
+    <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
+    <div class="red-dot"></div>
+    <button class="power-button" (click)="onPowerClick()" [disabled]="isLoading()">
+      <div class="button-inner">
         @if (isLoading()) {
-          We'll be ready in a moment...
+        <svg class="spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
+        </svg>
         } @else {
-          POWER ON <span class="desktop-hint">(or hit <kbd>Space</kbd>) TO BEGIN</span>
+        <i class="bi bi-power"></i>
         }
       </div>
-      <div class="install-pwa" *ngIf="showInstallButton()">
-        <button class="install-app-button" (click)="onInstallClick()">
-          <i class="bi bi-download"></i> Install App
-        </button>
-      </div>
-        <div class="user-guide">
-          <div class="guide-item desktop">
-            <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
-            <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
-            <span class="guide-text">Change Channels</span>
-          </div>
-          <div class="guide-item mobile">
-            <span class="guide-text">Swipe Up/Down to Change Channels</span>
-          </div>
-        </div>
+    </button>
+    <div class="power-text">
+      @if (isLoading()) {
+      We'll be ready in a moment...
+      } @else {
+      POWER ON <span class="desktop-hint">(or hit <kbd>Space</kbd>) TO BEGIN</span>
+      }
     </div>
+    @if (showInstallButton()) {
+    <div class="install-pwa">
+      <button class="install-app-button" (click)="onInstallClick()">
+        <i class="bi bi-download"></i> Install App
+      </button>
+    </div>
+    }
+    <div class="user-guide">
+      <div class="guide-item desktop">
+        <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
+        <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+        <span class="guide-text">Change Channels</span>
+      </div>
+      <div class="guide-item mobile">
+        <span class="guide-text">Swipe Up/Down to Change Channels</span>
+      </div>
+    </div>
+  </div>
   }
-  
+
   @if (isAnimating()) {
-    <div class="crt-scan-line"></div>
+  <div class="crt-scan-line"></div>
   }
 </div>

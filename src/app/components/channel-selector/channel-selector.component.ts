@@ -4,6 +4,7 @@ import { QueueService } from '../../services/queue.service';
 import { Channel, ChannelConfig, Channels } from '../../models/video.model';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
+import { HelpersService } from '../../services/helpers.service';
 
 @Component({
   selector: 'app-channel-selector',
@@ -15,7 +16,7 @@ import { AboutModalComponent } from '../about-modal/about-modal.component';
 })
 export class ChannelSelectorComponent {
   private queueService = inject(QueueService);
-  
+  private helpersService = inject(HelpersService);
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
   
@@ -25,7 +26,6 @@ export class ChannelSelectorComponent {
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
-  
   channels: ChannelConfig[] = Channels;
 
   constructor() {
@@ -36,6 +36,11 @@ export class ChannelSelectorComponent {
     document.addEventListener('webkitfullscreenchange', () => {
       this.isFullscreen.set(!!(document as any).webkitFullscreenElement);
     });
+  }
+
+  shouldShowFullScreen(): boolean {
+    // Hide fullscreen button on iOS
+    return !this.helpersService.isIOSDevice();
   }
   
   toggleMenu(): void {
