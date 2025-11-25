@@ -116,6 +116,40 @@
   }
 }
 
+// Playlist Label (Top Left)
+.playlist-label-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 4;
+  
+  .playlist-label {
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 2px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Arial', sans-serif;
+    border-left: 4px solid #ff0055; // Retro accent color
+    backdrop-filter: blur(4px);
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+    
+    @media #{$mobile-and-tablet} {
+      padding: 5px 10px;
+      font-size: 10px;
+      border-left-width: 3px;
+    }
+  }
+  
+  @media #{$mobile-and-tablet} {
+    top: 15px;
+    left: 15px;
+  }
+}
+
 .overlay {
   position: fixed;
   left: 50%;
