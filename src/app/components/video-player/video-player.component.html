@@ -9,18 +9,16 @@
 
   <!-- MTV Logo with Channel -->
   <div class="nmtv-logo-container">
-    <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
-    @if (currentChannelConfig()) {
-    <div class="channel-badge">{{ currentChannelConfig()!.icon }} {{ currentChannelConfig()!.name }}</div>
+    <div class="logo-channel-group">
+      <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
+      @if (currentChannelConfig()) {
+      <div class="channel-badge">{{ currentChannelConfig()!.icon }} {{ currentChannelConfig()!.name }}</div>
+      }
+    </div>
+    @if (currentChannel() !== 'live' && currentVideo() && currentVideo().playlistLabel && !currentVideo().isBumper) {
+    <div class="playlist-name-badge">{{ currentVideo().playlistLabel }}</div>
     }
   </div>
-
-  <!-- Playlist Label (Top Left) - Hide for Live channel and bumpers -->
-  @if (currentChannel() !== 'live' && currentVideo() && currentVideo().playlistLabel && !currentVideo().isBumper) {
-  <div class="playlist-label-container">
-    <div class="playlist-label">{{ currentVideo().playlistLabel }}</div>
-  </div>
-  }
 
   <!-- Playing Now Overlay -->
   @if (showPlayingNow() && currentVideo()) {

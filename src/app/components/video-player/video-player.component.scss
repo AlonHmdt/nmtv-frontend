@@ -5,8 +5,10 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Modern browsers */
+  height: 100vh;
+  /* Fallback */
+  height: 100dvh;
+  /* Modern browsers */
   background: #000;
   overflow: hidden;
   z-index: 1;
@@ -17,12 +19,17 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 177.77vh; /* 16:9 aspect ratio - fallback */
-  width: 177.77dvh; /* 16:9 aspect ratio - modern browsers */
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Modern browsers */
+  width: 177.77vh;
+  /* 16:9 aspect ratio - fallback */
+  width: 177.77dvh;
+  /* 16:9 aspect ratio - modern browsers */
+  height: 100vh;
+  /* Fallback */
+  height: 100dvh;
+  /* Modern browsers */
   min-width: 100vw;
-  min-height: 56.25vw; /* 16:9 aspect ratio */
+  min-height: 56.25vw;
+  /* 16:9 aspect ratio */
   pointer-events: none;
 
   iframe {
@@ -71,16 +78,23 @@
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  
+
+  .logo-channel-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
   .nmtv-logo {
     width: 100px;
     height: auto;
     display: block;
-    
+
     @media #{$tablet-portrait} {
       width: 70px;
     }
-    
+
     @media #{$mobile-and-tablet} {
       width: 50px;
     }
@@ -89,7 +103,7 @@
       width: 90px;
     }
   }
-  
+
   .channel-badge {
     background: #fff;
     color: #000;
@@ -100,31 +114,14 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Arial', sans-serif;
-    
+
     @media #{$mobile-and-tablet} {
       padding: 2px 5px;
       font-size: 10px;
     }
   }
-  
-  // Portrait mode - center the logo at top
-  @media #{$mobile-and-tablet-portrait} {
-    top: 10px;
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-}
 
-// Playlist Label (Top Left)
-.playlist-label-container {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 4;
-  
-  .playlist-label {
-    background: rgba(0, 0, 0, 0.7);
+  .playlist-name-badge {
     color: #fff;
     padding: 8px 14px;
     border-radius: 2px;
@@ -133,21 +130,40 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Arial', sans-serif;
-    border-left: 4px solid #ff0055; // Retro accent color
-    backdrop-filter: blur(4px);
-    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-    
+
     @media #{$mobile-and-tablet} {
       padding: 5px 10px;
       font-size: 10px;
-      border-left-width: 3px;
     }
   }
-  
-  @media #{$mobile-and-tablet} {
-    top: 15px;
-    left: 15px;
+
+
+  // Portrait mode - center the logo at top
+  @media #{$mobile-and-tablet-portrait} {
+    top: 10px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
+
+  // Large devices and landscape modes - position on left with playlist name
+  @media #{$desktop},
+  #{$big-tablet},
+  #{$mobile-and-tablet-landscape} {
+    top: 20px;
+    left: 20px;
+    right: auto;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 5px;
+
+    .logo-channel-group {
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+    }
+  }
+
 }
 
 .overlay {
@@ -163,7 +179,7 @@
   width: 600px;
   max-width: 90%;
   box-sizing: border-box;
-  
+
   &.animating-out {
     animation: slideDown 0.5s ease-out forwards;
   }
@@ -290,6 +306,7 @@
     transform: translate(-50%, 100%);
     opacity: 0;
   }
+
   to {
     transform: translateX(-50%);
     opacity: 1;
@@ -301,6 +318,7 @@
     transform: translateX(-50%);
     opacity: 1;
   }
+
   to {
     transform: translate(-50%, 100%);
     opacity: 0;
