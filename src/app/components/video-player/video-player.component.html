@@ -10,7 +10,9 @@
   <!-- MTV Logo with Channel -->
   <div class="nmtv-logo-container">
     <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
-    <div class="channel-badge">{{ currentChannel() }}</div>
+    @if (currentChannelConfig()) {
+    <div class="channel-badge">{{ currentChannelConfig()!.icon }} {{ currentChannelConfig()!.name }}</div>
+    }
   </div>
 
   <!-- Playlist Label (Top Left) - Hide for Live channel and bumpers -->

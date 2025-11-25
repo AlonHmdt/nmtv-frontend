@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
-import { Video, Channel } from '../../models/video.model';
+import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect } from './tv-static-effect';
 
 declare var YT: any;
@@ -20,9 +20,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
   private sanitizer = inject(DomSanitizer);
-  
+
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
-  
+
   player: any;
   showPlayingNow = signal(false);
   showPlayingNext = signal(false);
@@ -31,9 +31,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   currentVideo = this.queueService.currentVideo;
   upcomingVideo = this.queueService.upcomingVideo;
   currentChannel = this.queueService.currentChannel;
+  currentChannelConfig = computed(() => {
+    const channel = this.currentChannel();
+    return Channels.find(c => c.id === channel);
+  });
   oldTVEnabled = this.queueService.oldTVEnabled;
   showChannelSwitchStatic = signal(false); // Show static when switching channels
-  
+
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
   private overlaysStarted = false;
@@ -44,7 +48,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
   private oldTVEffect: OldTVEffect | null = null;
   private channelSwitchTimeout: number | null = null; // Timeout for channel switch static
-  
+
   // Touch gesture tracking
   private touchStartY = 0;
   private touchEndY = 0;
@@ -56,19 +60,19 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       const video = this.currentVideo();
       const channel = this.currentChannel();
       const ready = this.apiReady();
-      
+
       // Check if channel changed
       if (this.previousChannel !== null && this.previousChannel !== channel) {
         this.isFirstVideo = true; // Mark as first video on channel change
-        
+
         // Show static effect for 1 second when channel changes
         this.showChannelSwitchStatic.set(true);
-        
+
         // Clear any existing timeout
         if (this.channelSwitchTimeout) {
           clearTimeout(this.channelSwitchTimeout);
         }
-        
+
         // Hide static after 1 second
         this.channelSwitchTimeout = window.setTimeout(() => {
           this.showChannelSwitchStatic.set(false);
@@ -76,12 +80,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 800);
       }
       this.previousChannel = channel;
-      
+
       if (video && ready) {
         // Reset overlays for new video
         this.clearTimeouts();
         this.overlaysStarted = false;
-        
+
         if (!this.player) {
           this.initPlayer();
         } else {
@@ -103,7 +107,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const enabled = this.oldTVEnabled();
       const channelSwitch = this.showChannelSwitchStatic();
-      
+
       if (this.oldTVEffect) {
         if (enabled || channelSwitch) {
           this.oldTVEffect.start();
@@ -116,10 +120,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadYouTubeAPI();
-    
+
     // Add keyboard shortcut for testing: Press 'N' to skip to next video
     window.addEventListener('keydown', this.handleKeyPress.bind(this));
-    
+
     // Add touch event listeners for swipe gestures
     window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
     window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
@@ -129,7 +133,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Initialize Old TV effect after view is ready
     if (this.staticCanvas) {
       this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement);
-      
+
       // Start if enabled
       if (this.oldTVEnabled()) {
         this.oldTVEffect.start();
@@ -164,7 +168,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (event.key === 'n' || event.key === 'N') {
       this.playNextVideo();
     }
-    
+
     // Press 'Q' or 'W' to show curerent video or next video overlays (for testing)
     if (event.key === 'q' || event.key === 'Q') {
       this.showPlayingNow.set(true);
@@ -181,7 +185,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.switchToNextChannel(event.key === 'ArrowUp');
     }
   }
-  
+
   private handleTouchStart(event: TouchEvent): void {
     // Ignore touches that start inside a modal
     const target = event.target as HTMLElement;
@@ -190,7 +194,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.touchStartY = event.touches[0].clientY;
   }
-  
+
   private handleTouchEnd(event: TouchEvent): void {
     // Ignore touches that end inside a modal
     const target = event.target as HTMLElement;
@@ -200,7 +204,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.touchEndY = event.changedTouches[0].clientY;
     this.handleSwipe();
   }
-  
+
   private isInsideModal(element: HTMLElement): boolean {
     // Check if the element or any of its parents is a modal or menu
     let current: HTMLElement | null = element;
@@ -220,21 +224,21 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return false;
   }
-  
+
   private isMenuOpen(): boolean {
     // Check if the side menu is currently open by looking for visible menu-overlay
     const menuOverlay = document.querySelector('.menu-overlay');
     return menuOverlay ? !menuOverlay.classList.contains('hidden') : false;
   }
-  
+
   private handleSwipe(): void {
     // Don't handle swipes if the menu is open
     if (this.isMenuOpen()) {
       return;
     }
-    
+
     const swipeDistance = this.touchStartY - this.touchEndY;
-    
+
     // Swipe up (finger moves up) - next channel
     if (swipeDistance > this.minSwipeDistance) {
       this.switchToNextChannel(false); // Same as arrow down
@@ -255,10 +259,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       Channel.LIVE,
       Channel.SHOWS
     ];
-    
+
     const currentChannel = this.currentChannel();
     const currentIndex = channels.indexOf(currentChannel);
-    
+
     let nextIndex: number;
     if (goUp) {
       // Arrow Up - go to previous channel (wrap around)
@@ -267,7 +271,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       // Arrow Down - go to next channel (wrap around)
       nextIndex = currentIndex < channels.length - 1 ? currentIndex + 1 : 0;
     }
-    
+
     const nextChannel = channels[nextIndex];
     this.queueService.switchChannel(nextChannel);
   }
@@ -342,24 +346,24 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onPlayerReady(event: any): void {
     this.loadAttempts = 0; // Reset load attempts on successful ready
-    
+
     // Disable all interactions
     event.target.getIframe().style.pointerEvents = 'none';
-    
+
     // User already interacted with power button, so we can try unmuted playback
     event.target.unMute();
     event.target.setVolume(100);
-    
+
     setTimeout(() => {
       if (this.isFirstVideo) {
         // Seek to 2 minutes 15 seconds (135 seconds) only for first video
         event.target.seekTo(135, true);
       }
       event.target.playVideo();
-      
+
       setTimeout(() => {
         const state = event.target.getPlayerState();
-        
+
         if (state !== YT.PlayerState.PLAYING) {
           event.target.playVideo();
         }
@@ -380,31 +384,31 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Reset load attempts when video starts playing
     if (event.data === YT.PlayerState.PLAYING) {
       this.loadAttempts = 0;
-      
+
       if (!this.overlaysStarted) {
         // Only start overlays once per video
         const video = this.currentVideo();
         const channel = this.currentChannel();
-        
+
         // Skip overlays and year fetching for bumpers
         if (video?.isBumper) {
           this.overlaysStarted = true; // Mark as started so we don't process again
           return; // Skip everything for bumpers
         }
-        
+
         // Clear any pending year fetch request
         if (this.yearFetchTimeout) {
           clearTimeout(this.yearFetchTimeout);
           this.yearFetchTimeout = null;
         }
-        
+
         // Debounce the year fetch to avoid excessive API calls when switching channels rapidly
         // Skip year fetching for Live channel and bumpers
         if (video && channel !== Channel.LIVE && !video.isBumper) {
-          const searchTitle = video.artist && video.song 
-            ? `${video.artist} ${video.song}` 
+          const searchTitle = video.artist && video.song
+            ? `${video.artist} ${video.song}`
             : video.title || '';
-          
+
           this.yearFetchTimeout = window.setTimeout(() => {
             this.youtubeService.getVideoYear(searchTitle).subscribe({
               next: (response) => {
@@ -419,7 +423,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             this.yearFetchTimeout = null;
           }, 5000); // Wait 5 seconds before fetching
         }
-        
+
         // Small delay to ensure getDuration() returns valid value
         setTimeout(() => {
           this.startOverlayTimers();
@@ -427,7 +431,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         }, 500);
       }
     }
-    
+
     // Prevent pausing - always keep playing
     if (event.data === YT.PlayerState.PAUSED) {
       event.target.playVideo();
@@ -438,15 +442,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onPlayerError(event: any): void {
     console.error('YouTube player error:', event.data);
-    
+
     const currentVideo = this.currentVideo();
-    
+
     // Error codes from YouTube IFrame API:
     // 2 - Invalid video ID
     // 5 - HTML5 player error
     // 100 - Video not found or private
     // 101, 150 - Video not available (embedding disabled, region restriction, etc.)
-    
+
     const errorMessages: { [key: number]: string } = {
       2: 'Invalid video ID',
       5: 'HTML5 player error',
@@ -454,16 +458,16 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       101: 'Video not available for playback',
       150: 'Video not available for playback'
     };
-    
+
     const errorMsg = errorMessages[event.data] || 'Unknown error';
     console.warn(`Video error (${errorMsg}):`, currentVideo?.title || currentVideo?.id);
-    
+
     // For errors 100, 101, 150 - video is definitely unavailable
     if ([100, 101, 150].includes(event.data)) {
       this.handleUnavailableVideo();
       return;
     }
-    
+
     // For other errors, retry once
     this.loadAttempts++;
     if (this.loadAttempts >= this.maxLoadAttempts) {
@@ -481,14 +485,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private handleUnavailableVideo(): void {
     const currentVideo = this.currentVideo();
     if (!currentVideo) return;
-    
+
     // Mark video as unavailable in queue service
     this.queueService.markVideoAsUnavailable(currentVideo.id);
-    
+
     // Load next video immediately
     this.loadAttempts = 0; // Reset attempts for next video
     const nextVideo = this.currentVideo(); // Get the new current video after removal
-    
+
     if (nextVideo && this.player) {
       this.player.loadVideoById(nextVideo.id);
     } else if (!nextVideo) {
@@ -501,7 +505,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.overlaysStarted = false; // Reset for next video
     this.isFirstVideo = false; // Subsequent videos start from beginning
     await this.queueService.nextVideo();
-    
+
     const video = this.currentVideo();
     if (video && this.player) {
       // Load from beginning (no startSeconds parameter)
@@ -511,96 +515,96 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private startOverlayTimers(): void {
     this.clearTimeouts();
-    
+
     if (!this.player) return;
-    
+
     const currentVideo = this.currentVideo();
     const upcomingVideo = this.upcomingVideo();
-    
+
     // Don't show any overlays if current video is a bumper
     if (currentVideo?.isBumper) {
       return;
     }
-    
+
     const duration = this.player.getDuration();
     const currentTime = this.player.getCurrentTime();
     const remainingTime = duration - currentTime;
-    
+
     // Skip first "Playing Now" if video started from 2:15 (currentTime > 100)
     const startedFromMiddle = currentTime > 100;
-    
+
     if (!startedFromMiddle) {
       // First "Playing Now" - appears at 10s from current position, stays for 10s
       const timeout1 = window.setTimeout(() => {
         this.showPlayingNow.set(true);
         this.playingNowAnimating.set(false);
-        
+
         const timeout2 = window.setTimeout(() => {
           this.playingNowAnimating.set(true); // Start hide animation
-          
+
           // Wait for animation to complete before hiding
           const timeout2b = window.setTimeout(() => {
             this.showPlayingNow.set(false);
             this.playingNowAnimating.set(false);
           }, 500); // Match animation duration
-          
+
           this.overlayTimeouts.push(timeout2b);
         }, 10000); // Show for 10 seconds
-        
+
         this.overlayTimeouts.push(timeout2);
       }, 10000); // Show after 10 seconds from current time
-      
+
       this.overlayTimeouts.push(timeout1);
     }
-    
+
     // Second "Playing Now" - appears 50s before end, stays for 20s
     if (remainingTime > 60) {
       const showBeforeEnd = (remainingTime - 50) * 1000;
-      
+
       const timeout3 = window.setTimeout(() => {
         this.showPlayingNow.set(true);
         this.playingNowAnimating.set(false);
-        
+
         const timeout4 = window.setTimeout(() => {
           this.playingNowAnimating.set(true); // Start hide animation
-          
+
           // Wait for animation to complete
           const timeout4b = window.setTimeout(() => {
             this.showPlayingNow.set(false);
             this.playingNowAnimating.set(false);
-            
+
             // "Playing Next" - only show if upcoming video is not a bumper
             // Appears 5s after "Playing Now" hides, stays for 10s
             if (!upcomingVideo?.isBumper) {
               const timeout5 = window.setTimeout(() => {
                 this.showPlayingNext.set(true);
                 this.playingNextAnimating.set(false);
-                
+
                 const timeout6 = window.setTimeout(() => {
                   this.playingNextAnimating.set(true); // Start hide animation
-                  
+
                   // Wait for animation to complete
                   const timeout6b = window.setTimeout(() => {
                     this.showPlayingNext.set(false);
                     this.playingNextAnimating.set(false);
                   }, 500); // Match animation duration
-                  
+
                   this.overlayTimeouts.push(timeout6b);
                 }, 10000); // Show for 10 seconds
-                
+
                 this.overlayTimeouts.push(timeout6);
               }, 5000); // Show 5 seconds after "Playing Now" hides
-              
+
               this.overlayTimeouts.push(timeout5);
             }
           }, 500); // Match animation duration
-          
+
           this.overlayTimeouts.push(timeout4b);
         }, 20000); // Show for 20 seconds
-        
+
         this.overlayTimeouts.push(timeout4);
       }, showBeforeEnd);
-      
+
       this.overlayTimeouts.push(timeout3);
     }
   }
