@@ -385,21 +385,20 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     event.target.unMute();
     event.target.setVolume(100);
 
+    if (this.isFirstVideo) {
+      // Seek to 2 minutes 15 seconds (135 seconds) only for first video
+      event.target.seekTo(135, true);
+    }
+    event.target.playVideo();
+
+    // Retry play if not playing after 500ms
     setTimeout(() => {
-      if (this.isFirstVideo) {
-        // Seek to 2 minutes 15 seconds (135 seconds) only for first video
-        event.target.seekTo(135, true);
+      const state = event.target.getPlayerState();
+
+      if (state !== YT.PlayerState.PLAYING) {
+        event.target.playVideo();
       }
-      event.target.playVideo();
-
-      setTimeout(() => {
-        const state = event.target.getPlayerState();
-
-        if (state !== YT.PlayerState.PLAYING) {
-          event.target.playVideo();
-        }
-      }, 500);
-    }, 300);
+    }, 500);
   }
 
 
