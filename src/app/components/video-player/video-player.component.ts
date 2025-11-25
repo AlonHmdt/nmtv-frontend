@@ -1,6 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
 import { Video, Channel, Channels } from '../../models/video.model';
@@ -19,7 +18,6 @@ declare var YT: any;
 export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
-  private sanitizer = inject(DomSanitizer);
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -37,49 +35,47 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   });
   oldTVEnabled = this.queueService.oldTVEnabled;
   showChannelSwitchStatic = signal(false); // Show static when switching channels
+  minStaticTimePassed = signal(true); // Track if minimum static time (600ms) has passed
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
   private overlaysStarted = false;
   private isFirstVideo = true; // Track if this is the first video (startup or channel change)
-  private previousChannel: string | null = null; // Track channel changes
+
   private loadAttempts = 0;
   private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
   private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
   private oldTVEffect: OldTVEffect | null = null;
-  private channelSwitchTimeout: number | null = null; // Timeout for channel switch static
+  private switchDelayTimeout: number | null = null; // Timeout for channel switch delay
+  private minStaticTimeout: number | null = null; // Timeout for minimum static duration
 
   // Touch gesture tracking
   private touchStartY = 0;
   private touchEndY = 0;
   private minSwipeDistance = 50; // Minimum distance for a swipe to register
+  private readonly CHANNEL_SWITCH_DELAY_MS = 800; // Minimum duration for static effect visibility
+  private readonly CHANNEL_LOAD_DELAY_MS = 100; // Delay before starting channel load
+  private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
+
+  // Available channels in order
+  private readonly AVAILABLE_CHANNELS = [
+    Channel.ROCK,
+    Channel.HIP_HOP,
+    Channel.DECADE_2000S,
+    Channel.DECADE_1990S,
+    Channel.DECADE_1980S,
+    Channel.LIVE,
+    Channel.SHOWS
+  ] as const;
 
   constructor() {
     // Watch for when video changes (initial load or channel switch)
     effect(() => {
       const video = this.currentVideo();
-      const channel = this.currentChannel();
       const ready = this.apiReady();
 
       // Check if channel changed
-      if (this.previousChannel !== null && this.previousChannel !== channel) {
-        this.isFirstVideo = true; // Mark as first video on channel change
-
-        // Show static effect for 1 second when channel changes
-        this.showChannelSwitchStatic.set(true);
-
-        // Clear any existing timeout
-        if (this.channelSwitchTimeout) {
-          clearTimeout(this.channelSwitchTimeout);
-        }
-
-        // Hide static after 1 second
-        this.channelSwitchTimeout = window.setTimeout(() => {
-          this.showChannelSwitchStatic.set(false);
-          this.channelSwitchTimeout = null;
-        }, 800);
-      }
-      this.previousChannel = channel;
+      // Note: isFirstVideo is handled in switchToNextChannel for manual switches
 
       if (video && ready) {
         // Reset overlays for new video
@@ -93,13 +89,25 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             // Start from middle for first video of channel
             this.player.loadVideoById({
               videoId: video.id,
-              startSeconds: 135  // Start at 2:15 only for first video
+              startSeconds: this.FIRST_VIDEO_START_TIME
             });
           } else {
             // Start from beginning for subsequent videos
             this.player.loadVideoById(video.id);
           }
         }
+      }
+    });
+
+    // Separate effect to hide static when both conditions are met
+    effect(() => {
+      const video = this.currentVideo();
+      const ready = this.apiReady();
+      const minTimePassed = this.minStaticTimePassed();
+
+      // Hide static when video is ready AND minimum time has passed
+      if (video && ready && minTimePassed && untracked(() => this.showChannelSwitchStatic())) {
+        this.showChannelSwitchStatic.set(false);
       }
     });
 
@@ -147,9 +155,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       clearTimeout(this.yearFetchTimeout);
       this.yearFetchTimeout = null;
     }
-    if (this.channelSwitchTimeout) {
-      clearTimeout(this.channelSwitchTimeout);
-      this.channelSwitchTimeout = null;
+    if (this.switchDelayTimeout) {
+      clearTimeout(this.switchDelayTimeout);
+      this.switchDelayTimeout = null;
+    }
+    if (this.minStaticTimeout) {
+      clearTimeout(this.minStaticTimeout);
+      this.minStaticTimeout = null;
     }
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
@@ -250,30 +262,49 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private switchToNextChannel(goUp: boolean): void {
-    const channels = [
-      Channel.ROCK,
-      Channel.HIP_HOP,
-      Channel.DECADE_2000S,
-      Channel.DECADE_1990S,
-      Channel.DECADE_1980S,
-      Channel.LIVE,
-      Channel.SHOWS
-    ];
-
     const currentChannel = this.currentChannel();
-    const currentIndex = channels.indexOf(currentChannel);
+    const currentIndex = this.AVAILABLE_CHANNELS.indexOf(currentChannel);
 
     let nextIndex: number;
     if (goUp) {
-      // Arrow Up - go to previous channel (wrap around)
-      nextIndex = currentIndex > 0 ? currentIndex - 1 : channels.length - 1;
+      nextIndex = currentIndex > 0 ? currentIndex - 1 : this.AVAILABLE_CHANNELS.length - 1;
     } else {
-      // Arrow Down - go to next channel (wrap around)
-      nextIndex = currentIndex < channels.length - 1 ? currentIndex + 1 : 0;
+      nextIndex = currentIndex < this.AVAILABLE_CHANNELS.length - 1 ? currentIndex + 1 : 0;
     }
 
-    const nextChannel = channels[nextIndex];
-    this.queueService.switchChannel(nextChannel);
+    const nextChannel = this.AVAILABLE_CHANNELS[nextIndex];
+
+    // Show static effect immediately (acts as loader)
+    this.showChannelSwitchStatic.set(true);
+    this.minStaticTimePassed.set(false);
+    this.isFirstVideo = true; // Mark as first video for the new channel
+
+    // Clear any existing channel switch timeouts
+    this.clearChannelSwitchTimeouts();
+
+    // Start loading the new channel after a short delay
+    // This allows the static to be visible before the channel switch begins
+    this.switchDelayTimeout = window.setTimeout(() => {
+      this.queueService.switchChannel(nextChannel);
+      this.switchDelayTimeout = null;
+    }, this.CHANNEL_LOAD_DELAY_MS);
+
+    // Enforce minimum static duration
+    this.minStaticTimeout = window.setTimeout(() => {
+      this.minStaticTimePassed.set(true);
+      this.minStaticTimeout = null;
+    }, this.CHANNEL_SWITCH_DELAY_MS);
+  }
+
+  private clearChannelSwitchTimeouts(): void {
+    if (this.switchDelayTimeout) {
+      clearTimeout(this.switchDelayTimeout);
+      this.switchDelayTimeout = null;
+    }
+    if (this.minStaticTimeout) {
+      clearTimeout(this.minStaticTimeout);
+      this.minStaticTimeout = null;
+    }
   }
 
   private loadYouTubeAPI(): void {
@@ -371,14 +402,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 300);
   }
 
-  private addUnmuteListener(player: any): void {
-    const unmute = () => {
-      player.unMute();
-      player.setVolume(100);
-      document.removeEventListener('click', unmute);
-    };
-    document.addEventListener('click', unmute, { once: true });
-  }
 
   private onPlayerStateChange(event: any): void {
     // Reset load attempts when video starts playing
