@@ -2,7 +2,8 @@
   <div id="youtube-player"></div>
 
   <!-- Old TV Effect Canvas -->
-  <canvas #staticCanvas class="tv-static-canvas" [class.active]="oldTVEnabled() || showChannelSwitchStatic()"></canvas>
+  <canvas #staticCanvas class="tv-static-canvas" [class.channel-switch]="showChannelSwitchStatic()"
+    [class.active]="oldTVEnabled() || showChannelSwitchStatic()"></canvas>
 
   <!-- Transparent overlay to block all interaction with video -->
   <div class="interaction-blocker"></div>

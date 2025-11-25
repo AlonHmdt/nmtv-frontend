@@ -76,9 +76,7 @@ export class QueueService {
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
 
-    console.log('Switching channel, fetching initial block...');
     await this.fetchAndAppendBlock(channel, customPlaylistIds);
-    console.log('Channel switched, playback starting');
   }
 
   // Helper method: Add video to played tracking with rolling window limit

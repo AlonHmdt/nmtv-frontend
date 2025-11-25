@@ -54,6 +54,10 @@
   &.active {
     opacity: 1;
   }
+
+  &.channel-switch {
+    background-color: #000;
+  }
 }
 
 // Transparent blocker to prevent any interaction with video
