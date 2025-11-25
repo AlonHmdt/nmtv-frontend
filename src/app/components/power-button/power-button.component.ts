@@ -1,6 +1,7 @@
-import { Component, signal, output, input, ChangeDetectionStrategy, effect, inject } from '@angular/core';
+import { Component, signal, output, input, ChangeDetectionStrategy, effect, inject, ViewChild, ElementRef, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HelpersService } from '../../services/helpers.service';
+import { OldTVEffect } from '../video-player/tv-static-effect';
 
 @Component({
   selector: 'app-power-button',
@@ -11,9 +12,42 @@ import { HelpersService } from '../../services/helpers.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PowerButtonComponent {
+  @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
+
   deferredPrompt: any = null;
   showInstallButton = signal(false);
   helpersService = inject(HelpersService);
+  private oldTVEffect: OldTVEffect | null = null;
+
+  // Inputs/Outputs
+  isLoading = input<boolean>(false);
+  isPoweredOn = input<boolean>(false);
+  powerOn = output<void>();
+
+  // State
+  isAnimating = signal(false);
+  readyToHide = signal(false);
+
+  constructor() {
+    // Reset state when powered off
+    effect(() => {
+      const poweredOn = this.isPoweredOn();
+
+      if (!poweredOn) {
+        // Use untracked to avoid triggering this effect when we set these signals
+        untracked(() => {
+          this.isAnimating.set(false);
+          this.readyToHide.set(false);
+        });
+
+        // Clean up old TV effect
+        if (this.oldTVEffect) {
+          this.oldTVEffect.destroy();
+          this.oldTVEffect = null;
+        }
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Listen for spacebar press on desktop
@@ -24,6 +58,11 @@ export class PowerButtonComponent {
   ngOnDestroy(): void {
     window.removeEventListener('keydown', this.handleSpacebar);
     window.removeEventListener('beforeinstallprompt', this.handleBeforeInstallPrompt);
+
+    if (this.oldTVEffect) {
+      this.oldTVEffect.destroy();
+      this.oldTVEffect = null;
+    }
   }
 
   handleSpacebar = (event: KeyboardEvent) => {
@@ -31,28 +70,32 @@ export class PowerButtonComponent {
       this.onPowerClick();
     }
   };
-  isLoading = input<boolean>(false);
-  isPoweredOn = input<boolean>(false);
-  powerOn = output<void>();
-  isAnimating = signal(false);
-
-  constructor() {
-    // Reset animation state when powered off
-    effect(() => {
-      if (!this.isPoweredOn()) {
-        this.isAnimating.set(false);
-      }
-    });
-  }
 
   onPowerClick(): void {
-    if (this.isLoading()) return; // Don't allow click while loading
+    if (this.isLoading()) return;
 
     this.isAnimating.set(true);
+    this.readyToHide.set(false);
 
-    // Wait for animation to complete before emitting
+    // Initialize and start static effect
     setTimeout(() => {
-      this.powerOn.emit();
+      if (this.staticCanvas && !this.oldTVEffect) {
+        this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement);
+        this.oldTVEffect.start();
+      } else if (this.oldTVEffect) {
+        this.oldTVEffect.start();
+      }
+    }, 50);
+
+    // Start video loading immediately
+    this.powerOn.emit();
+
+    // Hide screen after static effect completes
+    setTimeout(() => {
+      if (this.oldTVEffect) {
+        this.oldTVEffect.stop();
+      }
+      this.readyToHide.set(true);
     }, 1500);
   }
 

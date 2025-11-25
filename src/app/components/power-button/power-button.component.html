@@ -1,4 +1,5 @@
-<div class="crt-off-screen" [class.powering-on]="isAnimating()">
+<div class="crt-off-screen" [class.powering-on]="isAnimating()"
+  [class.animation-complete]="readyToHide() && isPoweredOn()">
   @if (!isAnimating()) {
   <div class="power-button-container">
     <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
@@ -44,6 +45,6 @@
   }
 
   @if (isAnimating()) {
-  <div class="crt-scan-line"></div>
+  <canvas #staticCanvas class="power-static-canvas"></canvas>
   }
 </div>

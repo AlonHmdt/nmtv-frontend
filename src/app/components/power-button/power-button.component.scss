@@ -15,8 +15,9 @@
   align-items: center;
   justify-content: center;
 
-  &.powering-on {
-    animation: crtPowerOn 1.5s ease-out forwards;
+  &.animation-complete {
+    display: none;
+    pointer-events: none;
   }
 }
 
@@ -208,69 +209,17 @@
   font-weight: 600;
 }
 
-.crt-scan-line {
+.power-static-canvas {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 2px;
-  background: #fff;
-  animation: scanLine 1.5s ease-out;
+  height: 100%;
+  z-index: 10001;
+  background: #000;
 }
 
-@keyframes crtPowerOn {
-  0% {
-    opacity: 1;
-  }
 
-  20% {
-    opacity: 1;
-    transform: scaleY(0.01) scaleX(1);
-    filter: brightness(3);
-  }
-
-  40% {
-    opacity: 1;
-    transform: scaleY(0.8) scaleX(0.95);
-    filter: brightness(2);
-  }
-
-  60% {
-    opacity: 1;
-    transform: scaleY(1.05) scaleX(1.02);
-    filter: brightness(1.5);
-  }
-
-  80% {
-    opacity: 1;
-    transform: scaleY(0.98) scaleX(1);
-    filter: brightness(1.2);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scaleY(1) scaleX(1);
-    filter: brightness(1);
-    pointer-events: none;
-  }
-}
-
-@keyframes scanLine {
-  0% {
-    top: 50%;
-    opacity: 1;
-  }
-
-  50% {
-    top: 0%;
-    opacity: 0.8;
-  }
-
-  100% {
-    top: 100%;
-    opacity: 0;
-  }
-}
 
 @keyframes spin {
   from {
