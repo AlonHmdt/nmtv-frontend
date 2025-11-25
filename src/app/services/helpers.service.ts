@@ -4,12 +4,16 @@ import { Injectable } from '@angular/core';
     providedIn: 'root'
 })
 export class HelpersService {
-    constructor() {}
+    constructor() { }
 
     isIOSDevice(): boolean {
         if (typeof navigator === 'undefined' || typeof window === 'undefined') {
             return false;
         }
         return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    }
+
+    isMobileResolution(): boolean {
+        return window.innerWidth < 1024;
     }
 }

@@ -14,7 +14,7 @@ export class PowerButtonComponent {
   deferredPrompt: any = null;
   showInstallButton = signal(false);
   helpersService = inject(HelpersService);
-        
+
   ngOnInit(): void {
     // Listen for spacebar press on desktop
     window.addEventListener('keydown', this.handleSpacebar);
@@ -59,7 +59,7 @@ export class PowerButtonComponent {
   handleBeforeInstallPrompt = (event: Event) => {
     event.preventDefault();
     this.deferredPrompt = event;
-    if (!this.helpersService.isIOSDevice()) {
+    if (!this.helpersService.isIOSDevice() && this.helpersService.isMobileResolution()) {
       this.showInstallButton.set(true);
     }
   };
