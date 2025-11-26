@@ -54,7 +54,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private touchEndY = 0;
   private minSwipeDistance = 50; // Minimum distance for a swipe to register
   private readonly CHANNEL_SWITCH_DELAY_MS = 800; // Minimum duration for static effect visibility
-  private readonly CHANNEL_LOAD_DELAY_MS = 100; // Delay before starting channel load
+  private readonly CHANNEL_LOAD_DELAY_MS = 150; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
 
   // Available channels in order
