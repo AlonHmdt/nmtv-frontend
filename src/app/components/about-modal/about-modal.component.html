@@ -1,72 +1,75 @@
 @if (isOpen()) {
-  <div class="modal-backdrop" (click)="close()">
-    <div class="modal-content" (click)="$event.stopPropagation()">
-      <button class="close-button" (click)="close()" aria-label="Close modal">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="4" y1="4" x2="16" y2="16"/>
-          <line x1="16" y1="4" x2="4" y2="16"/>
-        </svg>
-      </button>
-      
-      <div class="modal-header">
-        <div class="logo-wrapper">
-          <img src="/images/nmtv-logo.png" alt="NMTV Logo" class="nmtv-logo">
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="close-button" (click)="close()" aria-label="Close modal">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="4" y1="4" x2="16" y2="16" />
+        <line x1="16" y1="4" x2="4" y2="16" />
+      </svg>
+    </button>
+
+    <div class="modal-header">
+      <div class="logo-wrapper">
+        <img src="/images/nmtv-logo.png" alt="NMTV Logo" class="nmtv-logo">
+      </div>
+    </div>
+
+    <div class="modal-body">
+      <div class="about-intro">
+        <p>On August 1, 1981, MTV revolutionized the music industry by launching the first 24-hour music television
+          channel with the iconic words "Ladies and gentlemen, rock and roll." For decades, MTV shaped popular culture
+          and launched countless careers. As MTV's music channels close at the end of 2025, this project preserves that
+          legacy.</p>
+        <p class="dedication">NMTV stands for <strong>Noa's Music Television</strong> — dedicated to my wife Noa, who
+          grew up with the real MTV and inspired this tribute to the golden era of music television.</p>
+
+        <div class="support-button">
+          <p class="support-text">Enjoying NMTV? Help keep the music playing!</p>
+          <a href="https://www.buymeacoffee.com/alonhmdt" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=alonhmdt&button_colour=000000&font_colour=ffffff&font_family=Bree&outline_colour=ffffff&coffee_colour=FFDD00"
+              alt="Buy me a coffee" />
+          </a>
         </div>
       </div>
-      
-      <div class="modal-body">
-        <div class="about-intro">
-          <p>On August 1, 1981, MTV revolutionized the music industry by launching the first 24-hour music television channel with the iconic words "Ladies and gentlemen, rock and roll." For decades, MTV shaped popular culture and launched countless careers. As MTV's music channels close at the end of 2025, this project preserves that legacy.</p>
-          <p class="dedication">NMTV stands for <strong>Noa's Music Television</strong> — dedicated to my wife Noa, who grew up with the real MTV and inspired this tribute to the golden era of music television.</p>
-          
-          <div class="support-button">
-            <p class="support-text">Enjoying NMTV? Help keep the music playing!</p>
-            <a href="https://www.buymeacoffee.com/alonhmdt" target="_blank" rel="noopener noreferrer">
-              <img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=alonhmdt&button_colour=000000&font_colour=ffffff&font_family=Cookie&outline_colour=ffffff&coffee_colour=FFDD00" alt="Buy me a coffee" />
-            </a>
-          </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="card-icon">🎸</div>
+          <h3>Classic Experience</h3>
+          <p>Relive the golden era of music television with curated channels and authentic broadcast feel.</p>
         </div>
 
-        <div class="info-grid">
-          <div class="info-card">
-            <div class="card-icon">🎸</div>
-            <h3>Classic Experience</h3>
-            <p>Relive the golden era of music television with curated channels and authentic broadcast feel.</p>
-          </div>
-          
-          <div class="info-card">
-            <div class="card-icon">🎛️</div>
-            <h3>Your Channels</h3>
-            <p>Mix official playlists with your personal favorites. Create custom channels that match your taste.</p>
-          </div>
-          
-          <div class="info-card">
-            <div class="card-icon">🎵</div>
-            <h3>Endless Music</h3>
-            <p>Stream music videos from YouTube across decades and genres without interruptions.</p>
-          </div>
+        <div class="info-card">
+          <div class="card-icon">🎛️</div>
+          <h3>Your Channels</h3>
+          <p>Mix official playlists with your personal favorites. Create custom channels that match your taste.</p>
         </div>
-        
-        <div class="video-section">
-          <div class="section-header">
-            <h3>A Tribute to MTV's Legacy</h3>
-            <p>The Very First Two Hours Of MTV - August 1, 1981</p>
-          </div>
-          <div class="video-container">
-            <iframe
-              [src]="videoUrl"
-              title="The Very First Two Hours Of MTV"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
-          </div>
+
+        <div class="info-card">
+          <div class="card-icon">🎵</div>
+          <h3>Endless Music</h3>
+          <p>Stream music videos from YouTube across decades and genres without interruptions.</p>
         </div>
-        
-        <div class="footer-section">
-          <p>Built with ❤️ for music lovers everywhere</p>
+      </div>
+
+      <div class="video-section">
+        <div class="section-header">
+          <h3>A Tribute to MTV's Legacy</h3>
+          <p>The Very First Two Hours Of MTV - August 1, 1981</p>
         </div>
+        <div class="video-container">
+          <iframe id="about-modal-video" [src]="videoUrl" title="The Very First Two Hours Of MTV" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen>
+          </iframe>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <p>Built with ❤️ for music lovers everywhere</p>
       </div>
     </div>
   </div>
+</div>
 }

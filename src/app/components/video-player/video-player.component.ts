@@ -2,8 +2,10 @@ import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, Ch
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
+import { VideoPlayerControlService } from '../../services/video-player-control.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect } from './tv-static-effect';
+
 
 declare var YT: any;
 
@@ -18,6 +20,8 @@ declare var YT: any;
 export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
+  private videoPlayerControl = inject(VideoPlayerControlService);
+
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
 
@@ -121,6 +125,19 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.oldTVEffect.start();
         } else {
           this.oldTVEffect.stop();
+        }
+      }
+    });
+
+    // Watch for pause/resume signals from modals
+    effect(() => {
+      const shouldPause = this.videoPlayerControl.shouldPause();
+
+      if (this.player) {
+        if (shouldPause) {
+          this.player.pauseVideo();
+        } else {
+          this.player.playVideo();
         }
       }
     });
@@ -454,9 +471,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // Prevent pausing - always keep playing
+    // Prevent pausing - always keep playing (unless modal is open)
     if (event.data === YT.PlayerState.PAUSED) {
-      event.target.playVideo();
+      // Only auto-resume if we're not intentionally paused (e.g., modal is not open)
+      if (!this.videoPlayerControl.shouldPause()) {
+        event.target.playVideo();
+      }
     } else if (event.data === YT.PlayerState.ENDED) {
       this.playNextVideo();
     }
