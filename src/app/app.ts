@@ -73,6 +73,14 @@ export class App implements OnInit {
       // Use setTimeout to ensure the channel selector is rendered
       setTimeout(() => {
         this.channelSelector?.toggleMenu();
+
+        // Auto-close the menu after 2 seconds to show the video
+        // User will have selected a channel by then
+        setTimeout(() => {
+          if (this.channelSelector?.isMenuOpen()) {
+            this.channelSelector?.toggleMenu();
+          }
+        }, 2000);
       }, 100);
     }
   }
