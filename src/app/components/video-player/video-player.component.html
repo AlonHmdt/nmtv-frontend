@@ -16,8 +16,16 @@
       <div class="channel-badge">{{ currentChannelConfig()!.icon }} {{ currentChannelConfig()!.name }}</div>
       }
     </div>
-    @if (currentChannel() !== 'live' && currentVideo() && currentVideo().playlistLabel && !currentVideo().isBumper) {
+    @if (currentVideo() && !currentVideo().isBumper) {
+    @if (currentChannel() === 'live') {
+    @if (currentVideo().artist && currentVideo().song) {
+    <div class="playlist-name-badge">{{ currentVideo().artist }} - {{ currentVideo().song }}</div>
+    } @else if (currentVideo().title) {
+    <div class="playlist-name-badge">{{ currentVideo().title }}</div>
+    }
+    } @else if (currentVideo().playlistLabel) {
     <div class="playlist-name-badge">{{ currentVideo().playlistLabel }}</div>
+    }
     }
   </div>
 

@@ -138,12 +138,14 @@
     /* Bottom-right shadow */
     color: #fff;
     padding: 4px 0px;
-    border-radius: 2px;
     font-size: 14px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1px;
     font-family: 'Arial', sans-serif;
+    max-width: 300px;
+    text-align: left;
+    line-height: 1.5;
 
     @media #{$mobile-and-tablet} {
       padding: 5px 10px;
