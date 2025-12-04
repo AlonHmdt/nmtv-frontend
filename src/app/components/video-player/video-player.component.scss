@@ -323,3 +323,65 @@
     opacity: 0;
   }
 }
+
+// Unmute Message (iOS)
+.unmute-message {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 150;
+  pointer-events: none;
+}
+
+.unmute-content {
+  background: rgba(0, 0, 0, 0.50);
+  padding: 24px 40px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+
+  @media #{$mobile-and-tablet} {
+    padding: 20px 32px;
+    gap: 12px;
+  }
+}
+
+.unmute-icon {
+  font-size: 32px;
+  color: #fff;
+  animation: unmuteIconPulse 2s ease-in-out infinite;
+
+  @media #{$mobile-and-tablet} {
+    font-size: 24px;
+  }
+}
+
+.unmute-text {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.5px;
+
+  @media #{$mobile-and-tablet} {
+    font-size: 16px;
+  }
+}
+
+
+@keyframes unmuteIconPulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}

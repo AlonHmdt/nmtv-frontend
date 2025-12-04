@@ -29,6 +29,16 @@
     }
   </div>
 
+  <!-- Tap to Unmute Message (iOS only) -->
+  @if (showUnmuteMessage()) {
+  <div class="unmute-message">
+    <div class="unmute-content">
+      <i class="bi bi-volume-mute-fill unmute-icon"></i>
+      <div class="unmute-text">Tap to Unmute</div>
+    </div>
+  </div>
+  }
+
   <!-- Playing Now Overlay -->
   @if (showPlayingNow() && currentVideo()) {
   <div class="overlay playing-now" [class.animating-out]="playingNowAnimating()">

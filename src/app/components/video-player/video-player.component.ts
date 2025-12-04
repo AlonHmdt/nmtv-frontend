@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
+import { HelpersService } from '../../services/helpers.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect } from './tv-static-effect';
 
@@ -21,6 +22,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
   private videoPlayerControl = inject(VideoPlayerControlService);
+  private helpersService = inject(HelpersService);
 
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
@@ -40,6 +42,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   oldTVEnabled = this.queueService.oldTVEnabled;
   showChannelSwitchStatic = signal(false); // Show static when switching channels
   minStaticTimePassed = signal(true); // Track if minimum static time (600ms) has passed
+  showUnmuteMessage = signal(false); // Show "Tap to unmute" message on iOS
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -52,6 +55,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private oldTVEffect: OldTVEffect | null = null;
   private switchDelayTimeout: number | null = null; // Timeout for channel switch delay
   private minStaticTimeout: number | null = null; // Timeout for minimum static duration
+  private isMutedForIOS = false; // Track if video is muted due to iOS autoplay restrictions
+  private hasUserInteractedAfterStart = false; // Track if user has interacted after video started
 
   // Touch gesture tracking
   private touchStartY = 0;
@@ -229,6 +234,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isInsideModal(target)) {
       return;
     }
+
+    // Unmute on first touch if muted for iOS
+    this.unmuteIfNeeded();
+
     this.touchStartY = event.touches[0].clientY;
     this.touchStartX = event.touches[0].clientX;
     this.touchStartTime = Date.now();
@@ -316,6 +325,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private switchToNextChannel(goUp: boolean): void {
+    // Unmute on channel switch if muted for iOS
+    this.unmuteIfNeeded();
+
     const currentChannel = this.currentChannel();
     const currentIndex = this.AVAILABLE_CHANNELS.indexOf(currentChannel);
 
@@ -435,9 +447,24 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Disable all interactions
     event.target.getIframe().style.pointerEvents = 'none';
 
-    // User already interacted with power button (and on iOS, selected a channel)
-    // Try unmuted playback first
-    event.target.unMute();
+    // On iOS, start muted to ensure autoplay works
+    // Will unmute on first user interaction
+    if (this.helpersService.isIOSDevice()) {
+      event.target.mute();
+      this.isMutedForIOS = true;
+      this.hasUserInteractedAfterStart = false;
+
+      // Show unmute message after a short delay
+      setTimeout(() => {
+        if (this.isMutedForIOS) {
+          this.showUnmuteMessage.set(true);
+        }
+      }, 1000);
+    } else {
+      // Non-iOS: try unmuted playback
+      event.target.unMute();
+    }
+
     event.target.setVolume(100);
 
     if (this.isFirstVideo) {
@@ -447,26 +474,21 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     event.target.playVideo();
 
     // Retry play if not playing after 500ms
-    // On iOS, if unmuted autoplay fails, try muted as fallback
     setTimeout(() => {
       const state = event.target.getPlayerState();
-
       if (state !== YT.PlayerState.PLAYING) {
-        // Try muted playback as fallback for iOS
-        event.target.mute();
         event.target.playVideo();
-
-        // Check again after another 500ms
-        setTimeout(() => {
-          const state2 = event.target.getPlayerState();
-          if (state2 !== YT.PlayerState.PLAYING) {
-            // Last attempt - unmuted
-            event.target.unMute();
-            event.target.playVideo();
-          }
-        }, 500);
       }
     }, 500);
+  }
+
+  private unmuteIfNeeded(): void {
+    if (this.isMutedForIOS && !this.hasUserInteractedAfterStart && this.player) {
+      this.player.unMute();
+      this.isMutedForIOS = false;
+      this.hasUserInteractedAfterStart = true;
+      this.showUnmuteMessage.set(false);
+    }
   }
 
 
