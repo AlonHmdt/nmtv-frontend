@@ -166,17 +166,11 @@
   background: rgba(0, 0, 0, 0.2);
   border-radius: 12px 12px 0 0;
 
-  .brand-text {
-    font-family: 'Arial Black', sans-serif;
-    font-size: 20px;
-    color: #ccc;
-    text-transform: uppercase;
-    letter-spacing: -1px;
-    text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.5), 1px 1px 0 rgba(255, 255, 255, 0.1);
-    background: linear-gradient(to bottom, #eee, #999);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+  .brand-logo {
+    height: 40px;
+    width: auto;
+    filter: grayscale(100%) brightness(0.8);
+    opacity: 0.9;
   }
 
   .model-text {
@@ -277,9 +271,9 @@
     margin-right: 12px;
     border-radius: 12px 0 0 12px;
 
-    .brand-text {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
+    .brand-logo {
+      height: 30px;
+      transform: rotate(-90deg);
       margin-bottom: 12px;
     }
 
