@@ -66,23 +66,8 @@ export class App implements OnInit {
 
   onPowerOn(): void {
     this.isPoweredOn.set(true);
-
-    // On iOS, automatically open the menu after power on
-    // This ensures user interaction for autoplay to work
-    if (this.helpersService.isIOSDevice()) {
-      // Use setTimeout to ensure the channel selector is rendered
-      setTimeout(() => {
-        this.channelSelector?.toggleMenu();
-
-        // Auto-close the menu after 2 seconds to show the video
-        // User will have selected a channel by then
-        setTimeout(() => {
-          if (this.channelSelector?.isMenuOpen()) {
-            this.channelSelector?.toggleMenu();
-          }
-        }, 2000);
-      }, 100);
-    }
+    // Power button click provides the user interaction needed for iOS autoplay
+    // Video will start with the last selected channel (or default channel)
   }
 
   onPowerOff(): void {
