@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { VideoPlayerComponent } from './components/video-player/video-player.component';
 import { ChannelSelectorComponent } from './components/channel-selector/channel-selector.component';
 import { PowerButtonComponent } from './components/power-button/power-button.component';
 import { QueueService } from './services/queue.service';
 import { YoutubeService } from './services/youtube.service';
+import { HelpersService } from './services/helpers.service';
 import { Channel } from './models/video.model';
 import { inject as injectAnalytics } from '@vercel/analytics';
 
@@ -17,17 +18,20 @@ import { inject as injectAnalytics } from '@vercel/analytics';
 export class App implements OnInit {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
+  private helpersService = inject(HelpersService);
+  @ViewChild(ChannelSelectorComponent) channelSelector?: ChannelSelectorComponent;
+
   isPoweredOn = signal(false);
   isLoading = signal(true);
 
   async ngOnInit(): Promise<void> {
     // Initialize Vercel Analytics
     injectAnalytics();
-    
+
     try {
       // Wait for backend to be ready with data first
       const backendReady = await this.waitForBackend();
-      
+
       if (backendReady) {
         // Only load channel data after backend confirms it's ready
         const lastChannel = this.queueService.getLastSelectedChannel();
@@ -51,8 +55,8 @@ export class App implements OnInit {
       if (isReady) {
         return true;
       }
-      
-      retries++;      
+
+      retries++;
       // Wait 3 seconds before next retry
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
@@ -62,6 +66,15 @@ export class App implements OnInit {
 
   onPowerOn(): void {
     this.isPoweredOn.set(true);
+
+    // On iOS, automatically open the menu after power on
+    // This ensures user interaction for autoplay to work
+    if (this.helpersService.isIOSDevice()) {
+      // Use setTimeout to ensure the channel selector is rendered
+      setTimeout(() => {
+        this.channelSelector?.toggleMenu();
+      }, 100);
+    }
   }
 
   onPowerOff(): void {

@@ -435,7 +435,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Disable all interactions
     event.target.getIframe().style.pointerEvents = 'none';
 
-    // User already interacted with power button, so we can try unmuted playback
+    // User already interacted with power button (and on iOS, selected a channel)
+    // Try unmuted playback first
     event.target.unMute();
     event.target.setVolume(100);
 
@@ -446,11 +447,24 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     event.target.playVideo();
 
     // Retry play if not playing after 500ms
+    // On iOS, if unmuted autoplay fails, try muted as fallback
     setTimeout(() => {
       const state = event.target.getPlayerState();
 
       if (state !== YT.PlayerState.PLAYING) {
+        // Try muted playback as fallback for iOS
+        event.target.mute();
         event.target.playVideo();
+
+        // Check again after another 500ms
+        setTimeout(() => {
+          const state2 = event.target.getPlayerState();
+          if (state2 !== YT.PlayerState.PLAYING) {
+            // Last attempt - unmuted
+            event.target.unMute();
+            event.target.playVideo();
+          }
+        }, 500);
       }
     }, 500);
   }
