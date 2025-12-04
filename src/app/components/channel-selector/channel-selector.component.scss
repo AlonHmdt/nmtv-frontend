@@ -5,56 +5,87 @@
   z-index: 1000;
 }
 
+// The floating trigger button
 .remote-button {
   position: fixed;
-  bottom: 30px;
-  left: 30px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #000;
-  border: 2px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 40px;
+  border-radius: 20px 20px 0 0; // Half-circle/Tab shape
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: none;
+  box-shadow:
+    0 -4px 8px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 1001;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 2000; // Always on top
 
   svg {
-    color: #fff;
+    color: #d4d4d4;
     width: 24px;
     height: 24px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+    transition: transform 0.3s ease;
   }
 
-  &:hover,
-  &.active {
-    background: #1a1a1a;
+  .icon-mobile {
+    display: none;
   }
 
-  @media #{$mobile-and-tablet-portrait} {
-    width: 48px;
-    height: 48px;
-    bottom: 20px;
-    left: 20px;
+  &:hover {
+    height: 50px; // Peek up effect
 
     svg {
-      width: 20px;
-      height: 20px;
+      color: #fff;
+    }
+  }
+
+  &.active {
+    bottom: 0; // Stay at bottom
+    background: #222; // Match remote body
+    border-color: #1a1a1a; // Blend with remote border
+    box-shadow: none; // Remove shadow to blend
+    transform: translateX(-50%);
+
+    svg {
+      color: #666; // Dimmer when open
+      transform: rotate(180deg); // Arrow Down
+    }
+
+    &:hover {
+      height: 40px; // No peek when open
+
+      svg {
+        color: #fff;
+      }
+    }
+  }
+
+  // Mobile adjustments (Keep centered bottom tab style)
+  @media #{$mobile-and-tablet-portrait} {
+    width: 60px;
+    height: 36px;
+
+    &:hover {
+      height: 44px;
+    }
+
+    &.active {
+      &:hover {
+        height: 36px;
+      }
     }
   }
 
   @media #{$mobile-and-tablet-landscape} {
-    width: 40px;
-    height: 40px;
-    bottom: 20px;
-    left: 20px;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
+    height: 30px;
   }
 }
 
@@ -64,10 +95,8 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  /* Fallback */
-  height: 100dvh;
-  /* Modern browsers */
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
   z-index: 999;
   opacity: 1;
   transition: opacity 0.3s ease;
@@ -79,350 +108,88 @@
   }
 }
 
+// The main "Remote Control" body
 .side-menu {
   position: fixed;
-  top: 0;
-  left: -420px;
-  width: 420px;
-  height: 100vh;
-  /* Fallback */
-  height: 100dvh;
-  /* Modern browsers */
-  background: #000;
-  border-right: 1px solid #333;
-  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.5);
+  bottom: -100%; // Hidden by default
+  left: 50%;
+  transform: translateX(-50%);
+  width: 500px;
+  max-width: 95vw; // Responsive width
+  height: auto;
+  max-height: 85vh; // Allow more height on mobile
+
+  // Vintage Plastic Texture
+  background-color: #222;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+
+  border-radius: 24px 24px 0 0;
+  border: 8px solid #1a1a1a;
+  border-bottom: none;
+
+  // 3D Bevel effect
+  box-shadow:
+    0 -10px 40px rgba(0, 0, 0, 0.8),
+    inset 2px 2px 2px rgba(255, 255, 255, 0.1),
+    inset -2px 0 2px rgba(0, 0, 0, 0.5);
+
   z-index: 1000;
   display: flex;
   flex-direction: column;
-  transition: left 0.3s ease-out;
+  transition: bottom 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+  padding: 20px;
+  padding-bottom: 60px; // Extra padding for the button area
 
   &.open {
-    left: 0;
+    bottom: 0;
   }
 
   @media #{$mobile-and-tablet-portrait} {
-    width: 280px;
-    left: -280px;
-
-    &.open {
-      left: 0;
-    }
-  }
-
-  @media #{$mobile-and-tablet-landscape} {
-    &.open {
-      width: 60%;
-      left: 0;
-    }
+    width: 95vw; // Full width on mobile
+    border-width: 4px; // Thinner border on mobile
+    padding: 16px;
+    padding-bottom: 50px;
   }
 }
 
-.menu-header {
-  padding: 32px 24px;
-  background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.remote-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  position: relative;
+  align-items: center; // Align center for power button
+  padding: 12px 16px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+  margin-bottom: 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px 12px 0 0;
 
-  .logo {
-    margin: 0;
-    color: #fff;
-    font-family: 'Arial', sans-serif;
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: 3px;
+  .brand-text {
+    font-family: 'Arial Black', sans-serif;
+    font-size: 20px;
+    color: #ccc;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #fff 0%, #999 100%);
+    letter-spacing: -1px;
+    text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.5), 1px 1px 0 rgba(255, 255, 255, 0.1);
+    background: linear-gradient(to bottom, #eee, #999);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
     background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-    @media #{$mobile-and-tablet-portrait} {
-      font-size: 24px;
+  .model-text {
+    font-family: 'Courier New', monospace;
+    font-size: 9px;
+    color: #666;
+    letter-spacing: 2px;
+    font-weight: bold;
+    display: none; // Hide on smaller screens if needed, or keep
+
+    @media (min-width: 600px) {
+      display: block;
     }
-  }
-
-  .close-button {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    color: #fff;
-    cursor: pointer;
-    padding: 0;
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-  }
-}
-
-.channel-list {
-  flex: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
-  padding: 8px 0;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 3px;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-  }
-
-  @media #{$mobile-and-tablet-landscape} {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    padding: 0px;
-  }
-}
-
-.channel-item {
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-family: 'Arial', sans-serif;
-  font-size: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-
-  @media #{$mobile-and-tablet-portrait} {
-    font-size: 14px;
-    margin: 4px 8px;
-    max-height: 65px;
-  }
-
-  .channel-content {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    flex: 1;
-  }
-
-  .channel-icon {
-    font-size: 24px;
-    min-width: 28px;
-  }
-
-  .channel-name {
-    flex: 1;
-    text-align: left;
-    font-weight: 600;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    transform: translateX(4px);
-  }
-
-  &.active {
-    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
-    color: #000;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
-  }
-}
-
-.menu-actions {
-  padding: 20px;
-  background: rgba(145, 0, 0, 0.05);
-  border-top: 1px solid rgba(145, 0, 0, 0.2);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 12px;
-
-  @media #{$mobile-and-tablet-portrait} {
-    display: grid;
-    grid-template-columns: repeat(2, 90px);
-    justify-content: center;
-  }
-
-  @media #{$mobile-and-tablet-landscape} {
-    padding: 10px 20px;
-    display: flex;
-    align-items: stretch;
-  }
-}
-
-// Shared button styles
-.menu-actions button {
-  aspect-ratio: 1;
-  padding: 8px;
-  border-radius: 10px;
-  color: #fff;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  transition: all 0.3s;
-  text-align: center;
-  width: 85px;
-  position: relative;
-
-  @media #{$mobile-and-tablet-landscape} {
-    flex: 1;
-    aspect-ratio: 0;
-    flex-direction: row;
-    width: auto;
-  }
-
-  @media #{$mobile-and-tablet-portrait} {
-    width: 80px;
-  }
-
-  span {
-    font-size: 12px;
-    line-height: 1.1;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-}
-
-.settings-button {
-  background: linear-gradient(135deg, #000, #fc0);
-  border: none;
-
-  &:hover {
-    background: linear-gradient(135deg, #1a1a1a, #ffd700);
-  }
-}
-
-.about-button {
-  background: linear-gradient(135deg, #000, #910000);
-  border: none;
-
-  &:hover {
-    background: linear-gradient(135deg, #1a1a1a, #a50000);
-  }
-}
-
-.old-tv-button,
-.fullscreen-button {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  color: rgba(255, 255, 255, 0.7);
-  overflow: hidden;
-
-  .toggle-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-
-    @media #{$mobile-and-tablet-landscape} {
-      flex-direction: row;
-    }
-  }
-
-  .toggle-switch {
-    display: flex;
-    align-items: center;
-  }
-
-  .toggle-track {
-    width: 32px;
-    height: 16px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    position: relative;
-    border: 2px solid rgba(255, 255, 255, 0.15);
-  }
-
-  .toggle-thumb {
-    width: 10px;
-    height: 10px;
-    background: #fff;
-    border-radius: 50%;
-    position: absolute;
-    top: 1px;
-    left: 2px;
-    transition: left 0.3s;
-  }
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.06);
-  }
-
-  &.active .toggle-thumb {
-    left: 18px;
-  }
-}
-
-.old-tv-button {
-  border: 2px solid rgba(139, 69, 19, 0.3);
-
-  &.active {
-    background: linear-gradient(135deg, rgba(139, 69, 19, 0.15), rgba(160, 82, 45, 0.15));
-    color: #fff;
-    border-color: rgba(139, 69, 19, 0.5);
-
-    .toggle-track {
-      background: linear-gradient(135deg, #8B4513, #A0522D);
-    }
-
-    span:first-child {
-      animation: sparkle 1.5s ease-in-out infinite;
-    }
-  }
-}
-
-.fullscreen-button {
-  border: 2px solid rgba(96, 125, 139, 0.3);
-
-  &.active {
-    background: linear-gradient(135deg, rgba(96, 125, 139, 0.15), rgba(69, 90, 100, 0.15));
-    color: #fff;
-    border-color: rgba(96, 125, 139, 0.5);
-
-    .toggle-track {
-      background: linear-gradient(135deg, #607D8B, #455A64);
-    }
-
-    span:first-child {
-      animation: expand 1.5s ease-in-out infinite;
-    }
-  }
-}
-
-
-.menu-footer {
-  padding-bottom: 30px;
-  background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  @media #{$mobile-and-tablet-landscape} {
-    padding-bottom: 10px;
   }
 }
 
@@ -430,80 +197,425 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 2px;
+  margin: 0 12px;
 }
 
 .power-off-button {
+  width: 40px; // Smaller for header
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #a00, #800);
+  border: 3px solid #333;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow:
+    0 2px 0 #400,
+    0 4px 6px rgba(0, 0, 0, 0.5),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2);
+  transition: all 0.1s;
 
   i {
-    font-size: 20px;  
+    font-size: 18px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
   }
 
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: linear-gradient(145deg, #c00, #a00);
   }
 
-  @media #{$mobile-and-tablet-landscape} {
-    width: 40px;
-    height: 40px;
-
-    svg {
-      width: 20px;
-      height: 20px;
-    }
-  }
-}
-
-.power-off-container .green-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #00ff00;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.5), 0 0 16px rgba(0, 255, 0, 0.3);
-  animation: pulse 2s ease-in-out infinite;
-
-  @media #{$mobile-and-tablet-landscape} {
-    width: 8px;
-    height: 8px;
+  &:active {
+    transform: translateY(2px);
+    box-shadow:
+      0 0 0 #400,
+      inset 2px 2px 4px rgba(0, 0, 0, 0.6);
   }
 }
 
 .power-off-text {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  color: #666;
   text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+}
 
-  @media #{$mobile-and-tablet-landscape} {
-    font-size: 10px;
+.green-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #0f0;
+  box-shadow: 0 0 6px #0f0;
+  margin-bottom: 2px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+// Mobile Landscape Adjustments
+@media (max-height: 500px) and (orientation: landscape) {
+  .side-menu {
+    flex-direction: row; // Side-by-side layout
+    align-items: stretch;
+    padding: 12px;
+    padding-bottom: 12px; // No extra padding needed
+    width: 80vw;
+    max-width: 600px;
+    height: 85vh;
+  }
+
+  .remote-header {
+    flex-direction: column;
+    justify-content: center;
+    width: 80px;
+    border-bottom: none;
+    border-right: 2px solid rgba(0, 0, 0, 0.5);
+    margin-bottom: 0;
+    margin-right: 12px;
+    border-radius: 12px 0 0 12px;
+
+    .brand-text {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      margin-bottom: 12px;
+    }
+
+    .model-text {
+      display: none;
+    }
+  }
+
+  .channel-list {
+    margin-bottom: 0;
+    margin-right: 12px;
+  }
+
+  .menu-actions {
+    flex-direction: column;
+    width: 80px;
+    padding: 0;
+    gap: 8px;
+    overflow-y: auto;
+
+    button {
+      width: 100%;
+      height: 50px;
+    }
   }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
-@keyframes sparkle {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15) rotate(10deg); }
+.channel-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+
+  // Grid layout for the "buttons"
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  // Inset area for buttons
+  background: #151515;
+  border-radius: 12px;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.6), inset -1px -1px 2px rgba(255, 255, 255, 0.05);
+  margin-bottom: 20px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #111;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+    border: 2px solid #111;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    grid-template-columns: 1fr 1fr; // 2 columns on mobile
+    grid-auto-rows: max-content;
+    align-content: start;
+    padding: 8px;
+    gap: 8px;
+  }
 }
 
-@keyframes expand {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
+.channel-item {
+  // Skeuomorphic Button Style
+  background: linear-gradient(145deg, #333, #222);
+  border: none;
+  border-radius: 6px;
+  color: #ccc;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.1s;
+  position: relative;
+  height: 80px; // Smaller buttons
+
+  // Button bevel
+  box-shadow:
+    0 3px 0 #111,
+    0 4px 4px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+
+  .channel-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+  }
+
+  .channel-name {
+    font-family: 'Courier New', monospace; // Retro font
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  &:active {
+    transform: translateY(3px);
+    box-shadow:
+      0 0 0 #111,
+      inset 2px 2px 4px rgba(0, 0, 0, 0.6);
+    background: linear-gradient(145deg, #222, #1a1a1a);
+  }
+
+  &.active {
+    background: linear-gradient(145deg, #d4af37, #aa8c2c); // Gold/Amber light up
+    color: #222;
+    box-shadow:
+      0 0 15px rgba(212, 175, 55, 0.4),
+      0 3px 0 #66521a,
+      inset 1px 1px 0 rgba(255, 255, 255, 0.4);
+
+    .channel-name {
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    &:active {
+      transform: translateY(3px);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    height: 70px; // Slightly smaller on mobile
+
+    .channel-icon {
+      font-size: 20px;
+    }
+  }
+}
+
+.menu-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: #181818;
+  border-radius: 12px;
+  box-shadow:
+    inset 2px 2px 6px rgba(0, 0, 0, 0.6),
+    inset -1px -1px 2px rgba(255, 255, 255, 0.05);
+  border: 1px solid #333;
+
+  @media #{$mobile-and-tablet-portrait} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 12px;
+  }
+}
+
+// Shared retro button styles
+.menu-actions button {
+  width: 90px;
+  height: 70px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.1s;
+  position: relative;
+
+  font-family: 'Courier New', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ccc;
+
+  // Physical button look
+  box-shadow:
+    0 3px 0 #000,
+    0 5px 5px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+
+  span {
+    z-index: 1;
+  }
+
+  &:active {
+    transform: translateY(3px);
+    box-shadow:
+      0 0 0 #000,
+      inset 2px 2px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    width: 100%;
+    height: 60px;
+  }
+}
+
+.settings-button {
+  background: linear-gradient(145deg, #444, #333);
+
+  &:hover {
+    background: linear-gradient(145deg, #555, #444);
+    color: #fff;
+  }
+}
+
+.about-button {
+  background: linear-gradient(145deg, #444, #333);
+
+  &:hover {
+    background: linear-gradient(145deg, #555, #444);
+    color: #fff;
+  }
+}
+
+.old-tv-button,
+.fullscreen-button {
+  background: linear-gradient(145deg, #2a2a2a, #222);
+
+  .toggle-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  // Toggle indicator light
+  &::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #111;
+    box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s;
+  }
+
+  &.active {
+    background: linear-gradient(145deg, #333, #222);
+    color: #fff;
+
+    // Light up the indicator
+    &::after {
+      background: #0f0;
+      box-shadow: 0 0 6px #0f0;
+    }
+
+    .toggle-thumb {
+      background: #4caf50;
+      box-shadow: 0 0 8px #4caf50;
+    }
+  }
+}
+
+// Mobile Landscape Adjustments
+@media (max-height: 500px) and (orientation: landscape) {
+  .side-menu {
+    flex-direction: row; // Side-by-side layout
+    align-items: stretch;
+    padding: 12px;
+    padding-bottom: 12px; // No extra padding needed
+    width: 80vw;
+    max-width: 600px;
+    height: 85vh;
+  }
+
+  .remote-header {
+    flex-direction: column;
+    justify-content: center;
+    width: 80px;
+    border-bottom: none;
+    border-right: 2px solid rgba(0, 0, 0, 0.5);
+    margin-bottom: 0;
+    margin-right: 12px;
+    border-radius: 12px 0 0 12px;
+
+    .brand-text {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      margin-bottom: 12px;
+    }
+
+    .model-text {
+      display: none;
+    }
+  }
+
+  .channel-list {
+    margin-bottom: 0;
+    margin-right: 12px;
+  }
+
+  .menu-actions {
+    flex-direction: column;
+    width: 80px;
+    padding: 0;
+    gap: 8px;
+    overflow-y: auto;
+
+    button {
+      width: 100%;
+      height: 50px;
+    }
+  }
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }

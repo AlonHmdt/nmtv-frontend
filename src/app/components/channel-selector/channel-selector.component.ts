@@ -19,9 +19,9 @@ export class ChannelSelectorComponent {
   private helpersService = inject(HelpersService);
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
-  
+
   powerOff = output<void>();
-  
+
   isMenuOpen = signal(false);
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
@@ -39,10 +39,9 @@ export class ChannelSelectorComponent {
   }
 
   shouldShowFullScreen(): boolean {
-    // Hide fullscreen button on iOS
-    return !this.helpersService.isIOSDevice();
+    return typeof document !== 'undefined' && !!(document.fullscreenEnabled || (document as any).webkitFullscreenEnabled);
   }
-  
+
   toggleMenu(): void {
     this.isMenuOpen.update(v => !v);
   }
