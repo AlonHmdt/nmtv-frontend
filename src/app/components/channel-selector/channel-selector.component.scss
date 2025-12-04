@@ -39,11 +39,13 @@
     display: none;
   }
 
-  &:hover {
-    height: 50px; // Peek up effect
+  @media (hover: hover) {
+    &:hover {
+      height: 50px; // Peek up effect
 
-    svg {
-      color: #fff;
+      svg {
+        color: #fff;
+      }
     }
   }
 
@@ -59,11 +61,13 @@
       transform: rotate(180deg); // Arrow Down
     }
 
-    &:hover {
-      height: 40px; // No peek when open
+    @media (hover: hover) {
+      &:hover {
+        height: 40px; // No peek when open
 
-      svg {
-        color: #fff;
+        svg {
+          color: #fff;
+        }
       }
     }
   }
@@ -73,13 +77,17 @@
     width: 60px;
     height: 36px;
 
-    &:hover {
-      height: 44px;
+    @media (hover: hover) {
+      &:hover {
+        height: 44px;
+      }
     }
 
     &.active {
-      &:hover {
-        height: 36px;
+      @media (hover: hover) {
+        &:hover {
+          height: 36px;
+        }
       }
     }
   }
@@ -254,23 +262,27 @@
 // Mobile Landscape Adjustments
 @media (max-height: 500px) and (orientation: landscape) {
   .side-menu {
-    flex-direction: row; // Side-by-side layout
-    align-items: stretch;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    grid-template-rows: 1fr auto;
     padding: 12px;
-    padding-bottom: 12px; // No extra padding needed
+    padding-bottom: 12px;
     width: 80vw;
     max-width: 600px;
     height: 85vh;
+    gap: 0; // Reset gap
   }
 
   .remote-header {
+    grid-column: 1;
+    grid-row: 1 / -1;
     flex-direction: column;
     justify-content: center;
-    width: 80px;
+    width: 100%; // Fill column
     border-bottom: none;
     border-right: 2px solid rgba(0, 0, 0, 0.5);
     margin-bottom: 0;
-    margin-right: 12px;
+    margin-right: 0;
     border-radius: 12px 0 0 12px;
 
     .brand-logo {
@@ -285,20 +297,33 @@
   }
 
   .channel-list {
+    grid-column: 2;
+    grid-row: 1;
     margin-bottom: 0;
-    margin-right: 12px;
+    margin-right: 0;
+    padding: 0 0 12px 12px; // Add padding left for spacing from header
+    overflow-y: auto;
   }
 
   .menu-actions {
-    flex-direction: column;
-    width: 80px;
-    padding: 0;
+    grid-column: 2;
+    grid-row: 2;
+    flex-direction: row;
+    width: 100%;
+    padding: 0 0 0 12px; // Align with channel list
     gap: 8px;
-    overflow-y: auto;
+    overflow-x: auto; // Allow horizontal scroll if needed
+    overflow-y: hidden;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    justify-content: flex-start; // Align left
 
     button {
-      width: 100%;
+      width: auto;
+      min-width: 80px;
       height: 50px;
+      flex: 1; // Distribute space
     }
   }
 }
@@ -553,53 +578,98 @@
 }
 
 // Mobile Landscape Adjustments
-@media (max-height: 500px) and (orientation: landscape) {
+@media #{$mobile-and-tablet-landscape} {
   .side-menu {
-    flex-direction: row; // Side-by-side layout
-    align-items: stretch;
+    display: flex;
+    flex-direction: column;
     padding: 12px;
-    padding-bottom: 12px; // No extra padding needed
+    padding-bottom: 40px; // Space for trigger button
     width: 80vw;
     max-width: 600px;
-    height: 85vh;
+    height: auto; // Allow it to shrink
+    max-height: 95vh; // Cap the height
+    gap: 0;
   }
 
   .remote-header {
-    flex-direction: column;
-    justify-content: center;
-    width: 80px;
-    border-bottom: none;
-    border-right: 2px solid rgba(0, 0, 0, 0.5);
-    margin-bottom: 0;
-    margin-right: 12px;
-    border-radius: 12px 0 0 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+    border-right: none;
+    margin-bottom: 8px;
+    margin-right: 0;
+    border-radius: 12px 12px 0 0;
+    padding: 8px 16px;
 
-    .brand-text {
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      margin-bottom: 12px;
+    .brand-logo {
+      height: 30px;
+      transform: none;
+      margin-bottom: 0;
     }
 
     .model-text {
-      display: none;
+      display: block;
+      font-size: 8px;
+    }
+
+    .power-off-container {
+      margin: 0;
+      flex-direction: row;
+      gap: 8px;
+
+      .power-off-text {
+        display: none;
+      }
+
+      .green-dot {
+        margin-bottom: 0;
+        margin-right: 4px;
+      }
     }
   }
 
   .channel-list {
-    margin-bottom: 0;
-    margin-right: 12px;
+    flex: 0 0 auto; // Don't stretch
+    margin-bottom: 8px;
+    margin-right: 0;
+    padding: 8px;
+    overflow-y: auto;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+
+    .channel-item {
+      height: 55px;
+
+      .channel-icon {
+        font-size: 18px;
+      }
+
+      .channel-name {
+        font-size: 8px;
+      }
+    }
   }
 
   .menu-actions {
-    flex-direction: column;
-    width: 80px;
-    padding: 0;
+    flex-direction: row;
+    width: 100%;
+    padding: 8px;
     gap: 8px;
-    overflow-y: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #333;
+    box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.6);
+    background: #181818;
+    justify-content: center;
+    border-radius: 12px;
 
     button {
-      width: 100%;
-      height: 50px;
+      width: auto;
+      min-width: 70px;
+      height: 45px;
+      flex: 1;
     }
   }
 }
