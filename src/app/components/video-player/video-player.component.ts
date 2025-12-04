@@ -56,7 +56,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   // Touch gesture tracking
   private touchStartY = 0;
   private touchEndY = 0;
-  private minSwipeDistance = 50; // Minimum distance for a swipe to register
+  private touchStartX = 0;
+  private touchEndX = 0;
+  private touchStartTime = 0;
+  private minSwipeDistance = 80; // Minimum distance for a swipe to register (increased from 50)
+  private maxSwipeTime = 500; // Maximum time (ms) for a swipe to be considered intentional
+  private minSwipeVelocity = 0.3; // Minimum velocity (pixels/ms) for a swipe
+  private maxHorizontalRatio = 0.5; // Maximum ratio of horizontal to vertical movement
+  private lastSwipeTime = 0; // Track last swipe time for debouncing
+  private swipeDebounceMs = 300; // Minimum time between swipes
   private readonly CHANNEL_SWITCH_DELAY_MS = 800; // Minimum duration for static effect visibility
   private readonly CHANNEL_LOAD_DELAY_MS = 150; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
@@ -222,6 +230,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.touchStartY = event.touches[0].clientY;
+    this.touchStartX = event.touches[0].clientX;
+    this.touchStartTime = Date.now();
   }
 
   private handleTouchEnd(event: TouchEvent): void {
@@ -231,6 +241,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
     this.touchEndY = event.changedTouches[0].clientY;
+    this.touchEndX = event.changedTouches[0].clientX;
     this.handleSwipe();
   }
 
@@ -266,14 +277,40 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const swipeDistance = this.touchStartY - this.touchEndY;
+    // Debounce: Ignore swipes that happen too quickly after the last one
+    const now = Date.now();
+    if (now - this.lastSwipeTime < this.swipeDebounceMs) {
+      return;
+    }
+
+    const verticalDistance = this.touchStartY - this.touchEndY;
+    const horizontalDistance = Math.abs(this.touchStartX - this.touchEndX);
+    const swipeTime = now - this.touchStartTime;
+    const velocity = Math.abs(verticalDistance) / swipeTime;
+
+    // Ignore if swipe took too long (likely not intentional)
+    if (swipeTime > this.maxSwipeTime) {
+      return;
+    }
+
+    // Ignore if there's too much horizontal movement (likely scrolling or accidental)
+    if (horizontalDistance > Math.abs(verticalDistance) * this.maxHorizontalRatio) {
+      return;
+    }
+
+    // Ignore if velocity is too low (likely accidental touch)
+    if (velocity < this.minSwipeVelocity) {
+      return;
+    }
 
     // Swipe up (finger moves up) - next channel
-    if (swipeDistance > this.minSwipeDistance) {
+    if (verticalDistance > this.minSwipeDistance) {
+      this.lastSwipeTime = now;
       this.switchToNextChannel(false); // Same as arrow down
     }
     // Swipe down (finger moves down) - previous channel
-    else if (swipeDistance < -this.minSwipeDistance) {
+    else if (verticalDistance < -this.minSwipeDistance) {
+      this.lastSwipeTime = now;
       this.switchToNextChannel(true); // Same as arrow up
     }
   }
