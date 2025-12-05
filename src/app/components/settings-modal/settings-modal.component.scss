@@ -72,7 +72,7 @@
 
   h2 {
     margin: 0;
-    font-family: 'Courier New', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 18px;
     color: #ccc;
     font-weight: 700;
@@ -173,7 +173,7 @@
       0 4px 4px rgba(0, 0, 0, 0.4),
       inset 1px 1px 0 rgba(255, 255, 255, 0.1);
 
-    font-family: 'Courier New', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
@@ -278,7 +278,7 @@
 }
 
 .info-message {
-  font-family: 'Courier New', monospace;
+  font-family: 'Roboto Mono', monospace;
   font-size: 12px;
   color: #888;
   margin-bottom: 24px;
@@ -301,7 +301,7 @@
 
 .playlists-section {
   h3 {
-    font-family: 'Courier New', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 14px;
     color: #ccc;
     text-transform: uppercase;
@@ -322,7 +322,7 @@
   text-align: center;
   padding: 30px;
   color: #444;
-  font-family: 'Courier New', monospace;
+  font-family: 'Roboto Mono', monospace;
   font-size: 12px;
   border: 2px dashed #333;
   border-radius: 8px;
@@ -362,7 +362,7 @@
       overflow: hidden;
 
       .playlist-name {
-        font-family: 'Courier New', monospace;
+        font-family: 'Roboto Mono', monospace;
         font-size: 12px;
         color: #ddd;
         white-space: nowrap;
@@ -371,7 +371,7 @@
       }
 
       .playlist-link {
-        font-family: 'Courier New', monospace;
+        font-family: 'Roboto Mono', monospace;
         font-size: 10px;
         color: #666;
         text-decoration: none;
@@ -407,7 +407,7 @@
 
 .add-playlist-section {
   h3 {
-    font-family: 'Courier New', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 14px;
     color: #ccc;
     text-transform: uppercase;
@@ -427,7 +427,7 @@
       background: #000;
       border: 1px solid #333;
       color: #0f0; // Retro terminal green
-      font-family: 'Courier New', monospace;
+      font-family: 'Roboto Mono', monospace;
       font-size: 12px;
       padding: 10px;
       border-radius: 4px;
@@ -451,7 +451,7 @@
       border-radius: 4px;
       color: #ccc;
       padding: 0 16px;
-      font-family: 'Courier New', monospace;
+      font-family: 'Roboto Mono', monospace;
       font-size: 11px;
       font-weight: bold;
       text-transform: uppercase;
@@ -479,7 +479,7 @@
     border-radius: 4px;
 
     p {
-      font-family: 'Courier New', monospace;
+      font-family: 'Roboto Mono', monospace;
       font-size: 10px;
       color: #666;
       margin: 0 0 4px 0;
@@ -487,7 +487,7 @@
 
     code {
       display: block;
-      font-family: 'Courier New', monospace;
+      font-family: 'Roboto Mono', monospace;
       font-size: 10px;
       color: #444;
       word-break: break-all;
@@ -510,7 +510,7 @@
     border: none;
     border-radius: 8px;
     color: #4caf50; // Bright Green Text
-    font-family: 'Courier New', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 14px;
     font-weight: bold;
     text-transform: uppercase;
@@ -559,7 +559,7 @@
   border-radius: 4px;
 
   p {
-    font-family: 'Courier New', monospace;
+    font-family: 'Roboto Mono', monospace;
     font-size: 11px;
     color: #d4af37;
     margin: 0;
