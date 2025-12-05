@@ -7,7 +7,7 @@
   <div class="modal-content" (click)="$event.stopPropagation()">
     <!-- Header -->
     <div class="modal-header">
-      <h2>⚙️ Custom Playlists</h2>
+      <h2>🛠️ Channel Architect</h2>
       <button class="close-button" (click)="close()">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="4" y1="4" x2="16" y2="16" />
@@ -38,7 +38,7 @@
           programming.
         </p>
         <p class="limit-info">
-          Only Public playlists are supported.
+          Only Public playlists are supported and just the first <strong>100 videos</strong> per playlist will be used.
         </p>
       </div>
 
@@ -47,7 +47,7 @@
         <!-- Left Column: Current Playlists -->
         <div class="playlists-section">
           <h3>
-            Custom Playlists
+            Your Playlists
             <span class="count">({{ playlistCount() }}/5)</span>
           </h3>
 
