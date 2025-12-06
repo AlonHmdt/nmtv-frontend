@@ -152,8 +152,10 @@
   @media #{$mobile-and-tablet-portrait} {
     width: 95vw; // Full width on mobile
     border-width: 4px; // Thinner border on mobile
-    padding: 16px;
+    padding: 12px;
     padding-bottom: 50px;
+    max-height: 92vh; // Fallback
+    max-height: 92dvh; // Use more vertical space
   }
 }
 
@@ -185,6 +187,15 @@
 
     @media (min-width: 600px) {
       display: block;
+    }
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    padding: 8px 12px;
+    margin-bottom: 8px;
+
+    .brand-logo {
+      height: 32px;
     }
   }
 }
@@ -320,11 +331,12 @@
   }
 
   @media #{$mobile-and-tablet-portrait} {
-    grid-template-columns: 1fr 1fr; // 2 columns on mobile
+    grid-template-columns: repeat(3, 1fr); // 3 columns on mobile to save space
     grid-auto-rows: max-content;
     align-content: start;
     padding: 8px;
-    gap: 8px;
+    gap: 6px; // Tighter gap
+    margin-bottom: 12px;
   }
 }
 
@@ -362,10 +374,17 @@
   }
 
   @media #{$mobile-and-tablet-portrait} {
-    height: 70px; // Slightly smaller on mobile
+    height: 60px; // Much smaller on mobile
+    padding: 4px;
+    gap: 4px;
 
     .channel-icon {
-      font-size: 20px;
+      font-size: 18px;
+    }
+
+    .channel-name {
+      font-size: 9px;
+      letter-spacing: 0.5px;
     }
   }
 }
@@ -386,7 +405,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    padding: 12px;
+    padding: 8px; // Reduced padding
   }
 }
 
@@ -420,10 +439,11 @@
 
   @media #{$mobile-and-tablet-portrait} {
     width: 100%;
-    height: 60px;
+    height: 50px; // Smaller action buttons
 
     i {
-      font-size: 18px;
+      font-size: 16px;
+      margin-bottom: 0;
     }
   }
 }
@@ -564,10 +584,109 @@
     border-radius: 12px;
 
     button {
-      width: auto;
       min-width: 70px;
       height: 45px;
       flex: 1;
     }
+  }
+}
+
+// D-Pad Actions Container (Support & Download)
+.d-pad-actions-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end; // Align bottom
+  padding: 0 16px;
+  margin-top: auto; // Push to bottom if flex column
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  pointer-events: none; // Let clicks pass through container (except buttons)
+
+  @media #{$mobile-and-tablet-portrait} {
+    bottom: 8px;
+    padding: 0 8px;
+  }
+}
+
+.d-pad-spacer {
+  flex: 0 0 80px; // Space for d-pad (80px width)
+  height: 1px;
+
+  @media #{$mobile-and-tablet-portrait} {
+    flex: 0 0 60px; // Smaller space on mobile
+  }
+}
+
+.button-placeholder {
+  flex: 1;
+  min-width: 70px;
+}
+
+.retro-small-button {
+  pointer-events: all; // Re-enable clicks
+  flex: 1;
+  max-width: 100px; // Limit width
+  height: 36px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 18px; // Pill shape
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #888;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.4),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.05);
+
+  i {
+    font-size: 14px;
+    color: #666;
+    transition: color 0.2s ease;
+  }
+
+  &:hover {
+    background: #222;
+    color: #ccc;
+    border-color: #444;
+    transform: translateY(-1px);
+    box-shadow:
+      0 3px 6px rgba(0, 0, 0, 0.5),
+      inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+
+    i {
+      color: #fff;
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  // Specific button colors (subtle hints)
+  &.support-button:hover i {
+    color: #FFDD00;
+  }
+
+  // Gold for coffee
+  &.install-button:hover i {
+    color: #00AAFF;
+  }
+
+  // Blue for download
+
+  @media #{$mobile-and-tablet-landscape} {
+    height: 30px;
+    font-size: 8px;
   }
 }

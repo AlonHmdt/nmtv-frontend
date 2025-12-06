@@ -1,0 +1,185 @@
+@use '../../../styles/breakpoints' as *;
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 24px;
+
+    // Texture, border, and shadow handled by utility classes
+
+    animation: slideUp 0.3s ease-out;
+
+    @media #{$mobile-and-tablet-portrait} {
+        width: 95%;
+        border-width: 4px;
+        border-radius: 16px;
+    }
+}
+
+.close-button {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    // Base styles handled by .retro-round-button
+    z-index: 10;
+
+    svg {
+        width: 18px;
+        height: 18px;
+        filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+    }
+
+    @media #{$mobile-and-tablet-portrait} {
+        width: 30px;
+        height: 30px;
+        border-width: 2px;
+        top: 12px;
+        right: 12px;
+
+        svg {
+            width: 14px;
+            height: 14px;
+        }
+    }
+}
+
+.modal-header {
+    padding: 24px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.5);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+
+    h2 {
+        margin: 0;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 18px;
+        color: #fff;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    @media #{$mobile-and-tablet-portrait} {
+        padding: 16px;
+
+        h2 {
+            font-size: 16px;
+        }
+    }
+}
+
+.modal-body {
+    padding: 24px;
+    margin: 0 24px;
+
+    // Inset styles handled by .retro-inset-panel
+
+    @media #{$mobile-and-tablet-portrait} {
+        padding: 16px;
+        margin: 0 12px;
+    }
+}
+
+.instructions-content {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.5;
+
+    p {
+        margin-bottom: 12px;
+        font-weight: 500;
+    }
+
+    ol {
+        padding-left: 20px;
+        margin: 0;
+
+        li {
+            margin-bottom: 8px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    i {
+        color: #007AFF; // iOS Blue
+        font-size: 14px;
+        margin: 0 2px;
+    }
+
+    strong {
+        color: #fff;
+        font-weight: 600;
+    }
+}
+
+.mac-instructions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+
+    .browser-instruction {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 12px;
+        border-radius: 8px;
+
+        strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #FFDD00; // Gold highlight
+        }
+
+        p {
+            margin: 0;
+            font-size: 13px;
+            color: #ccc;
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

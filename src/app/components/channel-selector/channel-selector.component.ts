@@ -1,15 +1,17 @@
-import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output } from '@angular/core';
+import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { Channel, ChannelConfig, Channels } from '../../models/video.model';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
+import { InstallModalComponent } from '../install-modal/install-modal.component';
 import { HelpersService } from '../../services/helpers.service';
+import { PwaService } from '../../services/pwa.service';
 
 @Component({
   selector: 'app-channel-selector',
   standalone: true,
-  imports: [CommonModule, SettingsModalComponent, AboutModalComponent],
+  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent],
   templateUrl: './channel-selector.component.html',
   styleUrls: ['./channel-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -17,8 +19,11 @@ import { HelpersService } from '../../services/helpers.service';
 export class ChannelSelectorComponent {
   private queueService = inject(QueueService);
   private helpersService = inject(HelpersService);
+  private pwaService = inject(PwaService);
+
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
+  @ViewChild(InstallModalComponent) installModal?: InstallModalComponent;
 
   powerOff = output<void>();
 
@@ -27,6 +32,12 @@ export class ChannelSelectorComponent {
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
   channels: ChannelConfig[] = Channels;
+
+  showInstallButton = computed(() => {
+    // Show if we have an install prompt (Android/Desktop) OR if it's iOS/Mac and not standalone
+    return !!this.pwaService.installPrompt() ||
+      ((this.pwaService.isIOS() || this.pwaService.isMac()) && !this.pwaService.isStandalone());
+  });
 
   constructor() {
     // Listen for fullscreen changes
@@ -110,6 +121,20 @@ export class ChannelSelectorComponent {
       } else if ((document as any).msExitFullscreen) { /* IE11 */
         (document as any).msExitFullscreen();
       }
+    }
+  }
+
+  openSupport(): void {
+    window.open('https://buymeacoffee.com/alonha', '_blank');
+  }
+
+  installApp(): void {
+    if (this.pwaService.installPrompt()) {
+      this.pwaService.promptInstall();
+    } else if (this.pwaService.isIOS()) {
+      this.installModal?.open('ios');
+    } else if (this.pwaService.isMac()) {
+      this.installModal?.open('mac');
     }
   }
 }

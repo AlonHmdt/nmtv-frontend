@@ -1,0 +1,45 @@
+@if (isOpen()) {
+<div class="modal-backdrop" (click)="close()">
+    <div class="modal-content vintage-texture-bg retro-border retro-shadow-bevel" (click)="$event.stopPropagation()">
+        <button class="close-button retro-round-button" (click)="close()" aria-label="Close modal">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="4" y1="4" x2="16" y2="16" />
+                <line x1="16" y1="4" x2="4" y2="16" />
+            </svg>
+        </button>
+
+        <div class="modal-header">
+            <h2>INSTALLATION</h2>
+        </div>
+
+        <div class="modal-body retro-inset-panel">
+            @if (platform() === 'ios') {
+            <div class="instructions-content">
+                <p>How to Install:</p>
+                <ol>
+                    <li>Tap the <strong>Share</strong> icon <i class="bi bi-box-arrow-up"></i> in your browser bar.</li>
+                    <li>Scroll down and tap <strong>Add to Home Screen</strong> <i class="bi bi-plus-square"></i>.</li>
+                    <li>Tap <strong>Add</strong> to finish.</li>
+                </ol>
+            </div>
+            }
+
+            @if (platform() === 'mac') {
+            <div class="instructions-content">
+                <p>To install NMTV on your Mac:</p>
+                <div class="mac-instructions">
+                    <div class="browser-instruction">
+                        <strong>Safari:</strong>
+                        <p>File > Add to Dock...</p>
+                    </div>
+                    <div class="browser-instruction">
+                        <strong>Chrome:</strong>
+                        <p>Click the Install icon <i class="bi bi-download"></i> in the address bar.</p>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+}
