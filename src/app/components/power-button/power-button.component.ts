@@ -1,4 +1,4 @@
-import { Component, signal, output, input, ChangeDetectionStrategy, effect, inject, ViewChild, ElementRef, untracked } from '@angular/core';
+import { Component, output, input, ChangeDetectionStrategy, ViewChild, ElementRef, signal, effect, untracked, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OldTVEffect } from '../video-player/tv-static-effect';
 
@@ -11,36 +11,30 @@ import { OldTVEffect } from '../video-player/tv-static-effect';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PowerButtonComponent {
+  private cdr = inject(ChangeDetectorRef);
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
 
   private oldTVEffect: OldTVEffect | null = null;
+  private effectTimeout: number | null = null;
 
   // Inputs/Outputs
   isLoading = input<boolean>(false);
   isPoweredOn = input<boolean>(false);
   powerOn = output<void>();
 
-  // State
+  // Local state for animation
   isAnimating = signal(false);
-  readyToHide = signal(false);
 
   constructor() {
-    // Reset state when powered off
+    // Reset animation state when powered off
     effect(() => {
       const poweredOn = this.isPoweredOn();
 
       if (!poweredOn) {
-        // Use untracked to avoid triggering this effect when we set these signals
         untracked(() => {
           this.isAnimating.set(false);
-          this.readyToHide.set(false);
         });
-
-        // Clean up old TV effect
-        if (this.oldTVEffect) {
-          this.oldTVEffect.destroy();
-          this.oldTVEffect = null;
-        }
+        this.cleanup();
       }
     });
   }
@@ -52,10 +46,17 @@ export class PowerButtonComponent {
 
   ngOnDestroy(): void {
     window.removeEventListener('keydown', this.handleSpacebar);
+    this.cleanup();
+  }
 
+  private cleanup(): void {
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
       this.oldTVEffect = null;
+    }
+    if (this.effectTimeout) {
+      clearTimeout(this.effectTimeout);
+      this.effectTimeout = null;
     }
   }
 
@@ -66,30 +67,36 @@ export class PowerButtonComponent {
   };
 
   onPowerClick(): void {
-    if (this.isLoading()) return;
+    if (this.isLoading()) {
+      return;
+    }
 
+    // Clean up any existing effect and timeouts
+    this.cleanup();
+
+    // Start animation immediately
     this.isAnimating.set(true);
-    this.readyToHide.set(false);
 
-    // Initialize and start static effect
+    // Start the power-on sequence
+    // Small delay to ensure canvas is rendered
     setTimeout(() => {
-      if (this.staticCanvas && !this.oldTVEffect) {
+      if (this.staticCanvas) {
+        // Always create a fresh effect for consistent behavior
         this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement);
         this.oldTVEffect.start();
-      } else if (this.oldTVEffect) {
-        this.oldTVEffect.start();
+
+        // Emit power on event immediately so video starts loading
+        this.powerOn.emit();
+
+        // Hide the screen after the effect completes
+        this.effectTimeout = window.setTimeout(() => {
+          if (this.oldTVEffect) {
+            this.oldTVEffect.stop();
+          }
+          this.isAnimating.set(false);
+          this.cdr.markForCheck();
+        }, 1500);
       }
     }, 50);
-
-    // Start video loading immediately
-    this.powerOn.emit();
-
-    // Hide screen after static effect completes
-    setTimeout(() => {
-      if (this.oldTVEffect) {
-        this.oldTVEffect.stop();
-      }
-      this.readyToHide.set(true);
-    }, 1500);
   }
 }

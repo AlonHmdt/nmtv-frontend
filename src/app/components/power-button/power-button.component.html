@@ -1,5 +1,5 @@
 <div class="crt-off-screen" [class.powering-on]="isAnimating()"
-  [class.animation-complete]="readyToHide() && isPoweredOn()">
+  [class.animation-complete]="!isAnimating() && isPoweredOn()">
   @if (!isAnimating()) {
   <div class="remote-body">
     <div class="remote-header">

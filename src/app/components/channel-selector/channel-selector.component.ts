@@ -139,4 +139,27 @@ export class ChannelSelectorComponent {
       this.installModal?.open('android');
     }
   }
+
+  async shareApp(): Promise<void> {
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'NMTV - Noa\'s Music Television',
+          text: 'Check out NMTV! A retro music TV experience.',
+          url: window.location.href
+        });
+      } catch (error) {
+        console.error('Error sharing:', error);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        // Optional: Show a toast or alert, but for now just log
+        console.log('URL copied to clipboard');
+      } catch (err) {
+        console.error('Failed to copy URL:', err);
+      }
+    }
+  }
 }

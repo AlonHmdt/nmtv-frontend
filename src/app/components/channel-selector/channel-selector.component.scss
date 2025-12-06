@@ -608,6 +608,10 @@
     bottom: 8px;
     padding: 0 8px;
   }
+
+  @media #{$mobile-and-tablet-landscape} {
+    bottom: 6px;
+  }
 }
 
 .d-pad-spacer {
@@ -684,6 +688,9 @@
   }
 
   // Blue for download
+  &.share-button:hover i {
+    color: #9D00FF;
+  }
 
   @media #{$mobile-and-tablet-landscape} {
     height: 30px;
