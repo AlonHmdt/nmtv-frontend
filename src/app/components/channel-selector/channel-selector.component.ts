@@ -125,7 +125,7 @@ export class ChannelSelectorComponent {
   }
 
   openSupport(): void {
-    window.open('https://buymeacoffee.com/alonha', '_blank');
+    window.open('https://buymeacoffee.com/alonhmdt', '_blank');
   }
 
   installApp(): void {
