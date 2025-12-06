@@ -213,6 +213,23 @@
   font-weight: bold;
   text-align: center;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  .desktop {
+
+    @media #{$mobile-and-tablet},
+    #{$tablet-landscape} {
+      display: none;
+    }
+  }
+
+  .mobile {
+    display: none;
+
+    @media #{$mobile-and-tablet},
+    #{$tablet-landscape} {
+      display: inline;
+    }
+  }
 }
 
 // ============================================================================
@@ -287,9 +304,9 @@
   gap: 8px;
 
   &.keyboard-hints {
-    flex-direction: row;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 8px;
+    flex-wrap: nowrap;
     justify-content: center;
   }
 
@@ -309,6 +326,14 @@
       display: flex;
     }
   }
+}
+
+.hint-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
 }
 
 .hint-group {
@@ -351,7 +376,7 @@
 
 .hint-label {
   font-family: 'Roboto Mono', monospace;
-  font-size: 9px;
+  font-size: 11px;
   color: #888;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -383,14 +408,6 @@
   i {
     font-size: 12px;
   }
-}
-
-.guide-text {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 11px;
-  letter-spacing: 1px;
-  font-weight: bold;
-  text-align: center;
 }
 
 // ============================================================================
