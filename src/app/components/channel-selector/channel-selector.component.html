@@ -1,16 +1,7 @@
 <div class="channel-selector">
   <!-- Floating Remote Button -->
   <button class="remote-button" (click)="toggleMenu()" [class.active]="isMenuOpen()">
-    <!-- Desktop Icon (Arrow Up/Down) -->
-    <svg class="icon-desktop" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M18 15l-6-6-6 6" />
-    </svg>
-    <!-- Mobile Icon (Arrow Right/Left) -->
-    <svg class="icon-mobile" xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 18l6-6-6-6" />
-    </svg>
+    <i class="bi bi-dpad-fill"></i>
   </button>
 
   <!-- Side Menu (Remote Body) -->
@@ -43,17 +34,17 @@
 
     <div class="menu-actions">
       <button class="settings-button" (click)="openSettings()">
-        <span class="settings-icon">🛠️</span>
+        <i class="bi bi-tools settings-icon"></i>
         <span class="settings-text">Channel Architect</span>
       </button>
       <button class="about-button" (click)="openAbout()">
-        <span class="about-icon">💡</span>
+        <i class="bi bi-lightbulb about-icon"></i>
         <span class="about-text">Unpack NMTV</span>
       </button>
 
       <button class="old-tv-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()">
         <div class="toggle-content">
-          <span class="old-tv-icon">✨</span>
+          <i class="bi bi-magic old-tv-icon"></i>
           <span class="old-tv-text">Vintage</span>
         </div>
         <div class="toggle-switch">
@@ -66,7 +57,7 @@
       @if (shouldShowFullScreen()) {
       <button class="fullscreen-button" (click)="toggleFullscreen()" [class.active]="isFullscreen()">
         <div class="toggle-content">
-          <span class="fullscreen-icon">⛶</span>
+          <i class="bi bi-arrows-fullscreen fullscreen-icon"></i>
           <span class="fullscreen-text">Fullscreen</span>
         </div>
         <div class="toggle-switch">

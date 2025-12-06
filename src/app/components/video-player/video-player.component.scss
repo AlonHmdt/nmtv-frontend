@@ -1,5 +1,9 @@
 @use '../../../styles/breakpoints' as *;
 
+// ============================================================================
+// MAIN CONTAINER & PLAYER
+// ============================================================================
+
 .video-player-container {
   position: fixed;
   top: 0;
@@ -39,6 +43,10 @@
   }
 }
 
+// ============================================================================
+// OVERLAYS & CANVAS
+// ============================================================================
+
 // TV Static Canvas
 .tv-static-canvas {
   position: absolute;
@@ -71,7 +79,10 @@
   cursor: default;
 }
 
-// MTV Logo with Channel Badge
+// ============================================================================
+// MTV LOGO & BADGES
+// ============================================================================
+
 .nmtv-logo-container {
   position: fixed;
   z-index: 4;
@@ -83,6 +94,16 @@
   flex-direction: row;
   align-items: flex-start;
   gap: 5px;
+
+  // Portrait mode - center the logo at top
+  @media #{$mobile-and-tablet-portrait} {
+    top: 10px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: column;
+    align-items: center;
+  }
 
   .logo-channel-group {
     display: flex;
@@ -129,13 +150,9 @@
   .playlist-name-badge {
     text-shadow:
       -1px -1px 0 black,
-      /* Top-left shadow */
       1px -1px 0 black,
-      /* Top-right shadow */
       -1px 1px 0 black,
-      /* Bottom-left shadow */
       1px 1px 0 black;
-    /* Bottom-right shadow */
     color: #fff;
     padding: 4px 0px;
     font-size: 14px;
@@ -152,18 +169,11 @@
       font-size: 10px;
     }
   }
-
-
-  // Portrait mode - center the logo at top
-  @media #{$mobile-and-tablet-portrait} {
-    top: 10px;
-    right: auto;
-    left: 50%;
-    transform: translateX(-50%);
-    flex-direction: column;
-    align-items: center;
-  }
 }
+
+// ============================================================================
+// INFO OVERLAY
+// ============================================================================
 
 .overlay {
   position: fixed;
@@ -220,11 +230,6 @@
     margin-bottom: 10px;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-
-    @media #{$mobile-and-tablet} {
-      font-size: 8px;
-      margin-bottom: 7px;
-    }
   }
 
   .title {
@@ -233,10 +238,6 @@
     margin-bottom: 7px;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
     line-height: 1.2;
-
-    @media #{$mobile-and-tablet} {
-      font-size: 14px;
-    }
   }
 
   .artist {
@@ -245,10 +246,6 @@
     margin-bottom: 6px;
     color: #fff;
     text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.9);
-
-    @media #{$mobile-and-tablet} {
-      font-size: 13px;
-    }
   }
 
   .song {
@@ -256,20 +253,12 @@
     font-weight: normal;
     color: #ddd;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-
-    @media #{$mobile-and-tablet} {
-      font-size: 11px;
-    }
   }
 
   .year {
     font-size: 13px;
     color: #aaa;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
-
-    @media #{$mobile-and-tablet} {
-      font-size: 10px;
-    }
   }
 
   .playlist-badge {
@@ -282,8 +271,32 @@
     padding: 4px 8px;
     border-radius: 14px;
     display: inline-block;
+  }
 
-    @media #{$mobile-and-tablet} {
+  // Consolidated Mobile Styles
+  @media #{$mobile-and-tablet} {
+    .label {
+      font-size: 8px;
+      margin-bottom: 7px;
+    }
+
+    .title {
+      font-size: 14px;
+    }
+
+    .artist {
+      font-size: 13px;
+    }
+
+    .song {
+      font-size: 11px;
+    }
+
+    .year {
+      font-size: 10px;
+    }
+
+    .playlist-badge {
       font-size: 9px;
       padding: 3px 7px;
     }
@@ -300,31 +313,10 @@
   }
 }
 
-@keyframes slideUp {
-  from {
-    transform: translate(-50%, 100%);
-    opacity: 0;
-  }
+// ============================================================================
+// UNMUTE MESSAGE (iOS)
+// ============================================================================
 
-  to {
-    transform: translateX(-50%);
-    opacity: 1;
-  }
-}
-
-@keyframes slideDown {
-  from {
-    transform: translateX(-50%);
-    opacity: 1;
-  }
-
-  to {
-    transform: translate(-50%, 100%);
-    opacity: 0;
-  }
-}
-
-// Unmute Message (iOS)
 .unmute-message {
   position: fixed;
   top: 50%;
@@ -373,6 +365,33 @@
   }
 }
 
+// ============================================================================
+// ANIMATIONS
+// ============================================================================
+
+@keyframes slideUp {
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateX(-50%);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+}
 
 @keyframes unmuteIconPulse {
 
