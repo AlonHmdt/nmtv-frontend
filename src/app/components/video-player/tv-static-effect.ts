@@ -10,7 +10,7 @@ export class OldTVEffect {
   private animationId: number | null = null;
   private vcrInterval: number | null = null;
   private isActive = false;
-  
+
   // VCR tracking config (default values from CodePen)
   private vcrConfig = {
     miny: 220,
@@ -57,7 +57,7 @@ export class OldTVEffect {
     if (!this.isActive) return;
 
     const { width, height } = this.canvas;
-    
+
     // Clear canvas with fully transparent background
     this.ctx.clearRect(0, 0, width, height);
 
@@ -72,9 +72,6 @@ export class OldTVEffect {
 
     // Layer 3: Scanlines
     this.drawScanlines(width, height);
-
-    // Layer 4: Vignette (always draw last for proper layering)
-    // this.drawVignette(width, height);
 
     this.animationId = requestAnimationFrame(() => this.animate());
   }
@@ -95,14 +92,14 @@ export class OldTVEffect {
     this.ctx.save();
     this.ctx.globalAlpha = 0.2; // Opacity from config
     this.ctx.imageSmoothingEnabled = false;
-    
+
     // Create temporary canvas for scaling
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = w;
     tempCanvas.height = h;
     const tempCtx = tempCanvas.getContext('2d')!;
     tempCtx.putImageData(imageData, 0, 0);
-    
+
     this.ctx.drawImage(tempCanvas, 0, 0, width, height);
     this.ctx.restore();
   }
@@ -124,10 +121,10 @@ export class OldTVEffect {
       const x = Math.random() * width;
       const y1 = getRandomInt(posy1 += 3, posy2);
       const y2 = getRandomInt(0, posy3 -= 3);
-      
+
       this.ctx.fillRect(x, y1, radius, radius);
       this.ctx.fillRect(x, y2, radius, radius);
-      
+
       this.renderTail(x, y1, radius);
       this.renderTail(x, y2, radius);
     }
@@ -140,7 +137,7 @@ export class OldTVEffect {
     const dirs = [1, -1];
     let rd = radius;
     const dir = dirs[Math.floor(Math.random() * dirs.length)];
-    
+
     for (let i = 0; i < n; i++) {
       const step = 0.01;
       const r = getRandomInt((rd -= step), radius);
@@ -157,37 +154,11 @@ export class OldTVEffect {
   private drawScanlines(width: number, height: number): void {
     this.ctx.save();
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-    
+
     for (let y = 0; y < height; y += 4) {
       this.ctx.fillRect(0, y, width, 2);
     }
-    
-    this.ctx.restore();
-  }
 
-  // Vignette effect
-  private drawVignette(width: number, height: number): void {
-    this.ctx.save();
-    
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const innerRadius = Math.min(width, height) * 0.3;
-    const outerRadius = Math.sqrt(width * width + height * height) / 2;
-
-    const gradient = this.ctx.createRadialGradient(
-      centerX, centerY, innerRadius,
-      centerX, centerY, outerRadius
-    );
-
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
-    gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.2)');
-    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.5)');
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
-
-    this.ctx.fillStyle = gradient;
-    this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillRect(0, 0, width, height);
-    
     this.ctx.restore();
   }
 

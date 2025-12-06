@@ -46,6 +46,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   showChannelSwitchStatic = signal(false); // Show static when switching channels
   minStaticTimePassed = signal(true); // Track if minimum static time (600ms) has passed
   showUnmuteMessage = signal(false); // Show "Tap to unmute" message on iOS
+  showVintageChannelIndicator = signal(false); // Show vintage channel name in top right corner
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -60,6 +61,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private minStaticTimeout: number | null = null; // Timeout for minimum static duration
   private isMutedForIOS = false; // Track if video is muted due to iOS autoplay restrictions
   private hasUserInteractedAfterStart = false; // Track if user has interacted after video started
+  private vintageChannelTimeout: number | null = null; // Timeout for hiding vintage channel indicator
 
   // Touch gesture tracking
   private touchStartY = 0;
@@ -143,6 +145,22 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.oldTVEffect.stop();
         }
       }
+
+      // Show vintage channel indicator for 5 seconds when vintage mode is enabled
+      if (enabled && !untracked(() => this.showVintageChannelIndicator())) {
+        this.showVintageChannelIndicator.set(true);
+
+        // Clear any existing timeout
+        if (this.vintageChannelTimeout) {
+          clearTimeout(this.vintageChannelTimeout);
+        }
+
+        // Hide after 5 seconds
+        this.vintageChannelTimeout = window.setTimeout(() => {
+          this.showVintageChannelIndicator.set(false);
+          this.vintageChannelTimeout = null;
+        }, 6000);
+      }
     });
 
     // Watch for pause/resume signals from modals
@@ -195,6 +213,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.minStaticTimeout) {
       clearTimeout(this.minStaticTimeout);
       this.minStaticTimeout = null;
+    }
+    if (this.vintageChannelTimeout) {
+      clearTimeout(this.vintageChannelTimeout);
+      this.vintageChannelTimeout = null;
     }
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();

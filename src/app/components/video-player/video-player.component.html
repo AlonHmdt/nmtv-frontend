@@ -77,4 +77,11 @@
     </div>
   </div>
   }
+
+  <!-- Vintage Channel Indicator -->
+  @if (showVintageChannelIndicator() && currentChannelConfig()) {
+  <div class="vintage-channel-indicator">
+    CH {{ currentChannelConfig()!.name }}
+  </div>
+  }
 </div>
