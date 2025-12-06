@@ -1,6 +1,6 @@
 <app-power-button [isLoading]="isLoading()" [isPoweredOn]="isPoweredOn()" (powerOn)="onPowerOn()" />
 
 @if (isPoweredOn()) {
-  <app-video-player />
-  <app-channel-selector (powerOff)="onPowerOff()" />
+<app-video-player [isChannelSelectorOpen]="isChannelSelectorOpen()" />
+<app-channel-selector (powerOff)="onPowerOff()" (menuStateChange)="onMenuStateChange($event)" />
 }

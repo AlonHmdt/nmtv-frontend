@@ -25,6 +25,7 @@ export class App implements OnInit {
 
   isPoweredOn = signal(false);
   isLoading = signal(true);
+  isChannelSelectorOpen = signal(false);
 
   async ngOnInit(): Promise<void> {
     // Initialize Vercel Analytics
@@ -74,5 +75,9 @@ export class App implements OnInit {
 
   onPowerOff(): void {
     this.isPoweredOn.set(false);
+  }
+
+  onMenuStateChange(isOpen: boolean): void {
+    this.isChannelSelectorOpen.set(isOpen);
   }
 }

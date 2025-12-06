@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed, untracked } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed, untracked, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
@@ -26,6 +26,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
+
+  // Input to track if channel selector menu is open
+  isChannelSelectorOpen = input<boolean>(false);
 
   player: any;
   showPlayingNow = signal(false);
@@ -221,8 +224,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.playingNextAnimating.set(false);
     }
 
-    // Arrow Up/Down to change channels
-    if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    // Arrow Up/Down to change channels (only if menu is closed)
+    if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && !this.isChannelSelectorOpen()) {
       event.preventDefault(); // Prevent page scroll
       this.switchToNextChannel(event.key === 'ArrowUp');
     }

@@ -697,3 +697,41 @@
     font-size: 8px;
   }
 }
+
+// Keyboard Navigation Focus Styles
+button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.08),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.retro-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.1),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.retro-small-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.08),
+    0 3px 6px rgba(0, 0, 0, 0.5),
+    inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.retro-round-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.15),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+}

@@ -14,7 +14,7 @@
 
       <div class="power-off-container">
         <div class="green-dot"></div>
-        <button class="power-off-button retro-round-button" (click)="turnOff()">
+        <button class="power-off-button retro-round-button" (click)="turnOff()" tabindex="0">
           <i class="bi bi-power"></i>
         </button>
         <span class="power-off-text">Power</span>
@@ -26,7 +26,7 @@
     <div class="channel-list retro-inset-panel">
       @for (channel of channels; track channel.id) {
       <button class="channel-item retro-button" [class.active]="isActive(channel.id)"
-        (click)="selectChannel(channel.id)">
+        (click)="selectChannel(channel.id)" tabindex="0">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
       </button>
@@ -34,16 +34,16 @@
     </div>
 
     <div class="menu-actions">
-      <button class="settings-button retro-button" (click)="openSettings()">
+      <button class="settings-button retro-button" (click)="openSettings()" tabindex="0">
         <i class="bi bi-tools settings-icon"></i>
         <span class="settings-text">Channel Architect</span>
       </button>
-      <button class="about-button retro-button" (click)="openAbout()">
+      <button class="about-button retro-button" (click)="openAbout()" tabindex="0">
         <i class="bi bi-lightbulb about-icon"></i>
         <span class="about-text">Unpack NMTV</span>
       </button>
 
-      <button class="old-tv-button retro-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()">
+      <button class="old-tv-button retro-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()" tabindex="0">
         <div class="toggle-content">
           <i class="bi bi-magic old-tv-icon"></i>
           <span class="old-tv-text">Vintage</span>
@@ -56,7 +56,8 @@
       </button>
 
       @if (shouldShowFullScreen()) {
-      <button class="fullscreen-button retro-button" (click)="toggleFullscreen()" [class.active]="isFullscreen()">
+      <button class="fullscreen-button retro-button" (click)="toggleFullscreen()" [class.active]="isFullscreen()"
+        tabindex="0">
         <div class="toggle-content">
           <i class="bi bi-arrows-fullscreen fullscreen-icon"></i>
           <span class="fullscreen-text">Fullscreen</span>
@@ -71,7 +72,7 @@
     </div>
 
     <div class="d-pad-actions-container">
-      <button class="support-button retro-small-button" (click)="openSupport()">
+      <button class="support-button retro-small-button" (click)="openSupport()" tabindex="0">
         <i class="bi bi-cup-hot-fill"></i>
         <span>Support</span>
       </button>
@@ -79,12 +80,12 @@
       <div class="d-pad-spacer"></div>
 
       @if (showInstallButton()) {
-      <button class="install-button retro-small-button" (click)="installApp()">
+      <button class="install-button retro-small-button" (click)="installApp()" tabindex="0">
         <i class="bi bi-download"></i>
         <span>App</span>
       </button>
       } @else {
-      <button class="share-button retro-small-button" (click)="shareApp()">
+      <button class="share-button retro-small-button" (click)="shareApp()" tabindex="0">
         <i class="bi bi-share-fill"></i>
         <span>Share</span>
       </button>
