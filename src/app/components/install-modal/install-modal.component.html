@@ -39,6 +39,17 @@
                 </div>
             </div>
             }
+
+            @if (platform() === 'android') {
+            <div class="instructions-content">
+                <p>How to Install:</p>
+                <ol>
+                    <li>Tap the <strong>Menu</strong> icon <i class="bi bi-three-dots-vertical"></i> in Chrome.</li>
+                    <li>Tap <strong>Install App</strong> or <strong>Add to Home screen</strong>.</li>
+                    <li>Follow the prompts to finish.</li>
+                </ol>
+            </div>
+            }
         </div>
     </div>
 </div>

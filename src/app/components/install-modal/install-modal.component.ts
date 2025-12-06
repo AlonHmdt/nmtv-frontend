@@ -1,7 +1,7 @@
 import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-export type InstallPlatform = 'ios' | 'mac';
+export type InstallPlatform = 'ios' | 'mac' | 'android';
 
 @Component({
     selector: 'app-install-modal',

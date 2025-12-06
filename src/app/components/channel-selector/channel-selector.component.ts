@@ -34,9 +34,9 @@ export class ChannelSelectorComponent {
   channels: ChannelConfig[] = Channels;
 
   showInstallButton = computed(() => {
-    // Show if we have an install prompt (Android/Desktop) OR if it's iOS/Mac and not standalone
+    // Show if we have an install prompt (Android/Desktop) OR if it's iOS/Mac/Android and not standalone
     return !!this.pwaService.installPrompt() ||
-      ((this.pwaService.isIOS() || this.pwaService.isMac()) && !this.pwaService.isStandalone());
+      ((this.pwaService.isIOS() || this.pwaService.isMac() || this.pwaService.isAndroid()) && !this.pwaService.isStandalone());
   });
 
   constructor() {
@@ -135,6 +135,8 @@ export class ChannelSelectorComponent {
       this.installModal?.open('ios');
     } else if (this.pwaService.isMac()) {
       this.installModal?.open('mac');
+    } else if (this.pwaService.isAndroid()) {
+      this.installModal?.open('android');
     }
   }
 }

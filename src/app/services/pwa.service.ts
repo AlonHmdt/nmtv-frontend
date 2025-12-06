@@ -6,6 +6,7 @@ import { Injectable, signal } from '@angular/core';
 export class PwaService {
     installPrompt = signal<any>(null);
     isIOS = signal(false);
+    isAndroid = signal(false);
     isMac = signal(false);
     isStandalone = signal(false);
 
@@ -37,6 +38,8 @@ export class PwaService {
 
             if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
                 this.isIOS.set(true);
+            } else if (/android/i.test(userAgent)) {
+                this.isAndroid.set(true);
             } else if (platform.toUpperCase().indexOf('MAC') >= 0 || /Macintosh/.test(userAgent)) {
                 this.isMac.set(true);
             }
