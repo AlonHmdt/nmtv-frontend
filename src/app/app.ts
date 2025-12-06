@@ -5,6 +5,7 @@ import { PowerButtonComponent } from './components/power-button/power-button.com
 import { QueueService } from './services/queue.service';
 import { YoutubeService } from './services/youtube.service';
 import { HelpersService } from './services/helpers.service';
+import { PwaService } from './services/pwa.service';
 import { Channel } from './models/video.model';
 import { inject as injectAnalytics } from '@vercel/analytics';
 
@@ -19,6 +20,7 @@ export class App implements OnInit {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
   private helpersService = inject(HelpersService);
+  private pwaService = inject(PwaService); // Initialize PWA service early to catch install prompt
   @ViewChild(ChannelSelectorComponent) channelSelector?: ChannelSelectorComponent;
 
   isPoweredOn = signal(false);
