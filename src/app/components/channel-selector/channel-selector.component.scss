@@ -125,12 +125,7 @@
   height: auto;
   max-height: 85vh; // Allow more height on mobile
 
-  // Vintage Plastic Texture
-  background-color: #222;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
+  // Vintage Plastic Texture handled by .vintage-texture-bg
 
   border-radius: 24px 24px 0 0;
   border: 8px solid #1a1a1a;
@@ -205,34 +200,11 @@
 .power-off-button {
   width: 40px; // Smaller for header
   height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #a00, #800);
-  border: 3px solid #333;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow:
-    0 2px 0 #400,
-    0 4px 6px rgba(0, 0, 0, 0.5),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.2);
-  transition: all 0.1s;
+  // Base styles handled by .retro-round-button
 
   i {
     font-size: 18px;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-  }
-
-  &:hover {
-    background: linear-gradient(145deg, #c00, #a00);
-  }
-
-  &:active {
-    transform: translateY(2px);
-    box-shadow:
-      0 0 0 #400,
-      inset 2px 2px 4px rgba(0, 0, 0, 0.6);
   }
 }
 
@@ -246,15 +218,7 @@
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.green-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #0f0;
-  box-shadow: 0 0 6px #0f0;
-  margin-bottom: 2px;
-  animation: pulse 2s ease-in-out infinite;
-}
+// .green-dot handled by global styles
 
 // Mobile Landscape Adjustments
 @media (max-height: 500px) and (orientation: landscape) {
@@ -325,17 +289,7 @@
   }
 }
 
-@keyframes pulse {
 
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-}
 
 .channel-list {
   flex: 1;
@@ -347,10 +301,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 
-  // Inset area for buttons
-  background: #151515;
-  border-radius: 12px;
-  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.6), inset -1px -1px 2px rgba(255, 255, 255, 0.05);
+  // Inset area handled by .retro-inset-panel
   margin-bottom: 20px;
 
   &::-webkit-scrollbar {
@@ -378,27 +329,14 @@
 }
 
 .channel-item {
-  // Skeuomorphic Button Style
-  background: linear-gradient(145deg, #333, #222);
-  border: none;
-  border-radius: 6px;
-  color: #ccc;
+  // Base styles handled by .retro-button
   padding: 8px;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.1s;
-  position: relative;
   height: 80px; // Smaller buttons
-
-  // Button bevel
-  box-shadow:
-    0 3px 0 #111,
-    0 4px 4px rgba(0, 0, 0, 0.4),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
 
   .channel-icon {
     font-size: 24px;
@@ -415,29 +353,11 @@
     line-height: 1.2;
   }
 
-  &:active {
-    transform: translateY(3px);
-    box-shadow:
-      0 0 0 #111,
-      inset 2px 2px 4px rgba(0, 0, 0, 0.6);
-    background: linear-gradient(145deg, #222, #1a1a1a);
-  }
-
   &.active {
-    background: linear-gradient(145deg, #d4af37, #aa8c2c); // Gold/Amber light up
-    color: #222;
-    box-shadow:
-      0 0 15px rgba(212, 175, 55, 0.4),
-      0 3px 0 #66521a,
-      inset 1px 1px 0 rgba(255, 255, 255, 0.4);
 
+    // Active styles handled by .retro-button.active
     .channel-name {
       text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-
-    &:active {
-      transform: translateY(3px);
-      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4);
     }
   }
 
@@ -472,18 +392,14 @@
 
 // Shared retro button styles
 .menu-actions button {
+  // Base styles handled by .retro-button
   width: 90px;
   height: 70px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  transition: all 0.1s;
-  position: relative;
 
   font-family: 'Roboto Mono', monospace;
   font-size: 10px;
@@ -491,12 +407,6 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   color: #ccc;
-
-  // Physical button look
-  box-shadow:
-    0 3px 0 #000,
-    0 5px 5px rgba(0, 0, 0, 0.4),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
 
   span,
   i {
@@ -506,13 +416,6 @@
   i {
     font-size: 20px;
     margin-bottom: 2px;
-  }
-
-  &:active {
-    transform: translateY(3px);
-    box-shadow:
-      0 0 0 #000,
-      inset 2px 2px 4px rgba(0, 0, 0, 0.6);
   }
 
   @media #{$mobile-and-tablet-portrait} {
@@ -525,15 +428,7 @@
   }
 }
 
-.settings-button {
-  background: linear-gradient(145deg, #444, #333);
-
-  &:hover {
-    background: linear-gradient(145deg, #555, #444);
-    color: #fff;
-  }
-}
-
+.settings-button,
 .about-button {
   background: linear-gradient(145deg, #444, #333);
 
@@ -674,17 +569,5 @@
       height: 45px;
       flex: 1;
     }
-  }
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
   }
 }

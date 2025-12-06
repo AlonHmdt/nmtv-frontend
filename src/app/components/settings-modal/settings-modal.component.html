@@ -4,11 +4,11 @@
   <div class="modal-overlay" (click)="close()"></div>
 
   <!-- Modal Content -->
-  <div class="modal-content" (click)="$event.stopPropagation()">
+  <div class="modal-content vintage-texture-bg retro-border retro-shadow-bevel" (click)="$event.stopPropagation()">
     <!-- Header -->
     <div class="modal-header">
       <h2>🛠️ Channel Architect</h2>
-      <button class="close-button" (click)="close()">
+      <button class="close-button retro-round-button" (click)="close()">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="4" y1="4" x2="16" y2="16" />
           <line x1="16" y1="4" x2="4" y2="16" />
@@ -19,7 +19,8 @@
     <!-- Channel Tabs -->
     <div class="channel-tabs">
       @for (channel of channels; track channel.id) {
-      <button class="channel-tab" [class.active]="isChannelActive(channel.id)" (click)="selectChannel(channel.id)">
+      <button class="channel-tab retro-button" [class.active]="isChannelActive(channel.id)"
+        (click)="selectChannel(channel.id)">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
         @if (customPlaylistService.getChannelCount(channel.id) > 0) {
@@ -30,7 +31,7 @@
     </div>
 
     <!-- Content Area -->
-    <div class="modal-body">
+    <div class="modal-body retro-inset-panel">
       <!-- Info Message - Condensed for landscape -->
       <div class="info-message">
         <p>
@@ -86,7 +87,8 @@
             <div class="input-group">
               <input type="text" class="playlist-input" [(ngModel)]="playlistUrl"
                 placeholder="Paste YouTube playlist URL..." [disabled]="isAdding()" (keyup.enter)="validateAndAdd()">
-              <button class="add-button" (click)="validateAndAdd()" [disabled]="isAdding() || !playlistUrl()">
+              <button class="add-button retro-button" (click)="validateAndAdd()"
+                [disabled]="isAdding() || !playlistUrl()">
                 {{ isAdding() ? 'Adding...' : 'Add' }}
               </button>
             </div>
