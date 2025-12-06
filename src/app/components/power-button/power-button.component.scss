@@ -173,7 +173,7 @@
   &.desktop {
 
     @media #{$mobile-and-tablet},
-    #{$big-tablet} {
+    #{$tablet-landscape} {
       display: none;
     }
   }
@@ -182,7 +182,7 @@
     display: none;
 
     @media #{$mobile-and-tablet},
-    #{$big-tablet} {
+    #{$tablet-landscape} {
       display: flex;
     }
   }
