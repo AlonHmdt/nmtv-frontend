@@ -106,6 +106,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (!this.player) {
           this.initPlayer();
+          // Don't reset flag here - it will be reset in onPlayerReady after seeking
         } else {
           if (this.isFirstVideo) {
             // Start from middle for first video of channel
@@ -113,6 +114,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
               videoId: video.id,
               startSeconds: this.FIRST_VIDEO_START_TIME
             });
+            this.isFirstVideo = false; // Reset flag after using it
           } else {
             // Start from beginning for subsequent videos
             this.player.loadVideoById(video.id);
@@ -469,7 +471,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       try {
-        this.player = new YT.Player('youtube-player', {
+        const playerConfig: any = {
           videoId: video.id,
           width: '100%',
           height: '100%',
@@ -491,7 +493,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             onStateChange: (event: any) => this.onPlayerStateChange(event),
             onError: (event: any) => this.onPlayerError(event)
           }
-        });
+        };
+
+        this.player = new YT.Player('youtube-player', playerConfig);
       } catch (error) {
         console.error('Error initializing YouTube player:', error);
       }
@@ -524,12 +528,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     event.target.setVolume(100);
 
-    if (this.isFirstVideo) {
-      // Seek to 2 minutes 15 seconds (135 seconds) only for first video
-      event.target.seekTo(this.FIRST_VIDEO_START_TIME, true);
-    }
-
-    // Start playback
+    // Start playback immediately - seeking will happen in onPlayerStateChange
     event.target.playVideo();
 
     // Multiple retry attempts to ensure playback starts
@@ -575,6 +574,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Reset load attempts when video starts playing
     if (event.data === YT.PlayerState.PLAYING) {
       this.loadAttempts = 0;
+
+      // Seek to middle for first video once it starts playing
+      if (this.isFirstVideo) {
+        event.target.seekTo(this.FIRST_VIDEO_START_TIME, true);
+        this.isFirstVideo = false;
+      }
 
       if (!this.overlaysStarted) {
         // Only start overlays once per video
@@ -697,7 +702,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private async playNextVideo(): Promise<void> {
     this.clearTimeouts();
     this.overlaysStarted = false; // Reset for next video
-    this.isFirstVideo = false; // Subsequent videos start from beginning
+    // isFirstVideo is already false at this point (set in effect)
     await this.queueService.nextVideo();
 
     const video = this.currentVideo();
