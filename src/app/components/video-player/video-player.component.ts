@@ -106,17 +106,16 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (!this.player) {
           this.initPlayer();
-          // Don't reset flag here - it will be reset in onPlayerReady after seeking
+          // isFirstVideo will be handled in handlePlayingState via seekTo
         } else {
           if (this.isFirstVideo) {
-            // Start from middle for first video of channel
+            // For channel switches, load directly at the desired time for faster loading
             this.player.loadVideoById({
               videoId: video.id,
               startSeconds: this.FIRST_VIDEO_START_TIME
             });
-            this.isFirstVideo = false; // Reset flag after using it
+            this.isFirstVideo = false;
           } else {
-            // Start from beginning for subsequent videos
             this.player.loadVideoById(video.id);
           }
         }
@@ -310,15 +309,26 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handleSwipe(): void {
-    // Don't handle swipes if the menu is open
-    if (this.isMenuOpen()) {
+    if (this.isMenuOpen() || !this.isSwipeValid()) {
       return;
     }
 
-    // Debounce: Ignore swipes that happen too quickly after the last one
+    const verticalDistance = this.touchStartY - this.touchEndY;
+    this.lastSwipeTime = Date.now();
+
+    if (verticalDistance > this.minSwipeDistance) {
+      this.switchToNextChannel(false); // Swipe up - next channel
+    } else if (verticalDistance < -this.minSwipeDistance) {
+      this.switchToNextChannel(true); // Swipe down - previous channel
+    }
+  }
+
+  private isSwipeValid(): boolean {
     const now = Date.now();
+    
+    // Check debounce
     if (now - this.lastSwipeTime < this.swipeDebounceMs) {
-      return;
+      return false;
     }
 
     const verticalDistance = this.touchStartY - this.touchEndY;
@@ -326,65 +336,52 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const swipeTime = now - this.touchStartTime;
     const velocity = Math.abs(verticalDistance) / swipeTime;
 
-    // Ignore if swipe took too long (likely not intentional)
+    // Validate swipe timing
     if (swipeTime > this.maxSwipeTime) {
-      return;
+      return false;
     }
 
-    // Ignore if there's too much horizontal movement (likely scrolling or accidental)
+    // Validate swipe is mostly vertical
     if (horizontalDistance > Math.abs(verticalDistance) * this.maxHorizontalRatio) {
-      return;
+      return false;
     }
 
-    // Ignore if velocity is too low (likely accidental touch)
-    if (velocity < this.minSwipeVelocity) {
-      return;
-    }
-
-    // Swipe up (finger moves up) - next channel
-    if (verticalDistance > this.minSwipeDistance) {
-      this.lastSwipeTime = now;
-      this.switchToNextChannel(false); // Same as arrow down
-    }
-    // Swipe down (finger moves down) - previous channel
-    else if (verticalDistance < -this.minSwipeDistance) {
-      this.lastSwipeTime = now;
-      this.switchToNextChannel(true); // Same as arrow up
-    }
+    // Validate swipe velocity
+    return velocity >= this.minSwipeVelocity;
   }
 
   private switchToNextChannel(goUp: boolean): void {
-    // Unmute on channel switch if muted for iOS
     this.unmuteIfNeeded();
 
+    const nextChannel = this.calculateNextChannel(goUp);
+    this.initiateChannelSwitch();
+    this.scheduleChannelLoad(nextChannel);
+  }
+
+  private calculateNextChannel(goUp: boolean): Channel {
     const currentChannel = this.currentChannel();
     const currentIndex = this.AVAILABLE_CHANNELS.indexOf(currentChannel);
 
-    let nextIndex: number;
-    if (goUp) {
-      nextIndex = currentIndex > 0 ? currentIndex - 1 : this.AVAILABLE_CHANNELS.length - 1;
-    } else {
-      nextIndex = currentIndex < this.AVAILABLE_CHANNELS.length - 1 ? currentIndex + 1 : 0;
-    }
+    const nextIndex = goUp
+      ? (currentIndex > 0 ? currentIndex - 1 : this.AVAILABLE_CHANNELS.length - 1)
+      : (currentIndex < this.AVAILABLE_CHANNELS.length - 1 ? currentIndex + 1 : 0);
 
-    const nextChannel = this.AVAILABLE_CHANNELS[nextIndex];
+    return this.AVAILABLE_CHANNELS[nextIndex];
+  }
 
-    // Show static effect immediately (acts as loader)
+  private initiateChannelSwitch(): void {
     this.showChannelSwitchStatic.set(true);
     this.minStaticTimePassed.set(false);
-    this.isFirstVideo = true; // Mark as first video for the new channel
-
-    // Clear any existing channel switch timeouts
+    this.isFirstVideo = true;
     this.clearChannelSwitchTimeouts();
+  }
 
-    // Start loading the new channel after a short delay
-    // This allows the static to be visible before the channel switch begins
+  private scheduleChannelLoad(nextChannel: Channel): void {
     this.switchDelayTimeout = window.setTimeout(() => {
       this.queueService.switchChannel(nextChannel);
       this.switchDelayTimeout = null;
     }, this.CHANNEL_LOAD_DELAY_MS);
 
-    // Enforce minimum static duration
     this.minStaticTimeout = window.setTimeout(() => {
       this.minStaticTimePassed.set(true);
       this.minStaticTimeout = null;
@@ -503,61 +500,59 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onPlayerReady(event: any): void {
-    this.loadAttempts = 0; // Reset load attempts on successful ready
+    this.loadAttempts = 0;
+    this.configurePlayer(event.target);
+    this.setupAudioForPlatform(event.target);
+    this.startPlaybackWithRetries(event.target);
+  }
 
-    // Disable all interactions
-    event.target.getIframe().style.pointerEvents = 'none';
+  private configurePlayer(player: any): void {
+    player.getIframe().style.pointerEvents = 'none';
+    player.setVolume(100);
+  }
 
-    // On iOS, start muted to ensure autoplay works
-    // Will unmute on first user interaction
+  private setupAudioForPlatform(player: any): void {
     if (this.helpersService.isIOSDevice()) {
-      event.target.mute();
-      this.isMutedForIOS = true;
-      this.hasUserInteractedAfterStart = false;
-
-      // Show unmute message after a short delay
-      setTimeout(() => {
-        if (this.isMutedForIOS) {
-          this.showUnmuteMessage.set(true);
-        }
-      }, 1000);
+      this.setupIOSAudio(player);
     } else {
-      // Non-iOS: try unmuted playback
-      event.target.unMute();
+      player.unMute();
     }
+  }
 
-    event.target.setVolume(100);
+  private setupIOSAudio(player: any): void {
+    player.mute();
+    this.isMutedForIOS = true;
+    this.hasUserInteractedAfterStart = false;
 
-    // Start playback immediately - seeking will happen in onPlayerStateChange
-    event.target.playVideo();
-
-    // Multiple retry attempts to ensure playback starts
     setTimeout(() => {
-      const state = event.target.getPlayerState();
-      if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
-        event.target.playVideo();
+      if (this.isMutedForIOS) {
+        this.showUnmuteMessage.set(true);
       }
-    }, 500);
+    }, 1000);
+  }
 
-    // Additional retry after 1.5 seconds
-    setTimeout(() => {
-      const state = event.target.getPlayerState();
-      if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
-        event.target.playVideo();
-      }
-    }, 1500);
+  private startPlaybackWithRetries(player: any): void {
+    player.playVideo();
 
-    // Final retry after 2.5 seconds
-    setTimeout(() => {
-      const state = event.target.getPlayerState();
-      if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
-        // Try reloading the video
-        const currentVid = this.currentVideo();
-        if (currentVid) {
-          event.target.loadVideoById(currentVid.id);
+    const retryPlayback = (delay: number, shouldReload: boolean = false) => {
+      setTimeout(() => {
+        const state = player.getPlayerState();
+        if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+          if (shouldReload) {
+            const currentVid = this.currentVideo();
+            if (currentVid) {
+              player.loadVideoById(currentVid.id);
+            }
+          } else {
+            player.playVideo();
+          }
         }
-      }
-    }, 2500);
+      }, delay);
+    };
+
+    retryPlayback(500);
+    retryPlayback(1500);
+    retryPlayback(2500, true);
   }
 
   private unmuteIfNeeded(): void {
@@ -571,72 +566,87 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private onPlayerStateChange(event: any): void {
-    // Reset load attempts when video starts playing
     if (event.data === YT.PlayerState.PLAYING) {
-      this.loadAttempts = 0;
-
-      // Seek to middle for first video once it starts playing
-      if (this.isFirstVideo) {
-        event.target.seekTo(this.FIRST_VIDEO_START_TIME, true);
-        this.isFirstVideo = false;
-      }
-
-      if (!this.overlaysStarted) {
-        // Only start overlays once per video
-        const video = this.currentVideo();
-        const channel = this.currentChannel();
-
-        // Skip overlays and year fetching for bumpers
-        if (video?.isBumper) {
-          this.overlaysStarted = true; // Mark as started so we don't process again
-          return; // Skip everything for bumpers
-        }
-
-        // Clear any pending year fetch request
-        if (this.yearFetchTimeout) {
-          clearTimeout(this.yearFetchTimeout);
-          this.yearFetchTimeout = null;
-        }
-
-        // Debounce the year fetch to avoid excessive API calls when switching channels rapidly
-        // Skip year fetching for Live channel and bumpers
-        if (video && channel !== Channel.LIVE && !video.isBumper) {
-          const searchTitle = video.artist && video.song
-            ? `${video.artist} ${video.song}`
-            : video.title || '';
-
-          this.yearFetchTimeout = window.setTimeout(() => {
-            this.youtubeService.getVideoYear(searchTitle).subscribe({
-              next: (response) => {
-                if (response.year) {
-                  video.year = response.year;
-                }
-              },
-              error: (err) => {
-                console.error('Error fetching video year:', err);
-              }
-            });
-            this.yearFetchTimeout = null;
-          }, 5000); // Wait 5 seconds before fetching
-        }
-
-        // Small delay to ensure getDuration() returns valid value
-        setTimeout(() => {
-          this.startOverlayTimers();
-          this.overlaysStarted = true;
-        }, 500);
-      }
-    }
-
-    // Prevent pausing - always keep playing (unless modal is open)
-    if (event.data === YT.PlayerState.PAUSED) {
-      // Only auto-resume if we're not intentionally paused (e.g., modal is not open)
-      if (!this.videoPlayerControl.shouldPause()) {
-        event.target.playVideo();
-      }
+      this.handlePlayingState(event.target);
+    } else if (event.data === YT.PlayerState.PAUSED) {
+      this.handlePausedState(event.target);
     } else if (event.data === YT.PlayerState.ENDED) {
       this.playNextVideo();
     }
+  }
+
+  private handlePlayingState(player: any): void {
+    this.loadAttempts = 0;
+
+    if (this.isFirstVideo) {
+      // Small delay to ensure video is properly buffered before seeking
+      setTimeout(() => {
+        player.seekTo(this.FIRST_VIDEO_START_TIME, true);
+      }, 100);
+      this.isFirstVideo = false;
+    }
+
+    if (!this.overlaysStarted) {
+      this.initializeVideoOverlays();
+    }
+  }
+
+  private handlePausedState(player: any): void {
+    if (!this.videoPlayerControl.shouldPause()) {
+      player.playVideo();
+    }
+  }
+
+  private initializeVideoOverlays(): void {
+    const video = this.currentVideo();
+    const channel = this.currentChannel();
+
+    if (video?.isBumper) {
+      this.overlaysStarted = true;
+      return;
+    }
+
+    this.clearPendingYearFetch();
+    this.scheduleYearFetch(video, channel);
+    this.scheduleOverlayStart();
+  }
+
+  private clearPendingYearFetch(): void {
+    if (this.yearFetchTimeout) {
+      clearTimeout(this.yearFetchTimeout);
+      this.yearFetchTimeout = null;
+    }
+  }
+
+  private scheduleYearFetch(video: Video | undefined, channel: Channel): void {
+    if (!video || channel === Channel.LIVE || video.isBumper) {
+      return;
+    }
+
+    const searchTitle = video.artist && video.song
+      ? `${video.artist} ${video.song}`
+      : video.title || '';
+
+    this.yearFetchTimeout = window.setTimeout(() => {
+      this.youtubeService.getVideoYear(searchTitle).subscribe({
+        next: (response) => {
+          if (response.year) {
+            video.year = response.year;
+          }
+        },
+        error: (err) => {
+          console.error('Error fetching video year:', err);
+        }
+      });
+      this.yearFetchTimeout = null;
+    }, 5000);
+  }
+
+  private scheduleOverlayStart(): void {
+    setTimeout(() => {
+      this.startOverlayTimers();
+      this.overlaysStarted = true;
+    }, 500);
   }
 
   private onPlayerError(event: any): void {
@@ -720,7 +730,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const currentVideo = this.currentVideo();
     const upcomingVideo = this.upcomingVideo();
 
-    // Don't show any overlays if current video is a bumper
     if (currentVideo?.isBumper) {
       return;
     }
@@ -728,84 +737,67 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const duration = this.player.getDuration();
     const currentTime = this.player.getCurrentTime();
     const remainingTime = duration - currentTime;
-
-    // Skip first "Playing Now" if video started from 2:15 (currentTime > 100)
     const startedFromMiddle = currentTime > 100;
 
     if (!startedFromMiddle) {
-      // First "Playing Now" - appears at 10s from current position, stays for 10s
-      const timeout1 = window.setTimeout(() => {
-        this.showPlayingNow.set(true);
-        this.playingNowAnimating.set(false);
-
-        const timeout2 = window.setTimeout(() => {
-          this.playingNowAnimating.set(true); // Start hide animation
-
-          // Wait for animation to complete before hiding
-          const timeout2b = window.setTimeout(() => {
-            this.showPlayingNow.set(false);
-            this.playingNowAnimating.set(false);
-          }, 500); // Match animation duration
-
-          this.overlayTimeouts.push(timeout2b);
-        }, 10000); // Show for 10 seconds
-
-        this.overlayTimeouts.push(timeout2);
-      }, 10000); // Show after 10 seconds from current time
-
-      this.overlayTimeouts.push(timeout1);
+      this.scheduleFirstPlayingNowOverlay();
     }
 
-    // Second "Playing Now" - appears 50s before end, stays for 20s
     if (remainingTime > 60) {
-      const showBeforeEnd = (remainingTime - 50) * 1000;
-
-      const timeout3 = window.setTimeout(() => {
-        this.showPlayingNow.set(true);
-        this.playingNowAnimating.set(false);
-
-        const timeout4 = window.setTimeout(() => {
-          this.playingNowAnimating.set(true); // Start hide animation
-
-          // Wait for animation to complete
-          const timeout4b = window.setTimeout(() => {
-            this.showPlayingNow.set(false);
-            this.playingNowAnimating.set(false);
-
-            // "Playing Next" - only show if upcoming video is not a bumper
-            // Appears 5s after "Playing Now" hides, stays for 10s
-            if (!upcomingVideo?.isBumper) {
-              const timeout5 = window.setTimeout(() => {
-                this.showPlayingNext.set(true);
-                this.playingNextAnimating.set(false);
-
-                const timeout6 = window.setTimeout(() => {
-                  this.playingNextAnimating.set(true); // Start hide animation
-
-                  // Wait for animation to complete
-                  const timeout6b = window.setTimeout(() => {
-                    this.showPlayingNext.set(false);
-                    this.playingNextAnimating.set(false);
-                  }, 500); // Match animation duration
-
-                  this.overlayTimeouts.push(timeout6b);
-                }, 10000); // Show for 10 seconds
-
-                this.overlayTimeouts.push(timeout6);
-              }, 5000); // Show 5 seconds after "Playing Now" hides
-
-              this.overlayTimeouts.push(timeout5);
-            }
-          }, 500); // Match animation duration
-
-          this.overlayTimeouts.push(timeout4b);
-        }, 20000); // Show for 20 seconds
-
-        this.overlayTimeouts.push(timeout4);
-      }, showBeforeEnd);
-
-      this.overlayTimeouts.push(timeout3);
+      this.scheduleSecondPlayingNowOverlay(remainingTime, upcomingVideo);
     }
+  }
+
+  private scheduleFirstPlayingNowOverlay(): void {
+    const timeout = window.setTimeout(() => {
+      this.showOverlay('playingNow', 10000);
+    }, 10000);
+
+    this.overlayTimeouts.push(timeout);
+  }
+
+  private scheduleSecondPlayingNowOverlay(remainingTime: number, upcomingVideo: Video | undefined): void {
+    const showBeforeEnd = (remainingTime - 50) * 1000;
+
+    const timeout = window.setTimeout(() => {
+      this.showOverlay('playingNow', 20000, () => {
+        if (!upcomingVideo?.isBumper) {
+          this.schedulePlayingNextOverlay();
+        }
+      });
+    }, showBeforeEnd);
+
+    this.overlayTimeouts.push(timeout);
+  }
+
+  private schedulePlayingNextOverlay(): void {
+    const timeout = window.setTimeout(() => {
+      this.showOverlay('playingNext', 10000);
+    }, 5000);
+
+    this.overlayTimeouts.push(timeout);
+  }
+
+  private showOverlay(type: 'playingNow' | 'playingNext', duration: number, callback?: () => void): void {
+    const showSignal = type === 'playingNow' ? this.showPlayingNow : this.showPlayingNext;
+    const animatingSignal = type === 'playingNow' ? this.playingNowAnimating : this.playingNextAnimating;
+
+    showSignal.set(true);
+    animatingSignal.set(false);
+
+    const hideTimeout = window.setTimeout(() => {
+      animatingSignal.set(true);
+
+      const completeTimeout = window.setTimeout(() => {
+        showSignal.set(false);
+        animatingSignal.set(false);
+        callback?.();
+      }, 500);
+
+      this.overlayTimeouts.push(completeTimeout);
+    }, duration);
+
+    this.overlayTimeouts.push(hideTimeout);
   }
 
   private clearTimeouts(): void {
