@@ -178,6 +178,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Load YouTube API and set apiReady signal
+    // This must happen in ngOnInit to ensure it runs before effects process
     this.loadYouTubeAPI();
 
     // Add keyboard shortcut for testing: Press 'N' to skip to next video
@@ -405,9 +407,21 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Avoid double-injection if script tag exists but hasn't loaded yet
+    // If script tag exists but hasn't loaded yet, set up callback
     if (document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
-      // Script is loading, callback will be called when ready
+      // Script is loading, ensure callback is set
+      if (!(window as any).onYouTubeIframeAPIReady) {
+        (window as any).onYouTubeIframeAPIReady = () => {
+          this.apiReady.set(true);
+        };
+      } else {
+        // Callback already exists, we need to chain it
+        const existingCallback = (window as any).onYouTubeIframeAPIReady;
+        (window as any).onYouTubeIframeAPIReady = () => {
+          existingCallback();
+          this.apiReady.set(true);
+        };
+      }
       return;
     }
 
@@ -434,34 +448,52 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // Ensure container element exists in DOM
-    const playerElement = document.getElementById('youtube-player');
-    if (!playerElement) {
-      console.warn('Player element #youtube-player not found in DOM');
+    // Ensure YT API is actually ready
+    if (!(window as any).YT || !(window as any).YT.Player) {
+      console.warn('YouTube API not ready, cannot initialize player');
       return;
     }
 
-    this.player = new YT.Player('youtube-player', {
-      videoId: video.id,
-      width: '100%',
-      height: '100%',
-      playerVars: {
-        autoplay: 1,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        modestbranding: 1,
-        rel: 0,
-        iv_load_policy: 3,
-        playsinline: 1,
-        enablejsapi: 1,
-        origin: window.location.origin,
-        mute: 0  // Unmuted since user clicked power button
-      },
-      events: {
-        onReady: (event: any) => this.onPlayerReady(event),
-        onStateChange: (event: any) => this.onPlayerStateChange(event),
-        onError: (event: any) => this.onPlayerError(event)
+    // Ensure container element exists in DOM - use requestAnimationFrame for proper timing
+    requestAnimationFrame(() => {
+      const playerElement = document.getElementById('youtube-player');
+      if (!playerElement) {
+        console.warn('Player element #youtube-player not found in DOM, retrying...');
+        // Retry after next frame if element not found
+        setTimeout(() => {
+          if (!this.player) {
+            this.initPlayer();
+          }
+        }, 100);
+        return;
+      }
+
+      try {
+        this.player = new YT.Player('youtube-player', {
+          videoId: video.id,
+          width: '100%',
+          height: '100%',
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            modestbranding: 1,
+            rel: 0,
+            iv_load_policy: 3,
+            playsinline: 1,
+            enablejsapi: 1,
+            origin: window.location.origin,
+            mute: 0  // Unmuted since user clicked power button
+          },
+          events: {
+            onReady: (event: any) => this.onPlayerReady(event),
+            onStateChange: (event: any) => this.onPlayerStateChange(event),
+            onError: (event: any) => this.onPlayerError(event)
+          }
+        });
+      } catch (error) {
+        console.error('Error initializing YouTube player:', error);
       }
     });
   }
@@ -494,17 +526,39 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.isFirstVideo) {
       // Seek to 2 minutes 15 seconds (135 seconds) only for first video
-      event.target.seekTo(135, true);
+      event.target.seekTo(this.FIRST_VIDEO_START_TIME, true);
     }
+
+    // Start playback
     event.target.playVideo();
 
-    // Retry play if not playing after 500ms
+    // Multiple retry attempts to ensure playback starts
     setTimeout(() => {
       const state = event.target.getPlayerState();
-      if (state !== YT.PlayerState.PLAYING) {
+      if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
         event.target.playVideo();
       }
     }, 500);
+
+    // Additional retry after 1.5 seconds
+    setTimeout(() => {
+      const state = event.target.getPlayerState();
+      if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+        event.target.playVideo();
+      }
+    }, 1500);
+
+    // Final retry after 2.5 seconds
+    setTimeout(() => {
+      const state = event.target.getPlayerState();
+      if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
+        // Try reloading the video
+        const currentVid = this.currentVideo();
+        if (currentVid) {
+          event.target.loadVideoById(currentVid.id);
+        }
+      }
+    }, 2500);
   }
 
   private unmuteIfNeeded(): void {
