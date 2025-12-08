@@ -52,6 +52,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private apiReady = signal(false);
   private overlaysStarted = false;
   private isFirstVideo = true; // Track if this is the first video (startup or channel change)
+  private firstVideoLoadStart = 0; // Track when first video started loading
 
   private loadAttempts = 0;
   private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
@@ -75,8 +76,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private maxHorizontalRatio = 0.5; // Maximum ratio of horizontal to vertical movement
   private lastSwipeTime = 0; // Track last swipe time for debouncing
   private swipeDebounceMs = 300; // Minimum time between swipes
-  private readonly CHANNEL_SWITCH_DELAY_MS = 800; // Minimum duration for static effect visibility
-  private readonly CHANNEL_LOAD_DELAY_MS = 150; // Delay before starting channel load
+  private readonly CHANNEL_SWITCH_DELAY_MS = 1100; // Minimum duration for static effect visibility
+  private readonly CHANNEL_LOAD_DELAY_MS = 120; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
 
   // Available channels in order
@@ -534,13 +535,19 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private startPlaybackWithRetries(player: any): void {
     player.playVideo();
 
-    const retryPlayback = (delay: number, shouldReload: boolean = false) => {
+    const retryPlayback = (delay: number, attempt: number = 1) => {
       setTimeout(() => {
         const state = player.getPlayerState();
+        
+        // If not playing or buffering, try to recover
         if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
-          if (shouldReload) {
+          console.log(`Retry playback attempt ${attempt}, current state: ${state}`);
+          
+          if (attempt >= 3) {
+            // On final attempt, reload the video
             const currentVid = this.currentVideo();
             if (currentVid) {
+              console.log('Final retry - reloading video');
               player.loadVideoById(currentVid.id);
             }
           } else {
@@ -550,9 +557,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }, delay);
     };
 
-    retryPlayback(500);
-    retryPlayback(1500);
-    retryPlayback(2500, true);
+    retryPlayback(500, 1);
+    retryPlayback(1500, 2);
+    retryPlayback(3000, 3);
   }
 
   private unmuteIfNeeded(): void {
@@ -579,11 +586,32 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadAttempts = 0;
 
     if (this.isFirstVideo) {
-      // Small delay to ensure video is properly buffered before seeking
-      setTimeout(() => {
-        player.seekTo(this.FIRST_VIDEO_START_TIME, true);
-      }, 100);
-      this.isFirstVideo = false;
+      // Wait for video to buffer sufficiently before seeking
+      const waitForBuffer = () => {
+        const buffered = player.getVideoLoadedFraction();
+        const elapsedTime = Date.now() - this.firstVideoLoadStart;
+        
+        // Wait until at least 10% is buffered or 2 seconds have passed
+        if (buffered > 0.1 || elapsedTime > 2000) {
+          player.seekTo(this.FIRST_VIDEO_START_TIME, true);
+          this.isFirstVideo = false;
+          this.firstVideoLoadStart = 0;
+          
+          // Start overlays after seeking
+          if (!this.overlaysStarted) {
+            this.initializeVideoOverlays();
+          }
+        } else {
+          setTimeout(waitForBuffer, 100);
+        }
+      };
+
+      if (!this.firstVideoLoadStart) {
+        this.firstVideoLoadStart = Date.now();
+      }
+      
+      setTimeout(waitForBuffer, 100);
+      return; // Don't start overlays yet - wait until after seeking
     }
 
     if (!this.overlaysStarted) {
