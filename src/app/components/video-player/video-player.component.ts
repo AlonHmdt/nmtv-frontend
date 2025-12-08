@@ -76,7 +76,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private maxHorizontalRatio = 0.5; // Maximum ratio of horizontal to vertical movement
   private lastSwipeTime = 0; // Track last swipe time for debouncing
   private swipeDebounceMs = 300; // Minimum time between swipes
-  private readonly CHANNEL_SWITCH_DELAY_MS = 1200; // Minimum duration for static effect visibility
+  private readonly CHANNEL_SWITCH_DELAY_MS = 1000; // Minimum duration for static effect visibility
   private readonly CHANNEL_LOAD_DELAY_MS = 120; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
 
