@@ -499,7 +499,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             playsinline: 1,
             enablejsapi: 1,
             origin: window.location.origin,
-            mute: 0  // Unmuted since user clicked power button
+            mute: 0,  // Unmuted since user clicked power button
+            start: this.isFirstVideo ? this.FIRST_VIDEO_START_TIME : undefined
           },
           events: {
             onReady: (event: any) => this.onPlayerReady(event),
@@ -598,32 +599,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadAttempts = 0;
 
     if (this.isFirstVideo) {
-      // Wait for video to buffer sufficiently before seeking
-      const waitForBuffer = () => {
-        const buffered = player.getVideoLoadedFraction();
-        const elapsedTime = Date.now() - this.firstVideoLoadStart;
-        
-        // Wait until at least 10% is buffered or 2 seconds have passed
-        if (buffered > 0.1 || elapsedTime > 2000) {
-          player.seekTo(this.FIRST_VIDEO_START_TIME, true);
-          this.isFirstVideo = false;
-          this.firstVideoLoadStart = 0;
-          
-          // Start overlays after seeking
-          if (!this.overlaysStarted) {
-            this.initializeVideoOverlays();
-          }
-        } else {
-          setTimeout(waitForBuffer, 100);
-        }
-      };
-
-      if (!this.firstVideoLoadStart) {
-        this.firstVideoLoadStart = Date.now();
-      }
+      // Mark as no longer first video
+      this.isFirstVideo = false;
+      this.firstVideoLoadStart = 0;
       
-      setTimeout(waitForBuffer, 100);
-      return; // Don't start overlays yet - wait until after seeking
+      // Start overlays immediately since video already loaded at correct time
+      if (!this.overlaysStarted) {
+        this.initializeVideoOverlays();
+      }
+      return;
     }
 
     if (!this.overlaysStarted) {
