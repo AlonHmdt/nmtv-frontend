@@ -58,23 +58,18 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private isFirstVideo = true; // Track if this is the first video (startup or channel change)
 
   private loadAttempts = 0;
-  private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
   private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
   private oldTVEffect: OldTVEffect | null = null;
   private switchDelayTimeout: number | null = null; // Timeout for channel switch delay
   private minStaticTimeout: number | null = null; // Timeout for minimum static duration
-  private isMutedForIOS = false; // Track if video is muted due to iOS autoplay restrictions
-  private hasUserInteractedAfterStart = false; // Track if user has interacted after video started
+  private isAwaitingIOSUnmute = false; // Track if waiting for user interaction to unmute on iOS
   private vintageChannelTimeout: number | null = null; // Timeout for hiding vintage channel indicator
   private volumeIndicatorTimeout: number | null = null; // Timeout for hiding volume indicator
   private videoBufferTimeout: number | null = null; // Timeout to ensure video has buffered before showing
 
   // Touch gesture tracking
-  private touchStartY = 0;
-  private touchEndY = 0;
-  private touchStartX = 0;
-  private touchEndX = 0;
-  private touchStartTime = 0;
+  private touchStart = { x: 0, y: 0, time: 0 };
+  private touchEnd = { x: 0, y: 0 };
   private minSwipeDistance = 80; // Minimum distance for a swipe to register (increased from 50)
   private maxSwipeTime = 500; // Maximum time (ms) for a swipe to be considered intentional
   private minSwipeVelocity = 0.3; // Minimum velocity (pixels/ms) for a swipe
@@ -326,9 +321,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Unmute on first touch if muted for iOS
     this.unmuteIfNeeded();
 
-    this.touchStartY = event.touches[0].clientY;
-    this.touchStartX = event.touches[0].clientX;
-    this.touchStartTime = Date.now();
+    this.touchStart = {
+      x: event.touches[0].clientX,
+      y: event.touches[0].clientY,
+      time: Date.now()
+    };
   }
 
   private handleTouchEnd(event: TouchEvent): void {
@@ -337,8 +334,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isInsideModal(target)) {
       return;
     }
-    this.touchEndY = event.changedTouches[0].clientY;
-    this.touchEndX = event.changedTouches[0].clientX;
+    this.touchEnd = {
+      x: event.changedTouches[0].clientX,
+      y: event.changedTouches[0].clientY
+    };
     this.handleSwipe();
   }
 
@@ -373,7 +372,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const verticalDistance = this.touchStartY - this.touchEndY;
+    const verticalDistance = this.touchStart.y - this.touchEnd.y;
     this.lastSwipeTime = Date.now();
 
     if (verticalDistance > this.minSwipeDistance) {
@@ -391,9 +390,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return false;
     }
 
-    const verticalDistance = this.touchStartY - this.touchEndY;
-    const horizontalDistance = Math.abs(this.touchStartX - this.touchEndX);
-    const swipeTime = now - this.touchStartTime;
+    const verticalDistance = this.touchStart.y - this.touchEnd.y;
+    const horizontalDistance = Math.abs(this.touchStart.x - this.touchEnd.x);
+    const swipeTime = now - this.touchStart.time;
     const velocity = Math.abs(verticalDistance) / swipeTime;
 
     // Validate swipe timing
@@ -625,11 +624,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private setupIOSAudio(player: any): void {
     player.mute();
-    this.isMutedForIOS = true;
-    this.hasUserInteractedAfterStart = false;
+    this.isAwaitingIOSUnmute = true;
 
     setTimeout(() => {
-      if (this.isMutedForIOS) {
+      if (this.isAwaitingIOSUnmute) {
         this.showUnmuteMessage.set(true);
       }
     }, 1000);
@@ -663,10 +661,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private unmuteIfNeeded(): void {
-    if (this.isMutedForIOS && !this.hasUserInteractedAfterStart && this.player) {
+    if (this.isAwaitingIOSUnmute && this.player) {
       this.player.unMute();
-      this.isMutedForIOS = false;
-      this.hasUserInteractedAfterStart = true;
+      this.isAwaitingIOSUnmute = false;
       this.showUnmuteMessage.set(false);
     }
   }
@@ -795,8 +792,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // For other errors, retry once
     this.loadAttempts++;
-    if (this.loadAttempts >= this.maxLoadAttempts) {
-      console.warn(`Video failed to load after ${this.maxLoadAttempts} attempts, skipping...`);
+    if (this.loadAttempts >= 2) {
+      console.warn(`Video failed to load after 2 attempts, skipping...`);
       this.handleUnavailableVideo();
     } else {
       setTimeout(() => {
