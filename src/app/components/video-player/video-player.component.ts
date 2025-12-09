@@ -4,6 +4,7 @@ import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
 import { HelpersService } from '../../services/helpers.service';
+import { EasterEggService } from '../../services/easter-egg.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect } from './tv-static-effect';
 
@@ -23,6 +24,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private youtubeService = inject(YoutubeService);
   private videoPlayerControl = inject(VideoPlayerControlService);
   private helpersService = inject(HelpersService);
+  private easterEggService = inject(EasterEggService);
 
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
@@ -80,8 +82,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly CHANNEL_LOAD_DELAY_MS = 120; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
 
-  // Available channels in order
-  private readonly AVAILABLE_CHANNELS = [
+  // Available channels in order (NOA will be filtered out if locked)
+  private readonly ALL_CHANNELS = [
     Channel.ROCK,
     Channel.HIP_HOP,
     Channel.DECADE_2000S,
@@ -133,6 +135,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       // Hide static when video is ready AND minimum time has passed
       if (video && ready && minTimePassed && untracked(() => this.showChannelSwitchStatic())) {
         this.showChannelSwitchStatic.set(false);
+        // Stop static sound when effect ends
+        this.helpersService.stopStaticSound();
       }
     });
 
@@ -230,6 +234,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.player) {
       this.player.destroy();
     }
+    // Stop any playing static sound
+    this.helpersService.stopStaticSound();
     window.removeEventListener('keydown', this.handleKeyPress.bind(this));
     window.removeEventListener('touchstart', this.handleTouchStart.bind(this));
     window.removeEventListener('touchend', this.handleTouchEnd.bind(this));
@@ -361,14 +367,19 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateNextChannel(goUp: boolean): Channel {
+    // Filter out NOA channel if not unlocked
+    const availableChannels = this.easterEggService.isUnlocked()
+      ? [...this.ALL_CHANNELS]
+      : this.ALL_CHANNELS.filter(ch => ch !== Channel.NOA) as Channel[];
+
     const currentChannel = this.currentChannel();
-    const currentIndex = this.AVAILABLE_CHANNELS.indexOf(currentChannel);
+    const currentIndex = availableChannels.indexOf(currentChannel);
 
     const nextIndex = goUp
-      ? (currentIndex > 0 ? currentIndex - 1 : this.AVAILABLE_CHANNELS.length - 1)
-      : (currentIndex < this.AVAILABLE_CHANNELS.length - 1 ? currentIndex + 1 : 0);
+      ? (currentIndex > 0 ? currentIndex - 1 : availableChannels.length - 1)
+      : (currentIndex < availableChannels.length - 1 ? currentIndex + 1 : 0);
 
-    return this.AVAILABLE_CHANNELS[nextIndex];
+    return availableChannels[nextIndex];
   }
 
   private initiateChannelSwitch(): void {
@@ -376,6 +387,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.minStaticTimePassed.set(false);
     this.isFirstVideo = true;
     this.clearChannelSwitchTimeouts();
+    
+    // Play static sound effect
+    this.helpersService.playStaticSound();
   }
 
   private scheduleChannelLoad(nextChannel: Channel): void {

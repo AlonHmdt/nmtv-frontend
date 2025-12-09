@@ -1,6 +1,7 @@
 import { Component, output, input, ChangeDetectionStrategy, ViewChild, ElementRef, signal, effect, untracked, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OldTVEffect } from '../video-player/tv-static-effect';
+import { HelpersService } from '../../services/helpers.service';
 
 @Component({
   selector: 'app-power-button',
@@ -12,6 +13,7 @@ import { OldTVEffect } from '../video-player/tv-static-effect';
 })
 export class PowerButtonComponent {
   private cdr = inject(ChangeDetectorRef);
+  private helpersService = inject(HelpersService);
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
 
   private oldTVEffect: OldTVEffect | null = null;
@@ -46,6 +48,7 @@ export class PowerButtonComponent {
 
   ngOnDestroy(): void {
     window.removeEventListener('keydown', this.handleSpacebar);
+    this.helpersService.stopStaticSound();
     this.cleanup();
   }
 
@@ -77,6 +80,9 @@ export class PowerButtonComponent {
     // Start animation immediately
     this.isAnimating.set(true);
 
+    // Play static sound effect
+    this.helpersService.playStaticSound();
+
     // Start the power-on sequence
     // Small delay to ensure canvas is rendered
     setTimeout(() => {
@@ -93,6 +99,8 @@ export class PowerButtonComponent {
           if (this.oldTVEffect) {
             this.oldTVEffect.stop();
           }
+          // Stop static sound when effect ends
+          this.helpersService.stopStaticSound();
           this.isAnimating.set(false);
           this.cdr.markForCheck();
         }, 1500);
