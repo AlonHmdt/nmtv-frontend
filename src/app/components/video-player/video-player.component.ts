@@ -49,6 +49,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   minStaticTimePassed = signal(true); // Track if minimum static time (600ms) has passed
   showUnmuteMessage = signal(false); // Show "Tap to unmute" message on iOS
   showVintageChannelIndicator = signal(false); // Show vintage channel name in top right corner
+  volumeLevel = signal(100); // Volume level from 0-100
+  showVolumeIndicator = signal(false); // Show vintage volume indicator
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -65,6 +67,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private isMutedForIOS = false; // Track if video is muted due to iOS autoplay restrictions
   private hasUserInteractedAfterStart = false; // Track if user has interacted after video started
   private vintageChannelTimeout: number | null = null; // Timeout for hiding vintage channel indicator
+  private volumeIndicatorTimeout: number | null = null; // Timeout for hiding volume indicator
 
   // Touch gesture tracking
   private touchStartY = 0;
@@ -81,6 +84,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly CHANNEL_SWITCH_DELAY_MS = 1000; // Minimum duration for static effect visibility
   private readonly CHANNEL_LOAD_DELAY_MS = 120; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
+  private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
+  private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
 
   // Available channels in order (NOA will be filtered out if locked)
   private readonly ALL_CHANNELS = [
@@ -227,6 +232,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       clearTimeout(this.vintageChannelTimeout);
       this.vintageChannelTimeout = null;
     }
+    if (this.volumeIndicatorTimeout) {
+      clearTimeout(this.volumeIndicatorTimeout);
+      this.volumeIndicatorTimeout = null;
+    }
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
       this.oldTVEffect = null;
@@ -261,6 +270,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && !this.isChannelSelectorOpen()) {
       event.preventDefault(); // Prevent page scroll
       this.switchToNextChannel(event.key === 'ArrowUp');
+    }
+
+    // Arrow Left/Right to control volume (only if menu is closed)
+    if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !this.isChannelSelectorOpen()) {
+      event.preventDefault(); // Prevent page scroll
+      this.adjustVolume(event.key === 'ArrowRight');
     }
   }
 
@@ -413,6 +428,41 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       clearTimeout(this.minStaticTimeout);
       this.minStaticTimeout = null;
     }
+  }
+
+  private adjustVolume(increase: boolean): void {
+    if (!this.player) {
+      return;
+    }
+
+    // Calculate new volume level
+    const currentVolume = this.volumeLevel();
+    const newVolume = increase
+      ? Math.min(100, currentVolume + this.VOLUME_STEP)
+      : Math.max(0, currentVolume - this.VOLUME_STEP);
+
+    // Update volume
+    this.volumeLevel.set(newVolume);
+    this.player.setVolume(newVolume);
+
+    // Show volume indicator
+    this.showVolumeIndicatorWithTimeout();
+  }
+
+  private showVolumeIndicatorWithTimeout(): void {
+    // Show the indicator
+    this.showVolumeIndicator.set(true);
+
+    // Clear any existing timeout
+    if (this.volumeIndicatorTimeout) {
+      clearTimeout(this.volumeIndicatorTimeout);
+    }
+
+    // Hide after duration
+    this.volumeIndicatorTimeout = window.setTimeout(() => {
+      this.showVolumeIndicator.set(false);
+      this.volumeIndicatorTimeout = null;
+    }, this.VOLUME_INDICATOR_DURATION);
   }
 
   private loadYouTubeAPI(): void {

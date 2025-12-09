@@ -84,4 +84,19 @@
     CH {{ currentChannelConfig()!.name }}
   </div>
   }
+
+  <!-- Vintage Volume Indicator -->
+  @if (showVolumeIndicator()) {
+  <div class="volume-indicator">
+    <div class="volume-label">VOLUME</div>
+    <div class="volume">
+      <div class="volume-bar">
+        @for (block of [].constructor(20); track $index) {
+        <div class="volume-block" [class.active]="$index < (volumeLevel() / 5)"></div>
+        }
+      </div>
+      <div class="volume-number">{{ volumeLevel() }}</div>
+    </div>
+  </div>
+  }
 </div>

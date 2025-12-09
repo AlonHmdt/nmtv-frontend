@@ -400,6 +400,138 @@
 }
 
 // ============================================================================
+// VINTAGE VOLUME INDICATOR
+// ============================================================================
+
+.volume-indicator {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  pointer-events: none;
+  align-items: center;
+
+  @media #{$mobile-and-tablet} {
+    bottom: 50px;
+    gap: 14px;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    bottom: 40px;
+    gap: 12px;
+  }
+}
+
+.volume {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+
+  @media #{$mobile-and-tablet} {
+    gap: 12px;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    gap: 10px;
+  }
+}
+
+.volume-label {
+  color: #00ff00;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 70px;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  display: flex;
+  align-items: center;
+
+  @media #{$mobile-and-tablet} {
+    font-size: 34px;
+    letter-spacing: 2px;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    font-size: 26px;
+    letter-spacing: 1.5px;
+  }
+}
+
+.volume-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  align-items: center;
+
+  @media #{$mobile-and-tablet} {
+    gap: 4px;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    gap: 3px;
+  }
+}
+
+.volume-block {
+  width: 20px;
+  height: 3px;
+  background: rgba(0, 255, 0);
+  border: none;
+
+  @media #{$mobile-and-tablet} {
+    width: 12px;
+    height: 2px;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    width: 10px;
+    height: 2px;
+  }
+
+  &.active {
+    height: 50px;
+    background: #00ff00;
+
+    @media #{$mobile-and-tablet} {
+      height: 28px;
+    }
+
+    @media #{$mobile-and-tablet-portrait} {
+      height: 24px;
+    }
+  }
+}
+
+.volume-number {
+  color: #00ff00;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 60px;
+  font-weight: normal; 
+  min-width: 80px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media #{$mobile-and-tablet} {
+    font-size: 38px;
+    min-width: 70px;
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    font-size: 30px;
+    min-width: 60px;
+  }
+}
+
+// ============================================================================
 // ANIMATIONS
 // ============================================================================
 
