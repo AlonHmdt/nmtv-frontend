@@ -6,7 +6,7 @@ import { VideoPlayerControlService } from '../../services/video-player-control.s
 import { HelpersService } from '../../services/helpers.service';
 import { EasterEggService } from '../../services/easter-egg.service';
 import { Video, Channel, Channels } from '../../models/video.model';
-import { OldTVEffect } from './tv-static-effect';
+import { OldTVEffect, EffectMode } from './tv-static-effect';
 
 
 declare var YT: any;
@@ -45,8 +45,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     return Channels.find(c => c.id === channel);
   });
   oldTVEnabled = this.queueService.oldTVEnabled;
-  showChannelSwitchStatic = signal(false); // Show static when switching channels
-  minStaticTimePassed = signal(true); // Track if minimum static time (600ms) has passed
+  showChannelSwitchStatic = signal(true); // Show static when switching channels (starts true for power-on)
+  minStaticTimePassed = signal(false); // Track if minimum static time (600ms) has passed
   showUnmuteMessage = signal(false); // Show "Tap to unmute" message on iOS
   showVintageChannelIndicator = signal(false); // Show vintage channel name in top right corner
   volumeLevel = signal(100); // Volume level from 0-100
@@ -152,6 +152,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (this.oldTVEffect) {
         if (enabled || channelSwitch) {
+          // Set the appropriate mode based on which effect is active
+          const mode: EffectMode = channelSwitch ? 'channelSwitch' : 'oldTV';
+          this.oldTVEffect.setMode(mode);
           this.oldTVEffect.start();
         } else {
           this.oldTVEffect.stop();
@@ -205,12 +208,24 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     // Initialize Old TV effect after view is ready
     if (this.staticCanvas) {
-      this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement);
+      // Start with channelSwitch mode for power-on effect
+      this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement, 'channelSwitch');
 
-      // Start if enabled
-      if (this.oldTVEnabled()) {
-        this.oldTVEffect.start();
-      }
+      // Use setTimeout to ensure DOM is ready and effect runs properly
+      setTimeout(() => {
+        if (this.oldTVEffect && this.showChannelSwitchStatic()) {
+          this.oldTVEffect.start();
+        }
+
+        // Schedule minimum static time for power-on
+        this.minStaticTimeout = window.setTimeout(() => {
+          this.minStaticTimePassed.set(true);
+          this.minStaticTimeout = null;
+        }, this.CHANNEL_SWITCH_DELAY_MS);
+
+        // Play static sound effect for power-on
+        this.helpersService.playStaticSound();
+      }, 0);
     }
   }
 

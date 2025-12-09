@@ -1,3 +1,5 @@
+export type EffectMode = 'oldTV' | 'channelSwitch';
+
 function getRandomInt(min: number, max: number): number {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -10,6 +12,7 @@ export class OldTVEffect {
   private animationId: number | null = null;
   private vcrInterval: number | null = null;
   private isActive = false;
+  private mode: EffectMode = 'oldTV';
 
   // VCR tracking config (default values from CodePen)
   private vcrConfig = {
@@ -21,9 +24,10 @@ export class OldTVEffect {
     blur: 1
   };
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, mode: EffectMode = 'oldTV') {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
+    this.mode = mode;
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
@@ -32,6 +36,10 @@ export class OldTVEffect {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.vcrConfig.maxy = this.canvas.height;
+  }
+
+  setMode(mode: EffectMode): void {
+    this.mode = mode;
   }
 
   start(): void {
@@ -61,6 +69,12 @@ export class OldTVEffect {
     // Clear canvas with fully transparent background
     this.ctx.clearRect(0, 0, width, height);
 
+    // For channel switch mode, add grey background to simulate TV snow
+    if (this.mode === 'channelSwitch') {
+      this.ctx.fillStyle = '#474545ff';
+      this.ctx.fillRect(0, 0, width, height);
+    }
+
     // Reset any global composite operations
     this.ctx.globalCompositeOperation = 'source-over';
 
@@ -72,6 +86,11 @@ export class OldTVEffect {
 
     // Layer 3: Scanlines
     this.drawScanlines(width, height);
+
+    // Layer 4: Vintage vignette effect (only for channel switch)
+    if (this.mode === 'channelSwitch') {
+      this.drawVignette(width, height);
+    }
 
     this.animationId = requestAnimationFrame(() => this.animate());
   }
@@ -90,7 +109,7 @@ export class OldTVEffect {
 
     // Draw scaled up for full coverage
     this.ctx.save();
-    this.ctx.globalAlpha = 0.2; // Opacity from config
+    this.ctx.globalAlpha = this.mode === 'channelSwitch' ? 0.6 : 0.2; // Higher opacity for channel switch
     this.ctx.imageSmoothingEnabled = false;
 
     // Create temporary canvas for scaling
@@ -114,7 +133,8 @@ export class OldTVEffect {
 
     this.ctx.save();
     this.ctx.fillStyle = '#fff';
-    this.ctx.globalAlpha = 0.4;
+    // Use stronger effect for channel switch
+    this.ctx.globalAlpha = this.mode === 'channelSwitch' ? 0 : 0.4;
 
     this.ctx.beginPath();
     for (let i = 0; i <= num; i++) {
@@ -159,6 +179,32 @@ export class OldTVEffect {
       this.ctx.fillRect(0, y, width, 2);
     }
 
+    this.ctx.restore();
+  }
+
+  // Vintage vignette effect (darkening around edges) - similar to CodePen implementation
+  private drawVignette(width: number, height: number): void {
+    this.ctx.save();
+    
+    // Create radial gradient from center (matching CodePen vignette style)
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.sqrt(centerX * centerX + centerY * centerY);
+    
+    const gradient = this.ctx.createRadialGradient(
+      centerX, centerY, radius * 0.2,  // Inner radius (clear center)
+      centerX, centerY, radius * 1.3   // Outer radius (extended for smooth fade)
+    );
+    
+    // Gradient stops for vintage look
+    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');      // Fully transparent center
+    gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)'); // Subtle darkening starts
+    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.5)');  // More visible darkening
+    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');    // Strong dark edges
+    
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(0, 0, width, height);
+    
     this.ctx.restore();
   }
 

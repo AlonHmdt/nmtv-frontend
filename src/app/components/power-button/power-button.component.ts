@@ -87,8 +87,8 @@ export class PowerButtonComponent {
     // Small delay to ensure canvas is rendered
     setTimeout(() => {
       if (this.staticCanvas) {
-        // Always create a fresh effect for consistent behavior
-        this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement);
+        // Always create a fresh effect for consistent behavior with channelSwitch mode
+        this.oldTVEffect = new OldTVEffect(this.staticCanvas.nativeElement, 'channelSwitch');
         this.oldTVEffect.start();
 
         // Emit power on event immediately so video starts loading

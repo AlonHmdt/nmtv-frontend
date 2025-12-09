@@ -28,7 +28,7 @@ export class HelpersService {
 
         // Create new audio element
         this.staticAudio = new Audio('/sfx/tv-static-noise.mp3');
-        this.staticAudio.volume = 0.5; // Set volume to 50% to avoid being too loud
+        this.staticAudio.volume = 0.4; // Set volume to 50% to avoid being too loud
         
         // Play the sound
         this.staticAudio.play().catch(error => {
