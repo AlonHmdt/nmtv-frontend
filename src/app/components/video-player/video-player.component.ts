@@ -33,10 +33,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   isChannelSelectorOpen = input<boolean>(false);
 
   player: any;
-  showPlayingNow = signal(false);
-  showPlayingNext = signal(false);
-  playingNowAnimating = signal(false); // true when hiding with animation
-  playingNextAnimating = signal(false); // true when hiding with animation
+  overlayState = signal<{
+    playingNow: { visible: boolean; animating: boolean };
+    playingNext: { visible: boolean; animating: boolean };
+  }>({
+    playingNow: { visible: false, animating: false },
+    playingNext: { visible: false, animating: false }
+  });
   currentVideo = this.queueService.currentVideo;
   upcomingVideo = this.queueService.upcomingVideo;
   currentChannel = this.queueService.currentChannel;
@@ -58,30 +61,33 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private isFirstVideo = true; // Track if this is the first video (startup or channel change)
 
   private loadAttempts = 0;
-  private yearFetchTimeout: number | null = null; // Timeout for debouncing year fetch
+  private timeouts = new Map<string, number>(); // Centralized timeout management
   private oldTVEffect: OldTVEffect | null = null;
-  private switchDelayTimeout: number | null = null; // Timeout for channel switch delay
-  private minStaticTimeout: number | null = null; // Timeout for minimum static duration
   private isAwaitingIOSUnmute = false; // Track if waiting for user interaction to unmute on iOS
-  private vintageChannelTimeout: number | null = null; // Timeout for hiding vintage channel indicator
-  private volumeIndicatorTimeout: number | null = null; // Timeout for hiding volume indicator
-  private videoBufferTimeout: number | null = null; // Timeout to ensure video has buffered before showing
 
   // Touch gesture tracking
   private touchStart = { x: 0, y: 0, time: 0 };
   private touchEnd = { x: 0, y: 0 };
-  private minSwipeDistance = 80; // Minimum distance for a swipe to register (increased from 50)
-  private maxSwipeTime = 500; // Maximum time (ms) for a swipe to be considered intentional
-  private minSwipeVelocity = 0.3; // Minimum velocity (pixels/ms) for a swipe
-  private maxHorizontalRatio = 0.5; // Maximum ratio of horizontal to vertical movement
-  private lastSwipeTime = 0; // Track last swipe time for debouncing
-  private swipeDebounceMs = 300; // Minimum time between swipes
+  private lastSwipeTime = 0;
+  private readonly swipeConfig = {
+    minDistance: 80,
+    maxTime: 500,
+    minVelocity: 0.3,
+    maxHorizontalRatio: 0.5,
+    debounceMs: 300
+  };
+
+  // Event listener bound handlers for proper cleanup
+  private readonly boundHandlers = {
+    keyPress: this.handleKeyPress.bind(this),
+    touchStart: this.handleTouchStart.bind(this),
+    touchEnd: this.handleTouchEnd.bind(this)
+  }
   private readonly CHANNEL_SWITCH_DELAY_MS = 1200; // Minimum duration for static effect visibility (increased to mask loading)
-  private readonly CHANNEL_LOAD_DELAY_MS = 50; // Delay before starting channel load (reduced for faster preload)
+  private readonly CHANNEL_LOAD_DELAY_MS = 100; // Delay before starting channel load
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
   private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
-  private readonly PRELOAD_BUFFER_TIME_MS = 300; // Time to allow video to buffer before showing
 
   // Available channels in order (NOA will be filtered out if locked)
   private readonly ALL_CHANNELS = [
@@ -114,27 +120,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           // isFirstVideo will be handled in handlePlayingState via seekTo
         } else {
           if (this.isFirstVideo) {
-            // For channel switches, use cueVideoById to preload without showing loader
-            // This loads the video in the background, then we'll play it after buffering
-            this.player.cueVideoById({
+            // For channel switches, load directly at the desired time
+            // Extended static duration (1200ms) masks any loading time
+            this.player.loadVideoById({
               videoId: video.id,
               startSeconds: this.FIRST_VIDEO_START_TIME
             });
-            
-            // Set a minimum quality to ensure fast loading
-            this.player.setPlaybackQuality('medium');
-            
-            // Give video time to buffer before playing
-            if (this.videoBufferTimeout) {
-              clearTimeout(this.videoBufferTimeout);
-            }
-            this.videoBufferTimeout = window.setTimeout(() => {
-              if (this.player) {
-                this.player.playVideo();
-              }
-              this.videoBufferTimeout = null;
-            }, this.PRELOAD_BUFFER_TIME_MS);
-            
             this.isFirstVideo = false;
           } else {
             this.player.loadVideoById(video.id);
@@ -150,7 +141,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       const minTimePassed = this.minStaticTimePassed();
 
       // Hide static when video is ready AND minimum time has passed
-      // The minimum time is now longer (1200ms) to mask the loading/buffering
+      // The minimum time is now longer (1400ms) to mask the loading/buffering
       if (video && ready && minTimePassed && untracked(() => this.showChannelSwitchStatic())) {
         this.showChannelSwitchStatic.set(false);
         // Stop static sound when effect ends
@@ -178,15 +169,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (enabled && !untracked(() => this.showVintageChannelIndicator())) {
         this.showVintageChannelIndicator.set(true);
 
-        // Clear any existing timeout
-        if (this.vintageChannelTimeout) {
-          clearTimeout(this.vintageChannelTimeout);
-        }
-
         // Hide after 5 seconds
-        this.vintageChannelTimeout = window.setTimeout(() => {
+        this.setNamedTimeout('vintageChannel', () => {
           this.showVintageChannelIndicator.set(false);
-          this.vintageChannelTimeout = null;
         }, 6000);
       }
     });
@@ -205,17 +190,37 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  // Centralized timeout management methods
+  private setNamedTimeout(name: string, callback: () => void, delay: number): void {
+    this.clearNamedTimeout(name);
+    const timeoutId = window.setTimeout(callback, delay);
+    this.timeouts.set(name, timeoutId);
+  }
+
+  private clearNamedTimeout(name: string): void {
+    const timeoutId = this.timeouts.get(name);
+    if (timeoutId !== undefined) {
+      clearTimeout(timeoutId);
+      this.timeouts.delete(name);
+    }
+  }
+
+  private clearAllNamedTimeouts(): void {
+    this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.timeouts.clear();
+  }
+
   ngOnInit(): void {
     // Load YouTube API and set apiReady signal
     // This must happen in ngOnInit to ensure it runs before effects process
     this.loadYouTubeAPI();
 
     // Add keyboard shortcut for testing: Press 'N' to skip to next video
-    window.addEventListener('keydown', this.handleKeyPress.bind(this));
+    window.addEventListener('keydown', this.boundHandlers.keyPress);
 
     // Add touch event listeners for swipe gestures
-    window.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-    window.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    window.addEventListener('touchstart', this.boundHandlers.touchStart, { passive: true });
+    window.addEventListener('touchend', this.boundHandlers.touchEnd, { passive: true });
   }
 
   ngAfterViewInit(): void {
@@ -231,9 +236,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         // Schedule minimum static time for power-on
-        this.minStaticTimeout = window.setTimeout(() => {
+        this.setNamedTimeout('minStatic', () => {
           this.minStaticTimePassed.set(true);
-          this.minStaticTimeout = null;
         }, this.CHANNEL_SWITCH_DELAY_MS);
 
         // Play static sound effect for power-on
@@ -244,30 +248,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearTimeouts();
-    if (this.yearFetchTimeout) {
-      clearTimeout(this.yearFetchTimeout);
-      this.yearFetchTimeout = null;
-    }
-    if (this.switchDelayTimeout) {
-      clearTimeout(this.switchDelayTimeout);
-      this.switchDelayTimeout = null;
-    }
-    if (this.minStaticTimeout) {
-      clearTimeout(this.minStaticTimeout);
-      this.minStaticTimeout = null;
-    }
-    if (this.vintageChannelTimeout) {
-      clearTimeout(this.vintageChannelTimeout);
-      this.vintageChannelTimeout = null;
-    }
-    if (this.volumeIndicatorTimeout) {
-      clearTimeout(this.volumeIndicatorTimeout);
-      this.volumeIndicatorTimeout = null;
-    }
-    if (this.videoBufferTimeout) {
-      clearTimeout(this.videoBufferTimeout);
-      this.videoBufferTimeout = null;
-    }
+    this.clearAllNamedTimeouts();
+    
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
       this.oldTVEffect = null;
@@ -277,9 +259,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     // Stop any playing static sound
     this.helpersService.stopStaticSound();
-    window.removeEventListener('keydown', this.handleKeyPress.bind(this));
-    window.removeEventListener('touchstart', this.handleTouchStart.bind(this));
-    window.removeEventListener('touchend', this.handleTouchEnd.bind(this));
+    
+    // Remove event listeners using bound handlers
+    window.removeEventListener('keydown', this.boundHandlers.keyPress);
+    window.removeEventListener('touchstart', this.boundHandlers.touchStart);
+    window.removeEventListener('touchend', this.boundHandlers.touchEnd);
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
@@ -290,12 +274,16 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Press 'Q' or 'W' to show curerent video or next video overlays (for testing)
     if (event.key === 'q' || event.key === 'Q') {
-      this.showPlayingNow.set(true);
-      this.playingNowAnimating.set(false);
+      this.overlayState.update(state => ({
+        ...state,
+        playingNow: { visible: true, animating: false }
+      }));
     }
     if (event.key === 'w' || event.key === 'W') {
-      this.showPlayingNext.set(true);
-      this.playingNextAnimating.set(false);
+      this.overlayState.update(state => ({
+        ...state,
+        playingNext: { visible: true, animating: false }
+      }));
     }
 
     // Arrow Up/Down to change channels (only if menu is closed)
@@ -375,9 +363,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const verticalDistance = this.touchStart.y - this.touchEnd.y;
     this.lastSwipeTime = Date.now();
 
-    if (verticalDistance > this.minSwipeDistance) {
+    if (verticalDistance > this.swipeConfig.minDistance) {
       this.switchToNextChannel(false); // Swipe up - next channel
-    } else if (verticalDistance < -this.minSwipeDistance) {
+    } else if (verticalDistance < -this.swipeConfig.minDistance) {
       this.switchToNextChannel(true); // Swipe down - previous channel
     }
   }
@@ -386,7 +374,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const now = Date.now();
     
     // Check debounce
-    if (now - this.lastSwipeTime < this.swipeDebounceMs) {
+    if (now - this.lastSwipeTime < this.swipeConfig.debounceMs) {
       return false;
     }
 
@@ -396,17 +384,17 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const velocity = Math.abs(verticalDistance) / swipeTime;
 
     // Validate swipe timing
-    if (swipeTime > this.maxSwipeTime) {
+    if (swipeTime > this.swipeConfig.maxTime) {
       return false;
     }
 
     // Validate swipe is mostly vertical
-    if (horizontalDistance > Math.abs(verticalDistance) * this.maxHorizontalRatio) {
+    if (horizontalDistance > Math.abs(verticalDistance) * this.swipeConfig.maxHorizontalRatio) {
       return false;
     }
 
     // Validate swipe velocity
-    return velocity >= this.minSwipeVelocity;
+    return velocity >= this.swipeConfig.minVelocity;
   }
 
   private switchToNextChannel(goUp: boolean): void {
@@ -444,26 +432,18 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private scheduleChannelLoad(nextChannel: Channel): void {
-    this.switchDelayTimeout = window.setTimeout(() => {
+    this.setNamedTimeout('switchDelay', () => {
       this.queueService.switchChannel(nextChannel);
-      this.switchDelayTimeout = null;
     }, this.CHANNEL_LOAD_DELAY_MS);
 
-    this.minStaticTimeout = window.setTimeout(() => {
+    this.setNamedTimeout('minStatic', () => {
       this.minStaticTimePassed.set(true);
-      this.minStaticTimeout = null;
     }, this.CHANNEL_SWITCH_DELAY_MS);
   }
 
   private clearChannelSwitchTimeouts(): void {
-    if (this.switchDelayTimeout) {
-      clearTimeout(this.switchDelayTimeout);
-      this.switchDelayTimeout = null;
-    }
-    if (this.minStaticTimeout) {
-      clearTimeout(this.minStaticTimeout);
-      this.minStaticTimeout = null;
-    }
+    this.clearNamedTimeout('switchDelay');
+    this.clearNamedTimeout('minStatic');
   }
 
   private adjustVolume(increase: boolean): void {
@@ -489,15 +469,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Show the indicator
     this.showVolumeIndicator.set(true);
 
-    // Clear any existing timeout
-    if (this.volumeIndicatorTimeout) {
-      clearTimeout(this.volumeIndicatorTimeout);
-    }
-
     // Hide after duration
-    this.volumeIndicatorTimeout = window.setTimeout(() => {
+    this.setNamedTimeout('volumeIndicator', () => {
       this.showVolumeIndicator.set(false);
-      this.volumeIndicatorTimeout = null;
     }, this.VOLUME_INDICATOR_DURATION);
   }
 
@@ -682,12 +656,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private handlePlayingState(player: any): void {
     this.loadAttempts = 0;
 
-    // Clear any buffer timeout since video is now playing
-    if (this.videoBufferTimeout) {
-      clearTimeout(this.videoBufferTimeout);
-      this.videoBufferTimeout = null;
-    }
-
     if (this.isFirstVideo) {
       // Mark as no longer first video
       this.isFirstVideo = false;
@@ -725,10 +693,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private clearPendingYearFetch(): void {
-    if (this.yearFetchTimeout) {
-      clearTimeout(this.yearFetchTimeout);
-      this.yearFetchTimeout = null;
-    }
+    this.clearNamedTimeout('yearFetch');
   }
 
   private scheduleYearFetch(video: Video | undefined, channel: Channel): void {
@@ -740,7 +705,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       ? `${video.artist} ${video.song}`
       : video.title || '';
 
-    this.yearFetchTimeout = window.setTimeout(() => {
+    this.setNamedTimeout('yearFetch', () => {
       this.youtubeService.getVideoYear(searchTitle).subscribe({
         next: (response) => {
           if (response.year) {
@@ -751,7 +716,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           console.error('Error fetching video year:', err);
         }
       });
-      this.yearFetchTimeout = null;
     }, 5000);
   }
 
@@ -892,18 +856,25 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private showOverlay(type: 'playingNow' | 'playingNext', duration: number, callback?: () => void): void {
-    const showSignal = type === 'playingNow' ? this.showPlayingNow : this.showPlayingNext;
-    const animatingSignal = type === 'playingNow' ? this.playingNowAnimating : this.playingNextAnimating;
-
-    showSignal.set(true);
-    animatingSignal.set(false);
+    // Show overlay
+    this.overlayState.update(state => ({
+      ...state,
+      [type]: { visible: true, animating: false }
+    }));
 
     const hideTimeout = window.setTimeout(() => {
-      animatingSignal.set(true);
+      // Start hiding animation
+      this.overlayState.update(state => ({
+        ...state,
+        [type]: { visible: true, animating: true }
+      }));
 
       const completeTimeout = window.setTimeout(() => {
-        showSignal.set(false);
-        animatingSignal.set(false);
+        // Complete hide
+        this.overlayState.update(state => ({
+          ...state,
+          [type]: { visible: false, animating: false }
+        }));
         callback?.();
       }, 500);
 
@@ -916,9 +887,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private clearTimeouts(): void {
     this.overlayTimeouts.forEach(timeout => clearTimeout(timeout));
     this.overlayTimeouts = [];
-    this.showPlayingNow.set(false);
-    this.showPlayingNext.set(false);
-    this.playingNowAnimating.set(false);
-    this.playingNextAnimating.set(false);
+    this.overlayState.set({
+      playingNow: { visible: false, animating: false },
+      playingNext: { visible: false, animating: false }
+    });
   }
 }
