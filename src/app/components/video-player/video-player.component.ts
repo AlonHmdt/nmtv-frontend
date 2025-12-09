@@ -68,6 +68,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private hasUserInteractedAfterStart = false; // Track if user has interacted after video started
   private vintageChannelTimeout: number | null = null; // Timeout for hiding vintage channel indicator
   private volumeIndicatorTimeout: number | null = null; // Timeout for hiding volume indicator
+  private videoBufferTimeout: number | null = null; // Timeout to ensure video has buffered before showing
 
   // Touch gesture tracking
   private touchStartY = 0;
@@ -81,11 +82,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private maxHorizontalRatio = 0.5; // Maximum ratio of horizontal to vertical movement
   private lastSwipeTime = 0; // Track last swipe time for debouncing
   private swipeDebounceMs = 300; // Minimum time between swipes
-  private readonly CHANNEL_SWITCH_DELAY_MS = 1000; // Minimum duration for static effect visibility
-  private readonly CHANNEL_LOAD_DELAY_MS = 120; // Delay before starting channel load
+  private readonly CHANNEL_SWITCH_DELAY_MS = 1200; // Minimum duration for static effect visibility (increased to mask loading)
+  private readonly CHANNEL_LOAD_DELAY_MS = 50; // Delay before starting channel load (reduced for faster preload)
   private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
   private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
+  private readonly PRELOAD_BUFFER_TIME_MS = 300; // Time to allow video to buffer before showing
 
   // Available channels in order (NOA will be filtered out if locked)
   private readonly ALL_CHANNELS = [
@@ -118,11 +120,27 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           // isFirstVideo will be handled in handlePlayingState via seekTo
         } else {
           if (this.isFirstVideo) {
-            // For channel switches, load directly at the desired time for faster loading
-            this.player.loadVideoById({
+            // For channel switches, use cueVideoById to preload without showing loader
+            // This loads the video in the background, then we'll play it after buffering
+            this.player.cueVideoById({
               videoId: video.id,
               startSeconds: this.FIRST_VIDEO_START_TIME
             });
+            
+            // Set a minimum quality to ensure fast loading
+            this.player.setPlaybackQuality('medium');
+            
+            // Give video time to buffer before playing
+            if (this.videoBufferTimeout) {
+              clearTimeout(this.videoBufferTimeout);
+            }
+            this.videoBufferTimeout = window.setTimeout(() => {
+              if (this.player) {
+                this.player.playVideo();
+              }
+              this.videoBufferTimeout = null;
+            }, this.PRELOAD_BUFFER_TIME_MS);
+            
             this.isFirstVideo = false;
           } else {
             this.player.loadVideoById(video.id);
@@ -138,6 +156,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       const minTimePassed = this.minStaticTimePassed();
 
       // Hide static when video is ready AND minimum time has passed
+      // The minimum time is now longer (1200ms) to mask the loading/buffering
       if (video && ready && minTimePassed && untracked(() => this.showChannelSwitchStatic())) {
         this.showChannelSwitchStatic.set(false);
         // Stop static sound when effect ends
@@ -250,6 +269,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.volumeIndicatorTimeout) {
       clearTimeout(this.volumeIndicatorTimeout);
       this.volumeIndicatorTimeout = null;
+    }
+    if (this.videoBufferTimeout) {
+      clearTimeout(this.videoBufferTimeout);
+      this.videoBufferTimeout = null;
     }
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
@@ -662,6 +685,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handlePlayingState(player: any): void {
     this.loadAttempts = 0;
+
+    // Clear any buffer timeout since video is now playing
+    if (this.videoBufferTimeout) {
+      clearTimeout(this.videoBufferTimeout);
+      this.videoBufferTimeout = null;
+    }
 
     if (this.isFirstVideo) {
       // Mark as no longer first video
