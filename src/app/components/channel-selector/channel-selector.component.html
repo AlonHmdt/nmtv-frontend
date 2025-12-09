@@ -10,7 +10,7 @@
 
     <!-- Vintage Header -->
     <div class="remote-header">
-      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo">
+      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()">
 
       <div class="power-off-container">
         <div class="green-dot"></div>
@@ -24,11 +24,18 @@
     </div>
 
     <div class="channel-list retro-inset-panel">
-      @for (channel of channels; track channel.id) {
+      @for (channel of channels(); track channel.id) {
       <button class="channel-item retro-button" [class.active]="isActive(channel.id)"
+        [class.loading]="channel.isEasterEgg && isLoadingNoa()"
+        [disabled]="channel.isEasterEgg && !isNoaChannelReady()"
         (click)="selectChannel(channel.id)" tabindex="0">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
+        @if (channel.isEasterEgg && isLoadingNoa()) {
+        <span class="channel-loader">
+          <i class="bi bi-arrow-clockwise spinner"></i>
+        </span>
+        }
       </button>
       }
     </div>

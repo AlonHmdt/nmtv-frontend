@@ -1,6 +1,7 @@
 import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
+import { EasterEggService } from '../../services/easter-egg.service';
 import { Channel, ChannelConfig, Channels } from '../../models/video.model';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
@@ -20,6 +21,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private queueService = inject(QueueService);
   private helpersService = inject(HelpersService);
   private pwaService = inject(PwaService);
+  private easterEggService = inject(EasterEggService);
 
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
@@ -32,7 +34,16 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
-  channels: ChannelConfig[] = Channels;
+  
+  // Filter channels based on easter egg unlock state
+  channels = computed(() => {
+    const isUnlocked = this.easterEggService.isUnlocked();
+    return Channels.filter(ch => !ch.isEasterEgg || isUnlocked);
+  });
+
+  // Easter egg state for NOA channel
+  isNoaChannelReady = this.easterEggService.isNoaChannelReady;
+  isLoadingNoa = this.easterEggService.isLoadingNoa;
 
   // Focus management for arrow key navigation
   private focusableElements: HTMLElement[] = [];
@@ -408,5 +419,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
         console.error('Failed to copy URL:', err);
       }
     }
+  }
+
+  onLogoClick(): void {
+    this.easterEggService.handleLogoClick();
   }
 }

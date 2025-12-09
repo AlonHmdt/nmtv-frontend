@@ -85,6 +85,11 @@ export const MOCK_VIDEOS: { [key in Channel]: Video[] } = {
   [Channel.SHOWS]: [
     { id: 'dQw4w9WgXcQ', title: 'Show Clip Video 1' },
     { id: 'dQw4w9WgXcQ', title: 'Show Clip Video 2' },
+  ],
+  [Channel.NOA]: [
+    { id: 'LsoLEjrDogU', artist: 'Panic! At The Disco', song: 'High Hopes' },
+    { id: '09R8_2nJtjg', artist: 'Rihanna', song: 'Umbrella' },
+    { id: '3AtDnEC4zak', artist: 'Maroon 5', song: 'Sugar' },
   ]
 };
 

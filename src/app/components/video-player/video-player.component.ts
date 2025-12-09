@@ -88,7 +88,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     Channel.DECADE_1990S,
     Channel.DECADE_1980S,
     Channel.LIVE,
-    Channel.SHOWS
+    Channel.SHOWS,
+    Channel.NOA
   ] as const;
 
   constructor() {
@@ -541,13 +542,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         
         // If not playing or buffering, try to recover
         if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
-          console.log(`Retry playback attempt ${attempt}, current state: ${state}`);
-          
           if (attempt >= 3) {
             // On final attempt, reload the video
             const currentVid = this.currentVideo();
             if (currentVid) {
-              console.log('Final retry - reloading video');
               player.loadVideoById(currentVid.id);
             }
           } else {

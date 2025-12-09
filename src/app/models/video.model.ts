@@ -35,12 +35,14 @@ export enum Channel {
   DECADE_1990S = '1990s',
   DECADE_1980S = '1980s',
   LIVE = 'live',
-  SHOWS = 'shows'
+  SHOWS = 'shows',
+  NOA = 'noa'
 }
 export interface ChannelConfig {
   id: Channel;
   name: string;
   icon: string;
+  isEasterEgg?: boolean; // Optional flag for easter egg channels
 }
 
 
@@ -51,5 +53,6 @@ export const Channels: ChannelConfig[] = [
   { id: Channel.DECADE_1990S, name: '1990s', icon: '📼' },
   { id: Channel.DECADE_1980S, name: '1980s', icon: '📻' },
   { id: Channel.LIVE, name: 'Live', icon: '🎬' },
-  { id: Channel.SHOWS, name: 'Shows', icon: '📺' }
+  { id: Channel.SHOWS, name: 'Shows', icon: '📺' },
+  { id: Channel.NOA, name: 'NOA', icon: '🐼', isEasterEgg: true }
 ];
