@@ -79,29 +79,6 @@ button,
   }
 }
 
-/* Glitch effect for retro feel */
-@keyframes glitch {
-  0% {
-    text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff;
-  }
-
-  25% {
-    text-shadow: -2px 2px #ff00ff, 2px -2px #00ffff;
-  }
-
-  50% {
-    text-shadow: 2px -2px #ff00ff, -2px 2px #00ffff;
-  }
-
-  75% {
-    text-shadow: -2px -2px #ff00ff, 2px 2px #00ffff;
-  }
-
-  100% {
-    text-shadow: 2px 2px #ff00ff, -2px -2px #00ffff;
-  }
-}
-
 @keyframes pulse {
 
   0%,
@@ -125,20 +102,6 @@ button,
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
-}
-
-/* Thick Dark Border */
-.retro-border {
-  border: 8px solid #1a1a1a;
-  border-radius: 24px;
-}
-
-/* 3D Bevel Shadow */
-.retro-shadow-bevel {
-  box-shadow:
-    0 20px 50px rgba(0, 0, 0, 0.9),
-    inset 2px 2px 2px rgba(255, 255, 255, 0.1),
-    inset -2px -2px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Inset Panel (for modal bodies, lists) */

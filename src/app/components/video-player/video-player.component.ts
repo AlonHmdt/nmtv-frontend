@@ -56,7 +56,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private apiReady = signal(false);
   private overlaysStarted = false;
   private isFirstVideo = true; // Track if this is the first video (startup or channel change)
-  private firstVideoLoadStart = 0; // Track when first video started loading
 
   private loadAttempts = 0;
   private maxLoadAttempts = 2; // Try loading video twice before marking as unavailable
@@ -695,7 +694,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isFirstVideo) {
       // Mark as no longer first video
       this.isFirstVideo = false;
-      this.firstVideoLoadStart = 0;
       
       // Start overlays immediately since video already loaded at correct time
       if (!this.overlaysStarted) {

@@ -89,14 +89,6 @@
   opacity: 0.9;
 }
 
-.model-text {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 10px;
-  color: #666;
-  letter-spacing: 2px;
-  font-weight: bold;
-}
-
 // ============================================================================
 // POWER BUTTON SECTION
 // ============================================================================
@@ -233,49 +225,6 @@
 }
 
 // ============================================================================
-// INSTALL BUTTON
-// ============================================================================
-
-.install-pwa {
-  width: 100%;
-}
-
-.install-app-button {
-  width: 100%;
-  height: 44px;
-  background: linear-gradient(145deg, #333, #222);
-  border: none;
-  border-radius: 8px;
-  color: #ccc;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow:
-    0 3px 0 #111,
-    0 4px 4px rgba(0, 0, 0, 0.3),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.1s;
-
-  &:active {
-    transform: translateY(3px);
-    box-shadow:
-      0 0 0 #111,
-      inset 2px 2px 4px rgba(0, 0, 0, 0.5);
-  }
-
-  i {
-    font-size: 14px;
-  }
-}
-
-// ============================================================================
 // USER GUIDE
 // ============================================================================
 
@@ -368,12 +317,6 @@
   }
 }
 
-.hint-separator {
-  color: #555;
-  font-size: 14px;
-  user-select: none;
-}
-
 .hint-label {
   font-family: 'Roboto Mono', monospace;
   font-size: 11px;
@@ -381,11 +324,6 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   font-weight: bold;
-}
-
-.key-group {
-  display: flex;
-  gap: 8px;
 }
 
 .key-hint {
