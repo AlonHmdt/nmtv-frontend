@@ -2,6 +2,7 @@ import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output, 
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { EasterEggService } from '../../services/easter-egg.service';
+import { VideoPlayerControlService } from '../../services/video-player-control.service';
 import { Channel, ChannelConfig, Channels } from '../../models/video.model';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
@@ -22,6 +23,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private helpersService = inject(HelpersService);
   private pwaService = inject(PwaService);
   private easterEggService = inject(EasterEggService);
+  private videoPlayerControl = inject(VideoPlayerControlService);
 
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
@@ -299,11 +301,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   async selectChannel(channel: Channel): Promise<void> {
     if (channel !== this.currentChannel()) {
-      try {
-        await this.queueService.switchChannel(channel);
-      } catch (error) {
-        console.error('Channel selector: Error switching channel:', error);
-      }
+      // Request channel switch through service with static effect
+      this.videoPlayerControl.requestChannelSwitch(channel, true);
     }
     this.isMenuOpen.set(false);
     this.menuStateChange.emit(false);

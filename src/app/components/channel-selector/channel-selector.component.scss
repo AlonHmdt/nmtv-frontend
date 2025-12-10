@@ -26,11 +26,19 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  z-index: 1001; // Above menu overlay and side-menu
 
   i {
     color: #d4d4d4;
     font-size: 24px;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
+    transition: all 0.3s ease;
+  }
+
+  .remote-icon {
+    width: 24px;
+    height: 24px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(0.8) invert(0.8);
     transition: all 0.3s ease;
   }
 
@@ -40,6 +48,10 @@
 
       i {
         color: #fff;
+      }
+
+      .remote-icon {
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(1) invert(1);
       }
     }
   }
@@ -57,12 +69,20 @@
       // No rotation needed for d-pad
     }
 
+    .remote-icon {
+      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(0.4) invert(0.4);
+    }
+
     @media (hover: hover) {
       &:hover {
         height: 40px; // No peek when open
 
         i {
           color: #fff;
+        }
+
+        .remote-icon {
+          filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(1) invert(1);
         }
       }
     }

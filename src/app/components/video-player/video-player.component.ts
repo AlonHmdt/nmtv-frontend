@@ -85,7 +85,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   private readonly CHANNEL_SWITCH_DELAY_MS = 1200; // Minimum duration for static effect visibility (increased to mask loading)
   private readonly CHANNEL_LOAD_DELAY_MS = 100; // Delay before starting channel load
-  private readonly FIRST_VIDEO_START_TIME = 135; // Start time (2:15) for first video of channel
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
   private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
 
@@ -124,7 +123,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             // Extended static duration (1200ms) masks any loading time
             this.player.loadVideoById({
               videoId: video.id,
-              startSeconds: this.FIRST_VIDEO_START_TIME
+              startSeconds: this.getRandomStartTime()
             });
             this.isFirstVideo = false;
           } else {
@@ -188,6 +187,26 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
+
+    // Watch for channel switch requests from service
+    effect(() => {
+      const request = this.videoPlayerControl.channelSwitchRequest();
+
+      if (request) {
+        this.unmuteIfNeeded();
+        
+        if (request.withEffect) {
+          this.initiateChannelSwitch();
+          this.scheduleChannelLoad(request.channel);
+        } else {
+          // Direct switch without static effect
+          this.queueService.switchChannel(request.channel);
+        }
+
+        // Clear the request after processing
+        untracked(() => this.videoPlayerControl.clearChannelSwitchRequest());
+      }
+    });
   }
 
   // Centralized timeout management methods
@@ -208,6 +227,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private clearAllNamedTimeouts(): void {
     this.timeouts.forEach(timeoutId => clearTimeout(timeoutId));
     this.timeouts.clear();
+  }
+
+  private getRandomStartTime(): number {
+    // Random start time between 2:00 (120s) and 3:30 (210s)
+    const MIN_START = 120;
+    const MAX_START = 210;
+    return Math.floor(Math.random() * (MAX_START - MIN_START + 1)) + MIN_START;
   }
 
   ngOnInit(): void {
@@ -398,11 +424,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private switchToNextChannel(goUp: boolean): void {
-    this.unmuteIfNeeded();
-
     const nextChannel = this.calculateNextChannel(goUp);
-    this.initiateChannelSwitch();
-    this.scheduleChannelLoad(nextChannel);
+    this.videoPlayerControl.requestChannelSwitch(nextChannel, true);
   }
 
   private calculateNextChannel(goUp: boolean): Channel {
@@ -560,7 +583,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             enablejsapi: 1,
             origin: window.location.origin,
             mute: 0,  // Unmuted since user clicked power button
-            start: this.isFirstVideo ? this.FIRST_VIDEO_START_TIME : undefined
+            cc_load_policy: 0,  // Disable captions by default (0 = off, 1 = on if available)
+            start: this.isFirstVideo ? this.getRandomStartTime() : undefined
           },
           events: {
             onReady: (event: any) => this.onPlayerReady(event),
@@ -586,6 +610,17 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private configurePlayer(player: any): void {
     player.getIframe().style.pointerEvents = 'none';
     player.setVolume(100);
+    
+    // Force disable captions on player ready (overrides user's YouTube account preferences)
+    try {
+      if (player.loadModule) {
+        player.loadModule('captions');
+        // Unload/clear any caption track
+        player.unloadModule('captions');
+      }
+    } catch (e) {
+      // Ignore errors if caption module not available
+    }
   }
 
   private setupAudioForPlatform(player: any): void {
