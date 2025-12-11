@@ -20,7 +20,7 @@ export class App implements OnInit {
   private pwaService = inject(PwaService); // Initialize PWA service early to catch install prompt
 
   isPoweredOn = signal(false);
-  isLoading = signal(true);
+  isLoading = signal(false); // Start as false, only show if backend needs time to load
   isChannelSelectorOpen = signal(false);
   loadingProgress = signal(0); // 0-100 percentage
 
@@ -41,9 +41,6 @@ export class App implements OnInit {
       }
     } catch (error) {
       console.error('Error initializing app:', error);
-    } finally {
-      // Always set loading to false at the end
-      this.isLoading.set(false);
     }
   }
 
@@ -53,6 +50,11 @@ export class App implements OnInit {
 
     while (retries < maxRetries) {
       const readyData = await this.youtubeService.checkBackendReady();
+      
+      // If not ready on first check, show loading UI
+      if (retries === 0 && !(readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true))) {
+        this.isLoading.set(true);
+      }
       
       // Update progress based on cache size from backend
       if (readyData && typeof readyData === 'object') {
@@ -64,12 +66,7 @@ export class App implements OnInit {
       
       if (readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true)) {
         this.loadingProgress.set(100);
-        
-        // If ready on first try, set loading to false immediately (no loading bar flicker)
-        if (retries === 0) {
-          this.isLoading.set(false);
-        }
-        
+        this.isLoading.set(false);
         return true;
       }
 
