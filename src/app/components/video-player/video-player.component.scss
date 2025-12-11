@@ -354,7 +354,7 @@
   position: fixed;
   top: 80px;
   right: 40px;
-  z-index: 3;
+  z-index: 11; // Above the static canvas (z-index: 10)
   color: #00ff00;
   font-family: 'VT323', 'Courier New', monospace;
   font-size: 56px;
@@ -362,7 +362,6 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
-  animation: vintageChannelFadeIn 0.3s ease-out;
   pointer-events: none;
 
   @media #{$mobile-and-tablet} {

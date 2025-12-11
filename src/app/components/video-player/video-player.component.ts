@@ -84,7 +84,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     touchEnd: this.handleTouchEnd.bind(this)
   }
   private readonly CHANNEL_SWITCH_DELAY_MS = 1200; // Minimum duration for static effect visibility (increased to mask loading)
-  private readonly CHANNEL_LOAD_DELAY_MS = 100; // Delay before starting channel load
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
   private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
 
@@ -145,6 +144,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.showChannelSwitchStatic.set(false);
         // Stop static sound when effect ends
         this.helpersService.stopStaticSound();
+        
+        // Unmute the player now that the channel switch is complete
+        if (this.player && !this.isAwaitingIOSUnmute) {
+          this.player.unMute();
+        }
       }
     });
 
@@ -163,15 +167,25 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.oldTVEffect.stop();
         }
       }
+    });
 
-      // Show vintage channel indicator for 5 seconds when vintage mode is enabled
-      if (enabled && !untracked(() => this.showVintageChannelIndicator())) {
-        this.showVintageChannelIndicator.set(true);
+    // Watch for channel switches to show vintage channel indicator
+    effect(() => {
+      const channelSwitch = this.showChannelSwitchStatic();
 
-        // Hide after 5 seconds
-        this.setNamedTimeout('vintageChannel', () => {
-          this.showVintageChannelIndicator.set(false);
-        }, 6000);
+      if (channelSwitch) {
+        // Hide immediately when channel switch starts
+        this.showVintageChannelIndicator.set(false);
+        
+        // Show vintage channel indicator 1 second after channel switch starts
+        this.setNamedTimeout('vintageChannelShow', () => {
+          this.showVintageChannelIndicator.set(true);
+
+          // Hide after 6 seconds
+          this.setNamedTimeout('vintageChannelHide', () => {
+            this.showVintageChannelIndicator.set(false);
+          }, 6000);
+        }, 1000);
       }
     });
 
@@ -450,14 +464,18 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isFirstVideo = true;
     this.clearChannelSwitchTimeouts();
     
+    // Mute the player during channel switch to prevent audio bleed-through
+    if (this.player) {
+      this.player.mute();
+    }
+    
     // Play static sound effect
     this.helpersService.playStaticSound();
   }
 
   private scheduleChannelLoad(nextChannel: Channel): void {
-    this.setNamedTimeout('switchDelay', () => {
-      this.queueService.switchChannel(nextChannel);
-    }, this.CHANNEL_LOAD_DELAY_MS);
+    // Switch channel immediately to start loading the new video right away
+    this.queueService.switchChannel(nextChannel);
 
     this.setNamedTimeout('minStatic', () => {
       this.minStaticTimePassed.set(true);
@@ -465,7 +483,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private clearChannelSwitchTimeouts(): void {
-    this.clearNamedTimeout('switchDelay');
     this.clearNamedTimeout('minStatic');
   }
 
