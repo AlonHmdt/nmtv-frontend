@@ -23,6 +23,7 @@ export class PowerButtonComponent {
   isLoading = input<boolean>(false);
   loadingProgress = input<number>(0); // 0-100 percentage
   isPoweredOn = input<boolean>(false);
+  backendIsReady = input<boolean>(false);
   powerOn = output<void>();
 
   // Local state for animation

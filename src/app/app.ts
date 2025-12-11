@@ -20,9 +20,10 @@ export class App implements OnInit {
   private pwaService = inject(PwaService); // Initialize PWA service early to catch install prompt
 
   isPoweredOn = signal(false);
-  isLoading = signal(false); // Start as false, only show if backend needs time to load
+  isLoading = signal(false); // Start false, set to true only if backend needs time
   isChannelSelectorOpen = signal(false);
   loadingProgress = signal(0); // 0-100 percentage
+  backendIsReady = signal(false); // Track if backend successfully responded
 
   async ngOnInit(): Promise<void> {
     // Initialize Vercel Analytics
@@ -51,11 +52,6 @@ export class App implements OnInit {
     while (retries < maxRetries) {
       const readyData = await this.youtubeService.checkBackendReady();
       
-      // If not ready on first check, show loading UI
-      if (retries === 0 && !(readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true))) {
-        this.isLoading.set(true);
-      }
-      
       // Update progress based on cache size from backend
       if (readyData && typeof readyData === 'object') {
         const cacheSize = (readyData as any).cacheSize || 0;
@@ -66,8 +62,14 @@ export class App implements OnInit {
       
       if (readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true)) {
         this.loadingProgress.set(100);
+        this.backendIsReady.set(true);
         this.isLoading.set(false);
         return true;
+      }
+
+      // Backend not ready on first check, show loading UI
+      if (retries === 0) {
+        this.isLoading.set(true);
       }
 
       retries++;
@@ -75,6 +77,8 @@ export class App implements OnInit {
       await new Promise(resolve => setTimeout(resolve, 3000));
     }
 
+    // Backend failed - keep isLoading true so button stays disabled
+    this.backendIsReady.set(false);
     return false;
   }
 

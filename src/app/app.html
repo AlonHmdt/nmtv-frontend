@@ -1,4 +1,4 @@
-<app-power-button [isLoading]="isLoading()" [loadingProgress]="loadingProgress()" [isPoweredOn]="isPoweredOn()" (powerOn)="onPowerOn()" />
+<app-power-button [isLoading]="isLoading()" [loadingProgress]="loadingProgress()" [isPoweredOn]="isPoweredOn()" [backendIsReady]="backendIsReady()" (powerOn)="onPowerOn()" />
 
 @if (isPoweredOn()) {
 <app-video-player [isChannelSelectorOpen]="isChannelSelectorOpen()" />
