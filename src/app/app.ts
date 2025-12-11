@@ -20,7 +20,7 @@ export class App implements OnInit {
   private pwaService = inject(PwaService); // Initialize PWA service early to catch install prompt
 
   isPoweredOn = signal(false);
-  isLoading = signal(false); // Start false, set to true only if backend needs time
+  isLoading = signal(true); // Start true to disable button, then set based on backend status
   isChannelSelectorOpen = signal(false);
   loadingProgress = signal(0); // 0-100 percentage
   backendIsReady = signal(false); // Track if backend successfully responded
@@ -65,11 +65,6 @@ export class App implements OnInit {
         this.backendIsReady.set(true);
         this.isLoading.set(false);
         return true;
-      }
-
-      // Backend not ready on first check, show loading UI
-      if (retries === 0) {
-        this.isLoading.set(true);
       }
 
       retries++;
