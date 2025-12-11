@@ -37,7 +37,7 @@ export class SettingsModalComponent {
   isAdding = signal(false);
   isApplying = signal(false);
 
-  channels: ChannelData[] = Channels;
+  channels: ChannelData[] = Channels.filter(ch => !ch.isEasterEgg);
 
   // Computed values
   currentPlaylists = computed(() => {
