@@ -37,7 +37,7 @@ export class YoutubeService {
     });
   }
 
-  async checkBackendReady(): Promise<boolean> {
+  async checkBackendReady(): Promise<boolean | { ready: boolean; cacheSize: number; bumpersLoaded: boolean; bumpersCount: number }> {
     try {
       const response = await fetch(`${this.backendUrl}/ready`, {
         method: 'GET',
@@ -46,7 +46,8 @@ export class YoutubeService {
 
       if (response.ok) {
         const data = await response.json();
-        return data.ready === true;
+        // Return full data object for progress tracking
+        return data;
       }
       return false;
     } catch (error) {

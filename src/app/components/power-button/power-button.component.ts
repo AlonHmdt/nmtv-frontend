@@ -21,11 +21,14 @@ export class PowerButtonComponent {
 
   // Inputs/Outputs
   isLoading = input<boolean>(false);
+  loadingProgress = input<number>(0); // 0-100 percentage
   isPoweredOn = input<boolean>(false);
   powerOn = output<void>();
 
   // Local state for animation
   isAnimating = signal(false);
+  showLoadingContent = signal(true);
+  isFadingOut = signal(false);
 
   constructor() {
     // Reset animation state when powered off
@@ -35,8 +38,33 @@ export class PowerButtonComponent {
       if (!poweredOn) {
         untracked(() => {
           this.isAnimating.set(false);
+          this.showLoadingContent.set(true);
+          this.isFadingOut.set(false);
         });
         this.cleanup();
+      }
+    });
+
+    // Handle loading state changes with fade-out
+    effect(() => {
+      const loading = this.isLoading();
+      
+      if (!loading && this.showLoadingContent()) {
+        // Start fade-out
+        untracked(() => {
+          this.isFadingOut.set(true);
+        });
+        
+        // Hide content after fade-out completes
+        setTimeout(() => {
+          this.showLoadingContent.set(false);
+          this.isFadingOut.set(false);
+        }, 500); // Match CSS transition duration
+      } else if (loading) {
+        untracked(() => {
+          this.showLoadingContent.set(true);
+          this.isFadingOut.set(false);
+        });
       }
     });
   }

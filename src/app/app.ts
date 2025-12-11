@@ -22,6 +22,7 @@ export class App implements OnInit {
   isPoweredOn = signal(false);
   isLoading = signal(true);
   isChannelSelectorOpen = signal(false);
+  loadingProgress = signal(0); // 0-100 percentage
 
   async ngOnInit(): Promise<void> {
     // Initialize Vercel Analytics
@@ -50,8 +51,18 @@ export class App implements OnInit {
     let retries = 0;
 
     while (retries < maxRetries) {
-      const isReady = await this.youtubeService.checkBackendReady();
-      if (isReady) {
+      const readyData = await this.youtubeService.checkBackendReady();
+      
+      // Update progress based on cache size from backend
+      if (readyData && typeof readyData === 'object') {
+        const cacheSize = (readyData as any).cacheSize || 0;
+        const totalPlaylists = (readyData as any).totalPlaylists || 50; // Use backend's count or fallback
+        const progress = Math.min(95, Math.floor((cacheSize / totalPlaylists) * 100));
+        this.loadingProgress.set(progress);
+      }
+      
+      if (readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true)) {
+        this.loadingProgress.set(100);
         return true;
       }
 

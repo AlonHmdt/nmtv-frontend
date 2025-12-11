@@ -25,8 +25,16 @@
     </div>
 
     <div class="power-text">
-      @if (isLoading()) {
-      INITIALIZING...
+      @if (showLoadingContent()) {
+      <div class="loading-container" [class.fade-out]="isFadingOut()">
+        <div class="loading-text">INITIALIZING...</div>
+        <div class="progress-bar-container">
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" [style.width.%]="loadingProgress()"></div>
+          </div>
+          <div class="progress-text">{{ loadingProgress() }}%</div>
+        </div>
+      </div>
       } @else {
       <span class="desktop">POWER ON/HIT SPACE TO START</span>
       <span class="mobile">POWER ON TO START</span>
