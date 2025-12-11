@@ -42,6 +42,7 @@ export class App implements OnInit {
     } catch (error) {
       console.error('Error initializing app:', error);
     } finally {
+      // Always set loading to false at the end
       this.isLoading.set(false);
     }
   }
@@ -63,6 +64,12 @@ export class App implements OnInit {
       
       if (readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true)) {
         this.loadingProgress.set(100);
+        
+        // If ready on first try, set loading to false immediately (no loading bar flicker)
+        if (retries === 0) {
+          this.isLoading.set(false);
+        }
+        
         return true;
       }
 
