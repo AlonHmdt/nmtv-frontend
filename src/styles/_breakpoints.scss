@@ -15,7 +15,7 @@
 // Then use in media queries:
 //   @media #{$handheld} { ... }           // All phones & tablets
 //   @media #{$portrait} { ... }           // Vertical screens (< 1024px)
-//   @media #{$landscape} { ... }          // Horizontal screens
+//   @media #{$landscape} { ... }          // Touch devices horizontal
 //   @media #{$short-landscape} { ... }    // Phones in landscape (new!)
 //   @media #{$desktop} { ... }            // Large screens & TVs
 //
@@ -51,9 +51,10 @@ $desktop: '(min-width: 1025px)';
 // Used for: centered layouts, stacked UI elements, bottom navigation
 $portrait: '(max-width: 1024px) and (orientation: portrait)';
 
-// Landscape mode - horizontal screens (ALL sizes including phones)
+// Landscape mode - touch devices in horizontal orientation (tablets & phones)
 // Used for: wide layouts, side navigation, more horizontal space
-$landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
+// Note: Uses pointer:coarse to detect touch, so PC→TV connections show desktop UI
+$landscape: '(max-width: 1366px) and (orientation: landscape) and (pointer: coarse)';
 
 // Short landscape - phones in horizontal mode (critical for video UI)
 // Used for: compact headers, condensed controls, horizontal layouts
@@ -71,8 +72,8 @@ $phone-portrait: '(max-width: 600px) and (orientation: portrait)';
 // Tablets only (portrait) - distinct from phones
 $tablet-portrait: '(min-width: 601px) and (max-width: 1024px) and (orientation: portrait)';
 
-// Tablets in landscape
-$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
+// Tablets in landscape (touch devices only)
+$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (pointer: coarse)';
 
 // Large desktops and 4K displays
 $large-desktop: '(min-width: 1921px)';
