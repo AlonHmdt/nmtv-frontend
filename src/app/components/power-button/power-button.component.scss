@@ -207,19 +207,18 @@
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 
   .desktop {
+    display: none;
 
-    @media #{$mobile-and-tablet},
-    #{$tablet-landscape} {
-      display: none;
+    @media #{$has-keyboard} {
+      display: inline;
     }
   }
 
   .mobile {
-    display: none;
+    display: inline;
 
-    @media #{$mobile-and-tablet},
-    #{$tablet-landscape} {
-      display: inline;
+    @media #{$has-keyboard} {
+      display: none;
     }
   }
 }
@@ -341,19 +340,18 @@
   }
 
   &.desktop {
+    display: none;
 
-    @media #{$mobile-and-tablet},
-    #{$tablet-landscape} {
-      display: none;
+    @media #{$has-keyboard} {
+      display: flex;
     }
   }
 
   &.mobile {
-    display: none;
+    display: flex;
 
-    @media #{$mobile-and-tablet},
-    #{$tablet-landscape} {
-      display: flex;
+    @media #{$has-keyboard} {
+      display: none;
     }
   }
 }

@@ -15,7 +15,9 @@
 // Then use in media queries:
 //   @media #{$handheld} { ... }           // All phones & tablets
 //   @media #{$portrait} { ... }           // Vertical screens (< 1024px)
-//   @media #{$landscape} { ... }          // Touch devices horizontal
+//   @media #{$landscape} { ... }          // Horizontal screens
+//   @media #{$has-keyboard} { ... }       // Show keyboard controls
+//   @media #{$has-touch} { ... }          // Show touch controls
 //   @media #{$short-landscape} { ... }    // Phones in landscape (new!)
 //   @media #{$desktop} { ... }            // Large screens & TVs
 //
@@ -51,10 +53,9 @@ $desktop: '(min-width: 1025px)';
 // Used for: centered layouts, stacked UI elements, bottom navigation
 $portrait: '(max-width: 1024px) and (orientation: portrait)';
 
-// Landscape mode - touch devices in horizontal orientation (tablets & phones)
+// Landscape mode - horizontal screens (tablets & phones)
 // Used for: wide layouts, side navigation, more horizontal space
-// Note: Uses pointer:coarse to detect touch, so PC→TV connections show desktop UI
-$landscape: '(max-width: 1366px) and (orientation: landscape) and (pointer: coarse)';
+$landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
 
 // Short landscape - phones in horizontal mode (critical for video UI)
 // Used for: compact headers, condensed controls, horizontal layouts
@@ -72,11 +73,25 @@ $phone-portrait: '(max-width: 600px) and (orientation: portrait)';
 // Tablets only (portrait) - distinct from phones
 $tablet-portrait: '(min-width: 601px) and (max-width: 1024px) and (orientation: portrait)';
 
-// Tablets in landscape (touch devices only)
-$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (pointer: coarse)';
+// Tablets in landscape
+$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
 
 // Large desktops and 4K displays
 $large-desktop: '(min-width: 1921px)';
+
+// -----------------------------------------------------------------------------
+// INPUT METHOD DETECTION
+// -----------------------------------------------------------------------------
+// Use these to show different UI based on input method (keyboard vs touch)
+// independent of screen size. Perfect for control hints and instructions.
+
+// Devices with precise pointer (mouse, trackpad, stylus)
+// Use for: keyboard shortcuts, hover states, desktop-style controls
+$has-keyboard: '(pointer: fine)';
+
+// Devices with coarse pointer (fingers on touchscreen)
+// Use for: touch gestures, swipe instructions, mobile-style controls
+$has-touch: '(pointer: coarse)';
 
 // -----------------------------------------------------------------------------
 // BACKWARD COMPATIBILITY ALIASES
