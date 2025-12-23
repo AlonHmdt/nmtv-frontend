@@ -34,17 +34,6 @@ body {
   padding: 0;
 }
 
-// 720p TV optimization - specific adjustments for better fit
-@media #{$tv-720p} {
-  // Root font size adjustment - scales rem-based values
-  html {
-    font-size: 14px; // Default is 16px, this gives ~87.5% scaling
-  }
-  
-  // Fine-tune spacing and sizing as needed per component
-  // Components can add their own $tv-720p adjustments
-}
-
 /* Custom scrollbar for retro look */
 ::-webkit-scrollbar {
   width: 8px;

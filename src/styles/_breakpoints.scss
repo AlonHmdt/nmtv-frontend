@@ -53,10 +53,9 @@ $desktop: '(min-width: 1025px)';
 // Used for: centered layouts, stacked UI elements, bottom navigation
 $portrait: '(max-width: 1024px) and (orientation: portrait)';
 
-// Landscape mode - touch devices in horizontal orientation (tablets & phones)
+// Landscape mode - horizontal screens (tablets & phones)
 // Used for: wide layouts, side navigation, more horizontal space
-// Note: Uses pointer:coarse to detect touch. Non-touch devices (PC→TV) show desktop layout
-$landscape: '(max-width: 1366px) and (orientation: landscape) and (pointer: coarse)';
+$landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
 
 // Short landscape - phones in horizontal mode (critical for video UI)
 // Used for: compact headers, condensed controls, horizontal layouts
@@ -74,15 +73,11 @@ $phone-portrait: '(max-width: 600px) and (orientation: portrait)';
 // Tablets only (portrait) - distinct from phones
 $tablet-portrait: '(min-width: 601px) and (max-width: 1024px) and (orientation: portrait)';
 
-// Tablets in landscape (touch devices only)
-$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (pointer: coarse)';
+// Tablets in landscape
+$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
 
 // Large desktops and 4K displays
 $large-desktop: '(min-width: 1921px)';
-
-// 720p TV/Monitor - common for PC-to-TV connections
-// Exact resolution match for scaling optimization
-$tv-720p: '(min-width: 1280px) and (max-width: 1280px) and (min-height: 720px) and (max-height: 720px)';
 
 // -----------------------------------------------------------------------------
 // INPUT METHOD DETECTION
