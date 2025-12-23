@@ -1,8 +1,9 @@
+@use 'styles/breakpoints' as *;
+
 /* Import VCR OSD Mono font for authentic CRT display */
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 /* Global MTV-Style Retro Design */
-@use 'styles/breakpoints' as *;
 
 * {
   margin: 0;
