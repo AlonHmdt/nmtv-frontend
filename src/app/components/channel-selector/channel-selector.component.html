@@ -14,7 +14,7 @@
 
       <div class="power-off-container">
         <div class="green-dot"></div>
-        <button class="power-off-button retro-round-button" (click)="turnOff()" tabindex="0">
+        <button class="power-off-button retro-round-button" (click)="turnOff()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
           <i class="bi bi-power"></i>
         </button>
         <span class="power-off-text">Power</span>
@@ -28,7 +28,7 @@
       <button class="channel-item retro-button" [class.active]="isActive(channel.id)"
         [class.loading]="channel.isEasterEgg && isLoadingNoa()"
         [disabled]="channel.isEasterEgg && !isNoaChannelReady()"
-        (click)="selectChannel(channel.id)" tabindex="0">
+        (click)="selectChannel(channel.id)" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
         @if (channel.isEasterEgg && isLoadingNoa()) {
@@ -41,16 +41,16 @@
     </div>
 
     <div class="menu-actions">
-      <button class="settings-button retro-button" (click)="openSettings()" tabindex="0">
+      <button class="settings-button retro-button" (click)="openSettings()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <i class="bi bi-tools settings-icon"></i>
         <span class="settings-text">Mix Master</span>
       </button>
-      <button class="about-button retro-button" (click)="openAbout()" tabindex="0">
+      <button class="about-button retro-button" (click)="openAbout()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <i class="bi bi-lightbulb about-icon"></i>
         <span class="about-text">Unpack NMTV</span>
       </button>
 
-      <button class="old-tv-button retro-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()" tabindex="0">
+      <button class="old-tv-button retro-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <div class="toggle-content">
           <i class="bi bi-magic old-tv-icon"></i>
           <span class="old-tv-text">VCR Mode</span>
@@ -64,7 +64,7 @@
 
       @if (shouldShowFullScreen()) {
       <button class="fullscreen-button retro-button" (click)="toggleFullscreen()" [class.active]="isFullscreen()"
-        tabindex="0">
+        [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <div class="toggle-content">
           <i class="bi bi-arrows-fullscreen fullscreen-icon"></i>
           <span class="fullscreen-text">Fullscreen</span>
@@ -79,7 +79,7 @@
     </div>
 
     <div class="d-pad-actions-container">
-      <button class="support-button retro-small-button" (click)="openSupport()" tabindex="0">
+      <button class="support-button retro-small-button" (click)="openSupport()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <i class="bi bi-cup-hot-fill"></i>
         <span>Support</span>
       </button>
@@ -87,12 +87,12 @@
       <div class="d-pad-spacer"></div>
 
       @if (showInstallButton()) {
-      <button class="install-button retro-small-button" (click)="installApp()" tabindex="0">
+      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <i class="bi bi-download"></i>
         <span>App</span>
       </button>
       } @else {
-      <button class="share-button retro-small-button" (click)="shareApp()" tabindex="0">
+      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <i class="bi bi-share-fill"></i>
         <span>Share</span>
       </button>
