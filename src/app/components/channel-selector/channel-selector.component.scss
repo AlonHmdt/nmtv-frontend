@@ -33,6 +33,11 @@
     font-size: 24px;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
     transition: all 0.3s ease;
+
+    @media #{$mobile-and-tablet-landscape} {
+      font-size: 20px;
+      transform: translateY(2px);
+    }
   }
 
   .remote-icon {
@@ -45,6 +50,10 @@
   @media (hover: hover) {
     &:hover {
       height: 50px; // Peek up effect
+
+      @media #{$mobile-and-tablet-landscape} {
+        height: 40px; // Less peek on mobile landscape
+      }
 
       i {
         color: #fff;
@@ -109,7 +118,7 @@
   }
 
   @media #{$mobile-and-tablet-landscape} {
-    height: 30px;
+    height: 25px;
   }
 }
 
@@ -420,7 +429,7 @@
     right: 8px;
     transform: translateY(-50%);
     color: rgba(255, 255, 255, 0.6);
-    
+
     .spinner {
       font-size: 14px;
       animation: spin 1s linear infinite;
@@ -438,6 +447,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
