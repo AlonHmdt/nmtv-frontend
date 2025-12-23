@@ -55,7 +55,8 @@ $portrait: '(max-width: 1024px) and (orientation: portrait)';
 
 // Landscape mode - horizontal screens (tablets & phones)
 // Used for: wide layouts, side navigation, more horizontal space
-$landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
+// Note: max-height 700px excludes 720p TVs/monitors (which show desktop layout)
+$landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 700px)';
 
 // Short landscape - phones in horizontal mode (critical for video UI)
 // Used for: compact headers, condensed controls, horizontal layouts
@@ -74,7 +75,8 @@ $phone-portrait: '(max-width: 600px) and (orientation: portrait)';
 $tablet-portrait: '(min-width: 601px) and (max-width: 1024px) and (orientation: portrait)';
 
 // Tablets in landscape
-$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
+// Note: max-height 700px excludes 720p displays (TVs/monitors)
+$tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (max-height: 700px)';
 
 // Large desktops and 4K displays
 $large-desktop: '(min-width: 1921px)';
