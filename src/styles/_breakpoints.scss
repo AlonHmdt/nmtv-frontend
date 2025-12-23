@@ -1,44 +1,88 @@
+// =============================================================================
+// NMTV Responsive Breakpoints
+// =============================================================================
+// Design Philosophy:
+// - TV/Retro app optimized for lean-back viewing experience
+// - Primary distinction: "Handheld" vs "Desktop/TV"
+// - Orientation matters for video content layout
+// =============================================================================
+//
+// USAGE GUIDE:
+// -----------
+// Import in your component:
+//   @use '../../../styles/breakpoints' as *;
+//
+// Then use in media queries:
+//   @media #{$handheld} { ... }           // All phones & tablets
+//   @media #{$portrait} { ... }           // Vertical screens (< 1024px)
+//   @media #{$landscape} { ... }          // Horizontal screens
+//   @media #{$short-landscape} { ... }    // Phones in landscape (new!)
+//   @media #{$desktop} { ... }            // Large screens & TVs
+//
+// Pro Tips:
+// - Use $handheld for most mobile/tablet styling (keeps code DRY)
+// - Use $portrait vs $landscape when orientation drastically changes layout
+// - Use $short-landscape for phones in horizontal (limited vertical space)
+// - Use $tablet-portrait only when tablets need different styling than phones
+// - Order matters! Put broad breakpoints first, specific ones after:
+//     @media #{$handheld} { width: 50px; }      // Base for all small
+//     @media #{$tablet-portrait} { width: 70px; } // Override for tablets only
+//
+// =============================================================================
+
 // -----------------------------------------------------------------------------
-// Device Breakpoints
+// PRIMARY BREAKPOINTS (Main Device Categories)
 // -----------------------------------------------------------------------------
+// Use these for the majority of responsive design needs.
+// They align with the app's core design philosophy: handheld vs TV/desktop.
 
-// 1. Mobile Portrait
-// Standard phones in portrait mode
-$mobile-portrait: '(max-width: 600px) and (orientation: portrait)';
+// Handheld devices (phones + tablets) - unified mobile experience
+$handheld: '(max-width: 1024px)';
 
-// 2. Mobile Landscape
-// Standard phones in landscape mode
-$mobile-landscape: '(max-width: 932px) and (orientation: landscape) and (max-height: 500px)';
+// Desktop, laptops, and TV screens - large screen experience
+$desktop: '(min-width: 1025px)';
 
-// 3. Tablet Portrait
-// iPads and tablets in portrait
+// -----------------------------------------------------------------------------
+// ORIENTATION-SPECIFIC BREAKPOINTS
+// -----------------------------------------------------------------------------
+// Critical for video apps where orientation drastically changes layout.
+
+// Portrait mode - vertical screens (phones & tablets)
+// Used for: centered layouts, stacked UI elements, bottom navigation
+$portrait: '(max-width: 1024px) and (orientation: portrait)';
+
+// Landscape mode - horizontal screens (ALL sizes including phones)
+// Used for: wide layouts, side navigation, more horizontal space
+$landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
+
+// Short landscape - phones in horizontal mode (critical for video UI)
+// Used for: compact headers, condensed controls, horizontal layouts
+$short-landscape: '(max-height: 500px) and (orientation: landscape)';
+
+// -----------------------------------------------------------------------------
+// PRECISION BREAKPOINTS (Granular Targeting)
+// -----------------------------------------------------------------------------
+// Use these when you need to target specific device sizes.
+// Less common in this app's design but available when needed.
+
+// Phones only (portrait)
+$phone-portrait: '(max-width: 600px) and (orientation: portrait)';
+
+// Tablets only (portrait) - distinct from phones
 $tablet-portrait: '(min-width: 601px) and (max-width: 1024px) and (orientation: portrait)';
 
-// 4. Tablet Landscape
-// iPads and tablets in landscape
+// Tablets in landscape
 $tablet-landscape: '(min-width: 933px) and (max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
 
-// 5. HD TV / Desktop
-// Standard 1080p screens
-$hd-desktop: '(min-width: 1367px) and (max-width: 1920px)';
-
-// 6. High Res / 4K TV
-// Large screens, 4K TVs, high-DPI displays
-$uhd-4k: '(min-width: 1921px)';
-
+// Large desktops and 4K displays
+$large-desktop: '(min-width: 1921px)';
 
 // -----------------------------------------------------------------------------
-// Combined Helpers (Legacy/Convenience)
+// BACKWARD COMPATIBILITY ALIASES
 // -----------------------------------------------------------------------------
+// Aliases to maintain compatibility with existing code.
+// New code should use the clearer names above.
 
-// Covers both mobile and tablet (mostly for hiding desktop elements)
-$mobile-and-tablet: '(max-width: 1024px)';
-
-// Specific Mobile & Tablet Portrait combined
-$mobile-and-tablet-portrait: '(max-width: 1024px) and (orientation: portrait)';
-
-// Specific Mobile & Tablet Landscape combined
-$mobile-and-tablet-landscape: '(max-width: 1366px) and (orientation: landscape) and (max-height: 1024px)';
-
-// Desktop start point (overlapping with HD)
-$desktop: '(min-width: 1025px)';
+$mobile-and-tablet: $handheld;
+$mobile-and-tablet-portrait: $portrait;
+$mobile-and-tablet-landscape: $landscape;

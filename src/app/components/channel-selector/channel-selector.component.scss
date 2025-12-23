@@ -250,8 +250,8 @@
 
 // .green-dot handled by global styles
 
-// Mobile Landscape Adjustments
-@media (max-height: 500px) and (orientation: landscape) {
+// Short Landscape Adjustments (phones in landscape)
+@media #{$short-landscape} {
   .side-menu {
     display: grid;
     grid-template-columns: 80px 1fr;

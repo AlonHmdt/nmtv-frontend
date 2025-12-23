@@ -120,12 +120,12 @@
     height: auto;
     display: block;
 
-    @media #{$tablet-portrait} {
-      width: 70px;
+    @media #{$handheld} {
+      width: 50px;
     }
 
-    @media #{$mobile-and-tablet} {
-      width: 50px;
+    @media #{$tablet-portrait} {
+      width: 70px;
     }
 
     @media #{$desktop} {
