@@ -5,6 +5,7 @@ import { YoutubeService } from '../../services/youtube.service';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
 import { HelpersService } from '../../services/helpers.service';
 import { EasterEggService } from '../../services/easter-egg.service';
+import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
 
@@ -25,6 +26,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private videoPlayerControl = inject(VideoPlayerControlService);
   private helpersService = inject(HelpersService);
   private easterEggService = inject(EasterEggService);
+  private customPlaylistService = inject(CustomPlaylistService);
 
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
@@ -822,9 +824,32 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleUnavailableVideo(): void {
     const currentVideo = this.currentVideo();
+    const currentChannel = this.currentChannel();
     if (!currentVideo) return;
 
-    // Mark video as unavailable in queue service
+    // Don't mark as unavailable if it's from a custom playlist (localStorage)
+    // Just skip to next video without marking in database
+    if (currentVideo.playlistId) {
+      const customPlaylistIds = this.customPlaylistService.getPlaylistIds(currentChannel);
+      if (customPlaylistIds.includes(currentVideo.playlistId)) {
+        
+        // Remove from queue locally only
+        this.queueService.queue().splice(this.queueService.queue().indexOf(currentVideo), 1);
+        
+        // Load next video
+        this.loadAttempts = 0;
+        const nextVideo = this.currentVideo();
+        
+        if (nextVideo && this.player) {
+          this.player.loadVideoById(nextVideo.id);
+        } else if (!nextVideo) {
+          console.error('No more videos in queue after skipping unavailable video');
+        }
+        return;
+      }
+    }
+
+    // Mark video as unavailable in queue service (will also update DB)
     this.queueService.markVideoAsUnavailable(currentVideo.id);
 
     // Load next video immediately

@@ -9,6 +9,7 @@ import { AboutModalComponent } from '../about-modal/about-modal.component';
 import { InstallModalComponent } from '../install-modal/install-modal.component';
 import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
+import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -25,6 +26,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private pwaService = inject(PwaService);
   private easterEggService = inject(EasterEggService);
   private videoPlayerControl = inject(VideoPlayerControlService);
+  private customPlaylistService = inject(CustomPlaylistService);
 
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
@@ -459,10 +461,20 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   private async flagCurrentVideo(): Promise<void> {
     const video = this.queueService.currentVideo();
+    const currentChannel = this.queueService.currentChannel();
     
     if (!video || video.isBumper) {
       this.resetStereoClickCount();
       return;
+    }
+
+    // Don't allow flagging videos from custom playlists (localStorage)
+    if (video.playlistId) {
+      const customPlaylistIds = this.customPlaylistService.getPlaylistIds(currentChannel);
+      if (customPlaylistIds.includes(video.playlistId)) {
+        this.resetStereoClickCount();
+        return;
+      }
     }
 
     try {
