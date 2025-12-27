@@ -9,6 +9,7 @@ import { AboutModalComponent } from '../about-modal/about-modal.component';
 import { InstallModalComponent } from '../install-modal/install-modal.component';
 import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-channel-selector',
@@ -50,6 +51,10 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   // Focus management for arrow key navigation
   private focusableElements: HTMLElement[] = [];
   private currentFocusIndex = 0;
+
+  // Flag video tracking
+  private stereoClickCount = 0;
+  private stereoClickTimeout: number | null = null;
 
   showInstallButton = computed(() => {
     // Show if we have an install prompt (Android/Desktop) OR if it's iOS/Mac/Android and not standalone
@@ -422,5 +427,67 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   onLogoClick(): void {
     this.easterEggService.handleLogoClick();
+  }
+
+  // Flag video feature - click 5 times on "STEREO SOUND" text
+  onStereoClick(): void {
+    this.stereoClickCount++;
+
+    // Reset timeout on each click
+    if (this.stereoClickTimeout) {
+      clearTimeout(this.stereoClickTimeout);
+    }
+
+    // Reset counter after 2 seconds of inactivity
+    this.stereoClickTimeout = window.setTimeout(() => {
+      this.resetStereoClickCount();
+    }, 2000);
+
+    // If 5 clicks reached, flag the video
+    if (this.stereoClickCount >= 5) {
+      this.flagCurrentVideo();
+    }
+  }
+
+  private resetStereoClickCount(): void {
+    this.stereoClickCount = 0;
+    if (this.stereoClickTimeout) {
+      clearTimeout(this.stereoClickTimeout);
+      this.stereoClickTimeout = null;
+    }
+  }
+
+  private async flagCurrentVideo(): Promise<void> {
+    const video = this.queueService.currentVideo();
+    
+    if (!video || video.isBumper) {
+      this.resetStereoClickCount();
+      return;
+    }
+
+    try {
+      const response = await fetch(`${environment.backendUrl}/videos/${video.id}/flag`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        console.log('Video flagged successfully:', video.id);
+        // Skip to next video
+        await this.queueService.nextVideo();
+      } else {
+        console.error('Failed to flag video:', await response.text());
+        // Still skip to next video even if backend fails
+        await this.queueService.nextVideo();
+      }
+    } catch (error) {
+      console.error('Error flagging video:', error);
+      // Still skip to next video even if request fails
+      await this.queueService.nextVideo();
+    } finally {
+      this.resetStereoClickCount();
+    }
   }
 }

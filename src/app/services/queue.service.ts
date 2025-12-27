@@ -3,6 +3,7 @@ import { Video, Channel, VideoBlock, VideoItem } from '../models/video.model';
 import { YoutubeService } from './youtube.service';
 import { CustomPlaylistService } from './custom-playlist.service';
 import { catchError, of } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -107,6 +108,30 @@ export class QueueService {
 
     // If it was the current video, the index now points to the next video automatically
     console.log(`Video removed from queue. Current index: ${this.currentIndexSignal()}, Queue length: ${this.queueSignal().length}`);
+
+    // Call backend to mark as unavailable in database (fire and forget)
+    this.notifyBackendVideoUnavailable(videoId);
+  }
+
+  private async notifyBackendVideoUnavailable(videoId: string): Promise<void> {
+    try {
+      const response = await fetch(`${environment.backendUrl}/videos/${videoId}/unavailable`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Video marked as unavailable:', data.message, videoId);
+      } else {
+        console.warn('Backend could not mark video unavailable (may be using YouTube API mode):', videoId);
+      }
+    } catch (error) {
+      console.warn('Could not notify backend about unavailable video (network or mode issue):', error);
+      // Don't throw - this is fire-and-forget, app continues normally
+    }
   }
 
   async nextVideo(): Promise<void> {
