@@ -751,7 +751,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private scheduleYearFetch(video: Video | undefined, channel: Channel): void {
-    if (!video || channel === Channel.LIVE || video.isBumper) {
+    if (!video || channel === Channel.LIVE || channel === Channel.SHOWS || video.isBumper) {
       return;
     }
 
