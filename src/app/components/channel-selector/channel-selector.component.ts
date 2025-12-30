@@ -85,7 +85,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   private handleKeyPress(event: KeyboardEvent): void {
     // Toggle menu with Space key (only if not in a modal or input field)
-    if (event.code === 'Space' && !this.isInInputField(event.target as HTMLElement)) {
+    if ((event.code === 'Space' || event.key === ' ') && !this.isInInputField(event.target as HTMLElement)) {
       event.preventDefault();
       this.toggleMenu();
       return;
