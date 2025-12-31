@@ -30,8 +30,14 @@ export class PowerButtonComponent {
   isAnimating = signal(false);
   showLoadingContent = signal(false); // Start as false, will be set based on isLoading
   isFadingOut = signal(false);
+  
+  // Android TV detection as signal for proper change detection
+  protected readonly isAndroidTVSignal = signal(false);
 
   constructor() {
+    // Set Android TV detection immediately
+    this.isAndroidTVSignal.set(this.helpersService.isAndroidTV());
+    
     // DEBUG: Log user agent to verify Android TV detection
     console.log('=== USER AGENT DEBUG ===');
     console.log('Full UA:', navigator.userAgent);
