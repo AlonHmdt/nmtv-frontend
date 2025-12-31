@@ -42,6 +42,53 @@
     </div>
 
     <div class="user-guide">
+      @if (isAndroidTV()) {
+      <div class="guide-item desktop keyboard-hints">
+        <div class="hint-row">
+          <span class="hint-group horizontal">
+            <div class="keys-inline">
+              <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
+              <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+            </div>
+            <span class="hint-label">Switch Channel</span>
+          </span>
+        </div>
+        <div class="hint-row">
+          <span class="hint-group horizontal">
+            <div class="keys-inline">
+              <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
+              <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
+            </div>
+            <span class="hint-label">Volume Control</span>
+          </span>
+        </div>
+        <div class="hint-row">
+          <span class="hint-group horizontal">
+            <span class="key-hint">CENTER</span>
+            <span class="hint-label">Select</span>
+          </span>
+          <span class="hint-group horizontal">
+            <span class="key-hint">HOLD CENTER</span>
+            <span class="hint-label">Menu Toggle</span>
+          </span>
+        </div>
+        <div class="hint-row">
+          <span class="hint-group horizontal">
+            <div class="arrow-keys-compact">
+              <div class="arrow-row">
+                <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
+              </div>
+              <div class="arrow-row">
+                <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
+                <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+                <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
+              </div>
+            </div>
+            <span class="hint-label">In Menu</span>
+          </span>
+        </div>
+      </div>
+      } @else {
       <div class="guide-item desktop keyboard-hints">
         <div class="hint-row">
           <span class="hint-group horizontal">
@@ -87,6 +134,7 @@
           </span>
         </div>
       </div>
+      }
       <div class="guide-item mobile">
         <span class="hint-label">SWIPE UP/DOWN TO CHANGE CHANNEL</span>
       </div>

@@ -99,6 +99,10 @@ export class PowerButtonComponent {
     }
   };
 
+  isAndroidTV(): boolean {
+    return this.helpersService.isAndroidTV();
+  }
+
   onPowerClick(): void {
     if (this.isLoading()) {
       return;
