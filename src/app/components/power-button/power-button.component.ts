@@ -32,6 +32,13 @@ export class PowerButtonComponent {
   isFadingOut = signal(false);
 
   constructor() {
+    // DEBUG: Log user agent to verify Android TV detection
+    console.log('=== USER AGENT DEBUG ===');
+    console.log('Full UA:', navigator.userAgent);
+    console.log('Lowercase UA:', navigator.userAgent.toLowerCase());
+    console.log('isAndroidTV():', this.helpersService.isAndroidTV());
+    console.log('========================');
+    
     // Reset animation state when powered off
     effect(() => {
       const poweredOn = this.isPoweredOn();
