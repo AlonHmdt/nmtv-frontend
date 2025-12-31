@@ -72,12 +72,12 @@ export class PowerButtonComponent {
   }
 
   ngOnInit(): void {
-    // Listen for spacebar press on desktop
-    window.addEventListener('keydown', this.handleSpacebar);
+    // Listen for enter key press on desktop
+    window.addEventListener('keydown', this.handleEnterKey);
   }
 
   ngOnDestroy(): void {
-    window.removeEventListener('keydown', this.handleSpacebar);
+    window.removeEventListener('keydown', this.handleEnterKey);
     this.helpersService.stopStaticSound();
     this.cleanup();
   }
@@ -93,8 +93,8 @@ export class PowerButtonComponent {
     }
   }
 
-  handleSpacebar = (event: KeyboardEvent) => {
-    if (event.code === 'Space' && !this.isLoading() && !this.isPoweredOn()) {
+  handleEnterKey = (event: KeyboardEvent) => {
+    if (event.code === 'Enter' && !this.isLoading() && !this.isPoweredOn()) {
       this.onPowerClick();
     }
   };
