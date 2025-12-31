@@ -35,6 +35,8 @@
           <div class="progress-text">{{ loadingProgress() }}%</div>
         </div>
       </div>
+      } @else if (isAndroidTVSignal()) {
+      <span>PRESS CENTER TO START</span>
       } @else {
       <span class="desktop">POWER ON/HIT ENTER TO START</span>
       <span class="mobile">POWER ON TO START</span>
@@ -43,7 +45,7 @@
 
     <div class="user-guide">
       @if (isAndroidTVSignal()) {
-      <div class="guide-item desktop keyboard-hints">
+      <div class="guide-item android-tv-hints">
         <div class="hint-row">
           <span class="hint-group horizontal">
             <div class="keys-inline">

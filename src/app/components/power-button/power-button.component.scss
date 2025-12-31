@@ -339,6 +339,14 @@
     justify-content: center;
   }
 
+  &.android-tv-hints {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+
   &.desktop {
     display: none;
 
