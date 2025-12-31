@@ -35,63 +35,57 @@
           <div class="progress-text">{{ loadingProgress() }}%</div>
         </div>
       </div>
-      } @else if (isAndroidTVSignal()) {
+      } @else if (deviceType() === 'androidtv') {
       <span>PRESS CENTER TO START</span>
+      } @else if (deviceType() === 'desktop') {
+      <span>POWER ON/HIT ENTER TO START</span>
       } @else {
-      <span class="desktop">POWER ON/HIT ENTER TO START</span>
-      <span class="mobile">POWER ON TO START</span>
+      <span>POWER ON TO START</span>
       }
     </div>
 
     <div class="user-guide">
-      @if (isAndroidTVSignal()) {
+      @if (deviceType() === 'androidtv') {
       <div class="guide-item android-tv-hints">
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <div class="keys-inline">
-              <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
-              <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+        <div class="dpad-visual">
+          <div class="dpad-row">
+            <div class="dpad-button empty"></div>
+            <div class="dpad-button up">
+              <i class="bi bi-arrow-up"></i>
+              <span class="button-label">Ch +</span>
             </div>
-            <span class="hint-label">Switch Channel</span>
-          </span>
-        </div>
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <div class="keys-inline">
-              <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
-              <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
+            <div class="dpad-button empty"></div>
+          </div>
+          <div class="dpad-row">
+            <div class="dpad-button left">
+              <i class="bi bi-arrow-left"></i>
+              <span class="button-label">Vol -</span>
             </div>
-            <span class="hint-label">Volume Control</span>
-          </span>
-        </div>
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <span class="key-hint">CENTER</span>
-            <span class="hint-label">Select</span>
-          </span>
-          <span class="hint-group horizontal">
-            <span class="key-hint">HOLD CENTER</span>
-            <span class="hint-label">Menu Toggle</span>
-          </span>
-        </div>
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <div class="arrow-keys-compact">
-              <div class="arrow-row">
-                <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
-              </div>
-              <div class="arrow-row">
-                <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
-                <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
-                <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
-              </div>
+            <div class="dpad-button center">
+              <span class="center-label">Enter</span>
             </div>
-            <span class="hint-label">In Menu</span>
-          </span>
+            <div class="dpad-button right">
+              <i class="bi bi-arrow-right"></i>
+              <span class="button-label">Vol +</span>
+            </div>
+          </div>
+          <div class="dpad-row">
+            <div class="dpad-button empty"></div>
+            <div class="dpad-button down">
+              <i class="bi bi-arrow-down"></i>
+              <span class="button-label">Ch -</span>
+            </div>
+            <div class="dpad-button empty"></div>
+          </div>
+        </div>
+        <div class="dpad-instructions">
+          <div class="instruction-item">
+            <span class="instruction-text">Hold Center for Menu</span>
+          </div>
         </div>
       </div>
-      } @else {
-      <div class="guide-item desktop keyboard-hints">
+      } @else if (deviceType() === 'desktop') {
+      <div class="guide-item keyboard-hints">
         <div class="hint-row">
           <span class="hint-group horizontal">
             <div class="keys-inline">
@@ -136,9 +130,8 @@
           </span>
         </div>
       </div>
-      }
-      @if (!isAndroidTVSignal()) {
-      <div class="guide-item mobile">
+      } @else if (deviceType() === 'mobile') {
+      <div class="guide-item">
         <span class="hint-label">SWIPE UP/DOWN TO CHANGE CHANNEL</span>
       </div>
       }

@@ -205,22 +205,6 @@
   font-weight: bold;
   text-align: center;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
-
-  .desktop {
-    display: none;
-
-    @media #{$has-keyboard} {
-      display: inline;
-    }
-  }
-
-  .mobile {
-    display: inline;
-
-    @media #{$has-keyboard} {
-      display: none;
-    }
-  }
 }
 
 // ============================================================================
@@ -346,22 +330,6 @@
     flex-wrap: nowrap;
     justify-content: center;
   }
-
-  &.desktop {
-    display: none;
-
-    @media #{$has-keyboard} {
-      display: flex;
-    }
-  }
-
-  &.mobile {
-    display: flex;
-
-    @media #{$has-keyboard} {
-      display: none;
-    }
-  }
 }
 
 .hint-row {
@@ -433,6 +401,121 @@
   i {
     font-size: 12px;
   }
+}
+
+// ============================================================================
+// ANDROID TV D-PAD VISUAL
+// ============================================================================
+
+.dpad-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 16px;
+}
+
+.dpad-row {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+}
+
+.dpad-button {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #1a1a1a;
+  border: 2px solid #333;
+  border-radius: 6px;
+  box-shadow: 
+    inset 2px 2px 4px rgba(0, 0, 0, 0.8),
+    0 2px 0 rgba(255, 255, 255, 0.05);
+  color: #888;
+  position: relative;
+  
+  &.empty {
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  &.up, &.down {
+    width: 80px;
+    height: 50px;
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    
+    i {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 2px;
+    }
+  }
+  
+  &.left, &.right {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+    
+    i {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 2px;
+    }
+  }
+  
+  &.center {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+    border-color: #444;
+    border-radius: 50%;
+    
+    .center-label {
+      font-size: 11px;
+      font-weight: bold;
+      color: #ccc;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+}
+
+.button-label {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 8px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.dpad-instructions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: center;
+}
+
+.instruction-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 10px;
+  color: #888;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.instruction-text {
+  flex: 1;
+  text-align: center;
 }
 
 // ============================================================================

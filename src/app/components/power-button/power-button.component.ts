@@ -31,19 +31,12 @@ export class PowerButtonComponent {
   showLoadingContent = signal(false); // Start as false, will be set based on isLoading
   isFadingOut = signal(false);
   
-  // Android TV detection as signal for proper change detection
-  protected readonly isAndroidTVSignal = signal(false);
+  // Device type detection as signal for proper change detection
+  protected readonly deviceType = signal<'androidtv' | 'desktop' | 'mobile'>('desktop');
 
   constructor() {
-    // Set Android TV detection immediately
-    this.isAndroidTVSignal.set(this.helpersService.isAndroidTV());
-    
-    // DEBUG: Log user agent to verify Android TV detection
-    console.log('=== USER AGENT DEBUG ===');
-    console.log('Full UA:', navigator.userAgent);
-    console.log('Lowercase UA:', navigator.userAgent.toLowerCase());
-    console.log('isAndroidTV():', this.helpersService.isAndroidTV());
-    console.log('========================');
+    // Set device type detection immediately
+    this.deviceType.set(this.helpersService.getDeviceType());
     
     // Reset animation state when powered off
     effect(() => {

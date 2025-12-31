@@ -22,28 +22,34 @@ export class HelpersService {
 
         const ua = navigator.userAgent.toLowerCase();
 
-        // 0. First check for our custom identifier from the Android TV app
-        if (ua.includes('nmtv_androidtv')) {
-            return true;
+        // Check for our custom identifier from the Android TV app
+        return ua.includes('nmtv_androidtv');
+    }
+
+    isDesktopDevice(): boolean {
+        if (typeof window === 'undefined') {
+            return false;
         }
-        return false;
-        // // 1. Basic Android Check
-        // const isAndroid = ua.includes('android');
-        // const isNotMobile = !ua.includes('mobile');
-        // const noTouch = !('ontouchstart' in window) && navigator.maxTouchPoints === 0;
+        // Desktop devices have precise pointers (mouse/trackpad)
+        return window.matchMedia('(pointer: fine)').matches;
+    }
 
-        // // 2. Specific TV Flags
-        // // Even without a brand list, Android TVs almost always include these strings
-        // const hasTVFlags = ua.includes('large screen') || ua.includes('googletv') || ua.includes('tv');
+    isMobileDevice(): boolean {
+        if (typeof window === 'undefined') {
+            return false;
+        }
+        // Mobile devices have coarse pointers (touch)
+        return window.matchMedia('(pointer: coarse)').matches;
+    }
 
-        // // 3. Bypass "Desktop Mode" (Chromebooks/Tablets)
-        // // Most TVs have a fixed aspect ratio and identify as a "standalone" or "fullscreen" display
-        // const isTVResolution = window.screen.width >= 1280;
-
-        // // Final Logic: 
-        // // It must be Android + Not Mobile + No Touch...
-        // // AND it must either explicitly say "TV" OR have a TV-like hardware signature.
-        // return isAndroid && isNotMobile && noTouch && (hasTVFlags || isTVResolution);
+    getDeviceType(): 'androidtv' | 'desktop' | 'mobile' {
+        if (this.isAndroidTV()) {
+            return 'androidtv';
+        }
+        if (this.isDesktopDevice()) {
+            return 'desktop';
+        }
+        return 'mobile';
     }
 
     isMobileResolution(): boolean {
