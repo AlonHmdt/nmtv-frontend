@@ -62,6 +62,10 @@ export class EasterEggService {
   private async loadNoaChannel(): Promise<void> {
     this.isLoadingNoaSignal.set(true);
 
+    // Ensure minimum loading animation duration (1.5 seconds)
+    const minLoadingDuration = 1500;
+    const startTime = Date.now();
+
     try {
       const response = await firstValueFrom(
         this.http.post<{ success: boolean; message: string; totalVideos?: number }>(
@@ -75,7 +79,14 @@ export class EasterEggService {
       }
     } catch (error) {
     } finally {
-      this.isLoadingNoaSignal.set(false);
+      // Calculate remaining time to meet minimum duration
+      const elapsed = Date.now() - startTime;
+      const remainingTime = Math.max(0, minLoadingDuration - elapsed);
+      
+      // Wait for remaining time before hiding loader
+      setTimeout(() => {
+        this.isLoadingNoaSignal.set(false);
+      }, remainingTime);
     }
   }
 

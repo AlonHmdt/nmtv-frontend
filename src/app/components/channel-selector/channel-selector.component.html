@@ -29,6 +29,7 @@
       @for (channel of channels(); track channel.id) {
       <button class="channel-item retro-button" [class.active]="isActive(channel.id)"
         [class.loading]="channel.isEasterEgg && isLoadingNoa()"
+        [disabled]="channel.isEasterEgg && !isNoaChannelReady()"
         (click)="selectChannel(channel.id)" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>

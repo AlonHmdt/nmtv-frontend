@@ -328,7 +328,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   async selectChannel(channel: Channel): Promise<void> {
     // Prevent selecting NOA channel if it's not ready yet
-    if (channel === 'noa' && !this.isNoaChannelReady()) {
+    if (channel === Channel.NOA && !this.isNoaChannelReady()) {
       return;
     }
     
