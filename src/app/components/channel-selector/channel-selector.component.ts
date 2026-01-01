@@ -11,6 +11,7 @@ import { SupportModalComponent } from '../support-modal/support-modal.component'
 import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
+import { ModalStateService } from '../../services/modal-state.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -28,6 +29,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private easterEggService = inject(EasterEggService);
   private videoPlayerControl = inject(VideoPlayerControlService);
   private customPlaylistService = inject(CustomPlaylistService);
+  private modalState = inject(ModalStateService);
 
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
@@ -105,12 +107,17 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private handleKeyPress(event: KeyboardEvent): void {
     // Handle Android TV back button / Escape key
     if (event.key === 'Escape' || event.key === 'GoBack' || event.keyCode === 4) {
+      // Don't handle if a modal is open - let the modal handle it
+      if (this.modalState.isAnyModalOpen()) {
+        return;
+      }
+      
       event.preventDefault();
       if (this.isMenuOpen()) {
         // Close menu if open
         this.toggleMenu();
       } else {
-        // Power off the app if menu is closed
+        // Power off the app if menu is closed and no modals are open
         this.turnOff();
       }
       return;
