@@ -64,6 +64,7 @@ export class KeyboardNavigationService {
 
     this.currentFocusIndex = this.focusableElements.indexOf(targetElement);
     this.focusableElements[this.currentFocusIndex]?.focus();
+    this.triggerInputKeyboard(this.focusableElements[this.currentFocusIndex]);
   }
 
   focusUp(): void {
@@ -82,6 +83,7 @@ export class KeyboardNavigationService {
 
     this.currentFocusIndex = this.focusableElements.indexOf(targetElement);
     this.focusableElements[this.currentFocusIndex]?.focus();
+    this.triggerInputKeyboard(this.focusableElements[this.currentFocusIndex]);
   }
 
   focusRight(): void {
@@ -100,6 +102,7 @@ export class KeyboardNavigationService {
     const targetElement = currentRow[position.colIndex + 1];
     this.currentFocusIndex = this.focusableElements.indexOf(targetElement);
     this.focusableElements[this.currentFocusIndex]?.focus();
+    this.triggerInputKeyboard(this.focusableElements[this.currentFocusIndex]);
   }
 
   focusLeft(): void {
@@ -118,6 +121,7 @@ export class KeyboardNavigationService {
     const targetElement = currentRow[position.colIndex - 1];
     this.currentFocusIndex = this.focusableElements.indexOf(targetElement);
     this.focusableElements[this.currentFocusIndex]?.focus();
+    this.triggerInputKeyboard(this.focusableElements[this.currentFocusIndex]);
   }
 
   activateFocusedElement(): void {
@@ -126,6 +130,15 @@ export class KeyboardNavigationService {
 
     const focusedElement = this.focusableElements[this.currentFocusIndex];
     focusedElement?.click();
+  }
+
+  private triggerInputKeyboard(element: HTMLElement | undefined): void {
+    // On Android TV, clicking the input after focus helps trigger the keyboard
+    if (element && (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)) {
+      setTimeout(() => {
+        element.click();
+      }, 50);
+    }
   }
 
   private updateCurrentIndex(): void {
