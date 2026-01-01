@@ -87,7 +87,7 @@
             <div class="input-group">
               <input type="text" class="playlist-input" [(ngModel)]="playlistUrl"
                 placeholder="Paste YouTube playlist URL..." [disabled]="isAdding()" (keyup.enter)="validateAndAdd()"
-                tabindex="0">
+                tabindex="0" inputmode="text">
               <button class="add-button retro-button" (click)="validateAndAdd()"
                 [disabled]="isAdding() || !playlistUrl()">
                 {{ isAdding() ? 'Adding...' : 'Add' }}

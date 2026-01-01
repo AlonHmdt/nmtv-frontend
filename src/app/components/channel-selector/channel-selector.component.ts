@@ -103,6 +103,19 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
+    // Handle Android TV back button / Escape key
+    if (event.key === 'Escape' || event.key === 'GoBack' || event.keyCode === 4) {
+      event.preventDefault();
+      if (this.isMenuOpen()) {
+        // Close menu if open
+        this.toggleMenu();
+      } else {
+        // Power off the app if menu is closed
+        this.turnOff();
+      }
+      return;
+    }
+
     // Toggle menu with Space key (only if not in a modal or input field)
     if ((event.code === 'Space' || event.key === ' ' || event.keyCode === 32) && !this.isInInputField(event.target as HTMLElement)) {
       event.preventDefault();
