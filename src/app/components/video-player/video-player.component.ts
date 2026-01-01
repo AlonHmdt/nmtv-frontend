@@ -6,6 +6,7 @@ import { VideoPlayerControlService } from '../../services/video-player-control.s
 import { HelpersService } from '../../services/helpers.service';
 import { EasterEggService } from '../../services/easter-egg.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
+import { ModalStateService } from '../../services/modal-state.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
 
@@ -27,6 +28,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private helpersService = inject(HelpersService);
   private easterEggService = inject(EasterEggService);
   private customPlaylistService = inject(CustomPlaylistService);
+  private modalState = inject(ModalStateService);
 
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
@@ -314,14 +316,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.playNextVideo();
     }
 
-    // Arrow Up/Down to change channels (only if menu is closed)
-    if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && !this.isChannelSelectorOpen()) {
+    // Arrow Up/Down to change channels (only if menu and modals are closed)
+    if ((event.key === 'ArrowUp' || event.key === 'ArrowDown') && !this.isChannelSelectorOpen() && !this.modalState.isAnyModalOpen()) {
       event.preventDefault(); // Prevent page scroll
       this.switchToNextChannel(event.key === 'ArrowUp');
     }
 
-    // Arrow Left/Right to control volume (only if menu is closed)
-    if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !this.isChannelSelectorOpen()) {
+    // Arrow Left/Right to control volume (only if menu and modals are closed)
+    if ((event.key === 'ArrowLeft' || event.key === 'ArrowRight') && !this.isChannelSelectorOpen() && !this.modalState.isAnyModalOpen()) {
       event.preventDefault(); // Prevent page scroll
       this.adjustVolume(event.key === 'ArrowRight');
     }

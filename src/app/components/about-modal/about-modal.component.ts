@@ -1,7 +1,8 @@
-import { Component, signal, ChangeDetectionStrategy, inject, OnDestroy, effect } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, inject, OnDestroy, OnInit, effect, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
+import { ModalStateService } from '../../services/modal-state.service';
 
 declare var YT: any;
 
@@ -13,8 +14,11 @@ declare var YT: any;
   styleUrl: './about-modal.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AboutModalComponent implements OnDestroy {
+export class AboutModalComponent implements OnInit, OnDestroy {
   private videoPlayerControl = inject(VideoPlayerControlService);
+  private modalState = inject(ModalStateService);
+
+  @ViewChild('modalBody') modalBody?: ElementRef<HTMLDivElement>;
 
   isOpen = signal(false);
 
@@ -38,8 +42,14 @@ export class AboutModalComponent implements OnDestroy {
     });
   }
 
+  ngOnInit(): void {
+    // Lifecycle method for cleanup
+  }
+
   ngOnDestroy(): void {
     this.destroyIframePlayer();
+    window.removeEventListener('keydown', this.handleEscapeKey);
+    window.removeEventListener('keydown', this.handleArrowKeys);
   }
 
   open(): void {
@@ -48,12 +58,49 @@ export class AboutModalComponent implements OnDestroy {
     setTimeout(() => {
       this.initIframePlayer();
     }, 500); // Wait for iframe to be in DOM
+    // Notify global modal state
+    this.modalState.openModal();
+    // Add event listeners when modal opens
+    window.addEventListener('keydown', this.handleEscapeKey);
+    window.addEventListener('keydown', this.handleArrowKeys);
   }
 
   close(): void {
     this.isOpen.set(false);
     this.videoPlayerControl.resumeVideo();
+    // Notify global modal state
+    this.modalState.closeModal();
+    // Remove event listeners when modal closes
+    window.removeEventListener('keydown', this.handleEscapeKey);
+    window.removeEventListener('keydown', this.handleArrowKeys);
   }
+
+  private handleEscapeKey = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape' && this.isOpen()) {
+      event.preventDefault();
+      this.close();
+    }
+  };
+
+  private handleArrowKeys = (event: KeyboardEvent): void => {
+    // Handle arrow key scrolling manually when modal is open
+    if (this.isOpen() && this.modalBody) {
+      const scrollAmount = 40; // Pixels to scroll per key press
+      
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.modalBody.nativeElement.scrollTop -= scrollAmount;
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.modalBody.nativeElement.scrollTop += scrollAmount;
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        // Stop propagation but don't prevent default for left/right
+        event.stopPropagation();
+      }
+    }
+  };
 
   private initIframePlayer(): void {
     // Check if YT API is loaded

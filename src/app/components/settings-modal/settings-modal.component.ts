@@ -1,8 +1,9 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { QueueService } from '../../services/queue.service';
+import { ModalStateService } from '../../services/modal-state.service';
 import { Channel, Channels } from '../../models/video.model';
 import { 
   isValidYouTubePlaylistUrl, 
@@ -24,9 +25,10 @@ interface ChannelData {
   styleUrls: ['./settings-modal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class SettingsModalComponent {
+export class SettingsModalComponent implements OnInit, OnDestroy {
   customPlaylistService = inject(CustomPlaylistService);
   private queueService = inject(QueueService);
+  private modalState = inject(ModalStateService);
 
   isOpen = signal(false);
   selectedChannel = signal<Channel>(Channel.DECADE_1990S);
@@ -58,12 +60,47 @@ export class SettingsModalComponent {
     this.selectedChannel.set(currentChannel);
     this.isOpen.set(true);
     this.resetForm();
+    // Notify global modal state
+    this.modalState.openModal();
+    // Add event listeners when modal opens
+    window.addEventListener('keydown', this.handleEscapeKey);
+    window.addEventListener('keydown', this.handleArrowKeys);
   }
 
   close(): void {
     this.isOpen.set(false);
     this.resetForm();
+    // Notify global modal state
+    this.modalState.closeModal();
+    // Remove event listeners when modal closes
+    window.removeEventListener('keydown', this.handleEscapeKey);
+    window.removeEventListener('keydown', this.handleArrowKeys);
   }
+
+  ngOnInit(): void {
+    // Lifecycle method for cleanup
+  }
+
+  ngOnDestroy(): void {
+    // Clean up listeners on component destroy
+    window.removeEventListener('keydown', this.handleEscapeKey);
+    window.removeEventListener('keydown', this.handleArrowKeys);
+  }
+
+  private handleEscapeKey = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape' && this.isOpen()) {
+      event.preventDefault();
+      this.close();
+    }
+  };
+
+  private handleArrowKeys = (event: KeyboardEvent): void => {
+    // Stop arrow key propagation when modal is open to prevent video player control
+    if (this.isOpen() && (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      event.stopPropagation();
+      // Allow default scroll behavior
+    }
+  };
 
   selectChannel(channel: Channel): void {
     this.selectedChannel.set(channel);
