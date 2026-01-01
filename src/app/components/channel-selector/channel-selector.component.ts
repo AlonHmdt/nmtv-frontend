@@ -124,12 +124,12 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   private updateFocusableElements(): void {
-    // Get all focusable buttons in the menu
+    // Get all focusable elements in the menu (buttons, img, span with tabindex="0")
     const menuElement = document.querySelector('.side-menu');
     if (!menuElement) return;
 
     this.focusableElements = Array.from(
-      menuElement.querySelectorAll('button[tabindex="0"]')
+      menuElement.querySelectorAll('[tabindex="0"]')
     ) as HTMLElement[];
     this.currentFocusIndex = 0;
   }
@@ -147,7 +147,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private groupElementsIntoRows(): HTMLElement[][] {
     // Group elements into rows based on their vertical position
     const rows: HTMLElement[][] = [];
-    const rowThreshold = 10; // Elements within 10px vertically are considered same row
+    const rowThreshold = 30; // Elements within 30px vertically are considered same row (increased for header elements)
 
     for (const element of this.focusableElements) {
       const pos = this.getElementPosition(element);
@@ -309,6 +309,10 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
       if (document.activeElement instanceof HTMLElement) {
         document.activeElement.blur();
       }
+      
+      // Reset easter egg and flag video counts when menu closes
+      this.easterEggService.reset();
+      this.resetStereoClickCount();
     }
   }
 

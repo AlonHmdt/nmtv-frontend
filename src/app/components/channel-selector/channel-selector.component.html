@@ -10,7 +10,8 @@
 
     <!-- Vintage Header -->
     <div class="remote-header">
-      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()">
+      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()" 
+        [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()">
 
       <div class="power-off-container">
         <div class="green-dot"></div>
@@ -20,7 +21,8 @@
         <span class="power-off-text">Power</span>
       </div>
 
-      <span class="model-text" (click)="onStereoClick()">STEREO SOUND</span>
+      <span class="model-text" (click)="onStereoClick()" 
+        [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onStereoClick()">STEREO SOUND</span>
     </div>
 
     <div class="channel-list retro-inset-panel">

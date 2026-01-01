@@ -203,6 +203,27 @@
     width: auto;
     filter: grayscale(100%) brightness(0.8);
     opacity: 0.9;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px;
+    transition: all 0.2s ease;
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.4);
+      outline-offset: 2px;
+      box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.4);
+      filter: grayscale(0%) brightness(1.1);
+      opacity: 1;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        filter: grayscale(0%) brightness(1);
+        opacity: 1;
+      }
+    }
   }
 
   .model-text {
@@ -212,6 +233,26 @@
     letter-spacing: 2px;
     font-weight: bold;
     display: none; // Hide on smaller screens if needed, or keep
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+
+    &:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.4);
+      outline-offset: 2px;
+      box-shadow:
+        0 0 0 3px rgba(255, 255, 255, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.4);
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        color: #999;
+      }
+    }
 
     @media (min-width: 600px) {
       display: block;

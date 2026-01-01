@@ -80,31 +80,6 @@ export class EasterEggService {
   }
 
   /**
-   * Check if NOA channel is ready (for when user refreshes after unlocking)
-   */
-  private async checkNoaChannelReady(): Promise<void> {
-    try {
-      const response = await fetch(`${this.backendUrl}/ready`, {
-        method: 'GET',
-        signal: AbortSignal.timeout(5000)
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        
-        if (data.noaChannelReady === true) {
-          this.isNoaChannelReadySignal.set(true);
-        } else {
-          // Backend doesn't have NOA loaded yet, trigger loading
-          await this.loadNoaChannel();
-        }
-      }
-    } catch (error) {
-      // Silently handle error
-    }
-  }
-
-  /**
    * Reset the easter egg (for testing purposes)
    */
   reset(): void {
