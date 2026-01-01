@@ -126,11 +126,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             // Extended static duration (1200ms) masks any loading time
             this.player.loadVideoById({
               videoId: video.id,
-              startSeconds: this.getRandomStartTime()
+              startSeconds: this.getRandomStartTime(),
+              suggestedQuality: this.helpersService.isAndroidTV() ? 'medium' : 'default'
             });
             this.isFirstVideo = false;
           } else {
-            this.player.loadVideoById(video.id);
+            this.player.loadVideoById({
+              videoId: video.id,
+              suggestedQuality: this.helpersService.isAndroidTV() ? 'medium' : 'default'
+            });
           }
         }
       }
@@ -619,6 +623,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     player.getIframe().style.pointerEvents = 'none';
     player.setVolume(100);
     
+    // Set lower quality for Android TV to improve loading times
+    if (this.helpersService.isAndroidTV()) {
+      try {
+        player.setPlaybackQuality('medium');
+      } catch (e) {
+        // Ignore if quality setting fails
+      }
+    }
+    
     // Force disable captions on player ready (overrides user's YouTube account preferences)
     try {
       if (player.loadModule) {
@@ -663,7 +676,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             // On final attempt, reload the video
             const currentVid = this.currentVideo();
             if (currentVid) {
-              player.loadVideoById(currentVid.id);
+              player.loadVideoById({
+                videoId: currentVid.id,
+                suggestedQuality: this.helpersService.isAndroidTV() ? 'medium' : 'default'
+              });
             }
           } else {
             player.playVideo();

@@ -368,6 +368,16 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   turnOff(): void {
+    // On Android TV, close the app completely
+    if (this.helpersService.isAndroidTV()) {
+      // Call Android native method to close app
+      if ((window as any).AndroidInterface && (window as any).AndroidInterface.closeApp) {
+        (window as any).AndroidInterface.closeApp();
+      }
+      return;
+    }
+
+    // On web, just power off the TV effect
     this.isMenuOpen.set(false);
     this.menuStateChange.emit(false);
     if (document.activeElement instanceof HTMLElement) {
