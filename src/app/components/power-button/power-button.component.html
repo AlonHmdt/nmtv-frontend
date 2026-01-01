@@ -36,7 +36,7 @@
         </div>
       </div>
       } @else if (deviceType() === 'androidtv') {
-      <span>PRESS CENTER TO START</span>
+      <span>PRESS SELECT TO START</span>
       } @else if (deviceType() === 'desktop') {
       <span>POWER ON/HIT ENTER TO START</span>
       } @else {
@@ -47,40 +47,28 @@
     <div class="user-guide">
       @if (deviceType() === 'androidtv') {
       <div class="guide-item android-tv-hints">
-        <div class="dpad-visual">
-          <div class="dpad-row">
-            <div class="dpad-button empty"></div>
-            <div class="dpad-button up">
-              <i class="bi bi-arrow-up"></i>
-              <span class="button-label">Ch +</span>
+        <div class="remote-control-visual">
+          <div class="remote-ring">
+            <div class="remote-direction top">
+              <i class="bi bi-chevron-up"></i>
+              <span class="direction-label">CH +</span>
             </div>
-            <div class="dpad-button empty"></div>
-          </div>
-          <div class="dpad-row">
-            <div class="dpad-button left">
-              <i class="bi bi-arrow-left"></i>
-              <span class="button-label">Vol -</span>
+            <div class="remote-direction left">
+              <span class="direction-label">VOL -</span>
             </div>
-            <div class="dpad-button center">
-              <span class="center-label">Enter</span>
+            <div class="remote-center">
+              <span class="center-text">SELECT</span>
             </div>
-            <div class="dpad-button right">
-              <i class="bi bi-arrow-right"></i>
-              <span class="button-label">Vol +</span>
+            <div class="remote-direction right">
+              <span class="direction-label">VOL +</span>
+            </div>
+            <div class="remote-direction bottom">
+              <i class="bi bi-chevron-down"></i>
+              <span class="direction-label">CH -</span>
             </div>
           </div>
-          <div class="dpad-row">
-            <div class="dpad-button empty"></div>
-            <div class="dpad-button down">
-              <i class="bi bi-arrow-down"></i>
-              <span class="button-label">Ch -</span>
-            </div>
-            <div class="dpad-button empty"></div>
-          </div>
-        </div>
-        <div class="dpad-instructions">
-          <div class="instruction-item">
-            <span class="instruction-text">Hold Center for Menu</span>
+          <div class="remote-instruction">
+            <span>HOLD SELECT TO TOGGLE MENU</span>
           </div>
         </div>
       </div>

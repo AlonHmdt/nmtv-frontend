@@ -404,117 +404,114 @@
 }
 
 // ============================================================================
-// ANDROID TV D-PAD VISUAL
+// ANDROID TV REMOTE CONTROL VISUAL
 // ============================================================================
 
-.dpad-visual {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-bottom: 16px;
-}
-
-.dpad-row {
-  display: flex;
-  gap: 3px;
-  justify-content: center;
-}
-
-.dpad-button {
-  width: 40px;
-  height: 40px;
+.remote-control-visual {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: #1a1a1a;
-  border: 2px solid #333;
-  border-radius: 6px;
-  box-shadow: 
-    inset 2px 2px 4px rgba(0, 0, 0, 0.8),
-    0 2px 0 rgba(255, 255, 255, 0.05);
-  color: #888;
+  gap: 16px;
+  margin: 8px 0;
+}
+
+.remote-ring {
   position: relative;
-  
-  &.empty {
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  &.up, &.down {
-    width: 80px;
-    height: 50px;
-    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-    
-    i {
-      font-size: 14px;
-      color: #aaa;
-      margin-bottom: 2px;
-    }
-  }
-  
-  &.left, &.right {
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
-    
-    i {
-      font-size: 14px;
-      color: #aaa;
-      margin-bottom: 2px;
-    }
-  }
-  
-  &.center {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
-    border-color: #444;
-    border-radius: 50%;
-    
-    .center-label {
-      font-size: 11px;
-      font-weight: bold;
-      color: #ccc;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-  }
-}
-
-.button-label {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 8px;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: bold;
-  white-space: nowrap;
-}
-
-.dpad-instructions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 100%;
-  text-align: center;
-}
-
-.instruction-item {
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 10px;
-  color: #888;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  font-weight: bold;
+  
+  // Dark ring background
+  background: #2a2a2a;
+  border-radius: 50%;
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.6),
+    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.05);
 }
 
-.instruction-text {
-  flex: 1;
+.remote-center {
+  position: absolute;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #d0d0d0, #b0b0b0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.3);
+  
+  .center-text {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 13px;
+    font-weight: bold;
+    color: #2a2a2a;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+}
+
+.remote-direction {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  
+  &.top {
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  &.bottom {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  &.left {
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  &.right {
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  i {
+    font-size: 16px;
+    color: #888;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  }
+  
+  .direction-label {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 10px;
+    color: #999;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+}
+
+.remote-instruction {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: bold;
   text-align: center;
 }
 
