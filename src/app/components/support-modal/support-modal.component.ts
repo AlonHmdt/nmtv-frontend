@@ -1,4 +1,4 @@
-import { Component, signal, ChangeDetectionStrategy, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, OnInit, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalStateService } from '../../services/modal-state.service';
 
@@ -12,6 +12,8 @@ import { ModalStateService } from '../../services/modal-state.service';
 })
 export class SupportModalComponent implements OnInit, OnDestroy {
   private modalState = inject(ModalStateService);
+
+  @ViewChild('modalBody') modalBody?: ElementRef<HTMLDivElement>;
 
   isOpen = signal(false);
 
@@ -50,10 +52,22 @@ export class SupportModalComponent implements OnInit, OnDestroy {
   };
 
   private handleArrowKeys = (event: KeyboardEvent): void => {
-    // Stop arrow key propagation when modal is open to prevent video player control
-    if (this.isOpen() && (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-      event.stopPropagation();
-      // Allow default behavior
+    // Handle arrow key scrolling manually when modal is open
+    if (this.isOpen() && this.modalBody) {
+      const scrollAmount = 40; // Pixels to scroll per key press
+      
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.modalBody.nativeElement.scrollTop -= scrollAmount;
+      } else if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        event.stopPropagation();
+        this.modalBody.nativeElement.scrollTop += scrollAmount;
+      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        // Stop propagation but don't prevent default for left/right
+        event.stopPropagation();
+      }
     }
   };
 }
