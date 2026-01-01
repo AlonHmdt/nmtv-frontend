@@ -310,9 +310,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
         document.activeElement.blur();
       }
       
-      // Reset easter egg and flag video counts when menu closes
-      this.easterEggService.reset();
-      this.resetStereoClickCount();
     }
   }
 
