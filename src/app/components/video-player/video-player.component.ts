@@ -589,7 +589,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             origin: window.location.origin,
             mute: 0,  // Unmuted since user clicked power button
             cc_load_policy: 0,  // Disable captions by default (0 = off, 1 = on if available)
-            start: this.isFirstVideo ? this.getRandomStartTime() : undefined
+            start: this.isFirstVideo ? this.getRandomStartTime() : undefined,
+            widget_referrer: window.location.origin  // Help with browser caching
           },
           events: {
             onReady: (event: any) => this.onPlayerReady(event),
