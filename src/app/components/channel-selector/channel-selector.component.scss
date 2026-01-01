@@ -14,183 +14,113 @@
   transform: translateX(-50%);
   width: 80px;
   height: 40px;
-  border-radius: 20px 20px 0 0; // Half-circle/Tab shape
+  border-radius: 20px 20px 0 0;
   background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-bottom: none;
-  box-shadow:
-    0 -4px 8px rgba(0, 0, 0, 0.4),
-    inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.4), inset 1px 1px 1px rgba(255, 255, 255, 0.1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 1001; // Above menu overlay and side-menu
+  z-index: 1001;
 
-  i {
+  i, .remote-icon {
     color: #d4d4d4;
     font-size: 24px;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5));
     transition: all 0.3s ease;
-
-    @media #{$mobile-and-tablet-landscape} {
-      font-size: 20px;
-      transform: translateY(2px);
-    }
   }
 
   .remote-icon {
     width: 24px;
     height: 24px;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(0.8) invert(0.8);
-    transition: all 0.3s ease;
   }
 
   @media (hover: hover) {
     &:hover {
-      height: 50px; // Peek up effect
-
-      @media #{$mobile-and-tablet-landscape} {
-        height: 40px; // Less peek on mobile landscape
-      }
-
-      i {
-        color: #fff;
-      }
-
-      .remote-icon {
-        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(1) invert(1);
-      }
+      height: 50px;
+      i { color: #fff; }
+      .remote-icon { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(1) invert(1); }
     }
   }
 
   &.active {
     opacity: 1;
-    bottom: 0; // Stay at bottom
-    background: #222; // Match remote body
-    border-color: #1a1a1a; // Blend with remote border
-    box-shadow: none; // Remove shadow to blend
-    transform: translateX(-50%);
-
-    i {
-      color: #666; // Dimmer when open
-      // No rotation needed for d-pad
-    }
-
-    .remote-icon {
-      filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(0.4) invert(0.4);
-    }
+    background: #222;
+    border-color: #1a1a1a;
+    box-shadow: none;
+    i { color: #666; }
+    .remote-icon { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(0.4) invert(0.4); }
 
     @media (hover: hover) {
       &:hover {
-        height: 40px; // No peek when open
-
-        i {
-          color: #fff;
-        }
-
-        .remote-icon {
-          filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(1) invert(1);
-        }
+        height: 40px;
+        i { color: #fff; }
+        .remote-icon { filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.5)) brightness(1) invert(1); }
       }
     }
   }
 
-  // Mobile adjustments (Keep centered bottom tab style)
   @media #{$mobile-and-tablet-portrait} {
     width: 60px;
     height: 36px;
-
-    @media (hover: hover) {
-      &:hover {
-        height: 44px;
-      }
-    }
-
-    &.active {
-      @media (hover: hover) {
-        &:hover {
-          height: 36px;
-        }
-      }
-    }
+    @media (hover: hover) { &:hover { height: 44px; } }
+    &.active { @media (hover: hover) { &:hover { height: 36px; } } }
   }
 
   @media #{$mobile-and-tablet-landscape} {
     height: 25px;
+    i { font-size: 20px; transform: translateY(2px); }
+    @media (hover: hover) { &:hover { height: 40px; } }
   }
 }
 
 .menu-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(2px);
   z-index: 999;
-  opacity: 1;
   transition: opacity 0.25s ease;
-  pointer-events: all;
   will-change: opacity;
-
-  &.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+  &.hidden { opacity: 0; pointer-events: none; }
 }
 
-// The main "Remote Control" body
 .side-menu {
   position: fixed;
   bottom: 0;
   left: 50%;
-  transform: translateX(-50%) translateY(100%); // Hidden by default using transform
+  transform: translateX(-50%) translateY(100%);
   width: 500px;
-  max-width: 95vw; // Responsive width
-  height: auto;
-  max-height: 85vh; // Allow more height on mobile
-
-  // Vintage Plastic Texture handled by .vintage-texture-bg
-
+  max-width: 95vw;
+  max-height: 85vh;
   border-radius: 24px 24px 0 0;
   border: 8px solid #1a1a1a;
   border-bottom: none;
-
-  // 3D Bevel effect
-  box-shadow:
-    0 -10px 40px rgba(0, 0, 0, 0.8),
-    inset 2px 2px 2px rgba(255, 255, 255, 0.1),
-    inset -2px 0 2px rgba(0, 0, 0, 0.5);
-
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8), inset 2px 2px 2px rgba(255, 255, 255, 0.1), inset -2px 0 2px rgba(0, 0, 0, 0.5);
   z-index: 1000;
   display: flex;
   flex-direction: column;
   transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1);
-  padding: 20px;
-  padding-bottom: 60px; // Extra padding for the button area
+  padding: 20px 20px 60px;
   will-change: transform;
-
-  &.open {
-    transform: translateX(-50%) translateY(0); // Slide up using transform
-  }
+  &.open { transform: translateX(-50%) translateY(0); }
 
   @media #{$mobile-and-tablet-portrait} {
-    width: 95vw; // Full width on mobile
-    border-width: 4px; // Thinner border on mobile
-    padding: 12px;
-    padding-bottom: 50px;
-    max-height: 92vh; // Fallback
-    max-height: 92dvh; // Use more vertical space
+    width: 95vw;
+    border-width: 4px;
+    padding: 12px 12px 50px;
+    max-height: 92dvh;
   }
 }
 
 .remote-header {
   display: flex;
   justify-content: space-between;
-  align-items: center; // Align center for power button
+  align-items: center;
   padding: 12px 16px;
   border-bottom: 2px solid rgba(0, 0, 0, 0.5);
   margin-bottom: 12px;
@@ -200,72 +130,32 @@
 
   .brand-logo {
     height: 40px;
-    width: auto;
     filter: grayscale(100%) brightness(0.8);
     opacity: 0.9;
     cursor: pointer;
     border-radius: 4px;
     padding: 2px;
     transition: all 0.2s ease;
-
-    &:focus-visible {
-      outline: 2px solid rgba(255, 255, 255, 0.4);
-      outline-offset: 2px;
-      box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.08),
-        0 4px 8px rgba(0, 0, 0, 0.4);
-      filter: grayscale(0%) brightness(1.1);
-      opacity: 1;
-    }
-
-    @media (hover: hover) {
-      &:hover {
-        filter: grayscale(0%) brightness(1);
-        opacity: 1;
-      }
-    }
+    @media (hover: hover) { &:hover { filter: grayscale(0%) brightness(1); opacity: 1; } }
   }
 
   .model-text {
-    font-family: 'Roboto Mono', monospace;
-    font-size: 9px;
+    font: bold 9px 'Roboto Mono', monospace;
     color: #666;
     letter-spacing: 2px;
-    font-weight: bold;
-    display: none; // Hide on smaller screens if needed, or keep
+    display: none;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
-
-    &:focus-visible {
-      outline: 2px solid rgba(255, 255, 255, 0.4);
-      outline-offset: 2px;
-      box-shadow:
-        0 0 0 3px rgba(255, 255, 255, 0.08),
-        0 4px 8px rgba(0, 0, 0, 0.4);
-      color: #fff;
-      background: rgba(255, 255, 255, 0.05);
-    }
-
-    @media (hover: hover) {
-      &:hover {
-        color: #999;
-      }
-    }
-
-    @media (min-width: 600px) {
-      display: block;
-    }
+    @media (hover: hover) { &:hover { color: #999; } }
+    @media (min-width: 600px) { display: block; }
   }
 
   @media #{$mobile-and-tablet-portrait} {
     padding: 8px 12px;
     margin-bottom: 8px;
-
-    .brand-logo {
-      height: 32px;
-    }
+    .brand-logo { height: 32px; }
   }
 }
 
@@ -278,221 +168,116 @@
 }
 
 .power-off-button {
-  width: 40px; // Smaller for header
+  width: 40px;
   height: 40px;
-  // Base styles handled by .retro-round-button
-
-  i {
-    font-size: 18px;
-    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-  }
+  i { font-size: 18px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); }
 }
 
 .power-off-text {
-  font-family: 'Roboto Mono', monospace;
-  font-size: 8px;
+  font: bold 8px 'Roboto Mono', monospace;
   color: #666;
   text-transform: uppercase;
   letter-spacing: 1px;
-  font-weight: bold;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-// .green-dot handled by global styles
-
-// Short Landscape Adjustments (phones in landscape)
 @media #{$short-landscape} {
   .side-menu {
     display: grid;
-    grid-template-columns: 80px 1fr;
-    grid-template-rows: 1fr auto;
+    grid-template: 1fr auto / 80px 1fr;
     padding: 12px;
-    padding-bottom: 12px;
     width: 80vw;
     max-width: 600px;
     height: 85vh;
-    gap: 0; // Reset gap
   }
 
   .remote-header {
-    grid-column: 1;
-    grid-row: 1 / -1;
+    grid-area: 1/1/3/2;
     flex-direction: column;
-    justify-content: center;
-    width: 100%; // Fill column
+    width: 100%;
     border-bottom: none;
     border-right: 2px solid rgba(0, 0, 0, 0.5);
-    margin-bottom: 0;
-    margin-right: 0;
+    margin: 0;
     border-radius: 12px 0 0 12px;
-
-    .brand-logo {
-      height: 30px;
-      transform: rotate(-90deg);
-      margin-bottom: 12px;
-    }
-
-    .model-text {
-      display: none;
-    }
+    .brand-logo { height: 30px; transform: rotate(-90deg); margin-bottom: 12px; }
+    .model-text { display: none; }
   }
 
-  .channel-list {
-    grid-column: 2;
-    grid-row: 1;
-    margin-bottom: 0;
-    margin-right: 0;
-    padding: 0 0 12px 12px; // Add padding left for spacing from header
-    overflow-y: auto;
-  }
-
+  .channel-list { grid-area: 1/2/2/3; padding: 0 0 12px 12px; }
   .menu-actions {
-    grid-column: 2;
-    grid-row: 2;
+    grid-area: 2/2/3/3;
     flex-direction: row;
-    width: 100%;
-    padding: 0 0 0 12px; // Align with channel list
+    padding: 0 0 0 12px;
     gap: 8px;
-    overflow-x: auto; // Allow horizontal scroll if needed
-    overflow-y: hidden;
+    overflow-x: auto;
     border: none;
     box-shadow: none;
     background: transparent;
-    justify-content: flex-start; // Align left
-
-    button {
-      width: auto;
-      min-width: 80px;
-      height: 50px;
-      flex: 1; // Distribute space
-    }
+    button { width: auto; min-width: 80px; height: 50px; flex: 1; }
   }
 }
-
-
-
 .channel-list {
   flex: 1;
   overflow-y: auto;
   padding: 12px;
-
-  // Grid layout for the "buttons"
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-
-  // Inset area handled by .retro-inset-panel
   margin-bottom: 20px;
 
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: #111;
-    border-radius: 3px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #444;
-    border-radius: 3px;
-    border: 2px solid #111;
-  }
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: #111; border-radius: 3px; }
+  &::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; border: 2px solid #111; }
 
   @media #{$mobile-and-tablet-portrait} {
-    grid-template-columns: repeat(3, 1fr); // 3 columns on mobile to save space
     grid-auto-rows: max-content;
-    align-content: start;
     padding: 8px;
-    gap: 6px; // Tighter gap
+    gap: 6px;
     margin-bottom: 12px;
   }
 }
 
 .channel-item {
-  // Base styles handled by .retro-button
   padding: 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 80px; // Smaller buttons
+  height: 80px;
 
-  .channel-icon {
-    font-size: 24px;
-    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-  }
-
+  .channel-icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); }
   .channel-name {
-    font-family: 'Roboto Mono', monospace; // Retro font
-    font-size: 10px;
-    font-weight: 700;
+    font: 700 10px 'Roboto Mono', monospace;
     text-transform: uppercase;
     letter-spacing: 1px;
     text-align: center;
     line-height: 1.2;
   }
 
-  &.active {
-
-    // Active styles handled by .retro-button.active
-    .channel-name {
-      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-    }
-  }
+  &.active .channel-name { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4); }
+  &.loading { position: relative; opacity: 0.7; pointer-events: none; }
+  &:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
   @media #{$mobile-and-tablet-portrait} {
-    height: 60px; // Much smaller on mobile
+    height: 60px;
     padding: 4px;
     gap: 4px;
-
-    .channel-icon {
-      font-size: 18px;
-    }
-
-    .channel-name {
-      font-size: 9px;
-      letter-spacing: 0.5px;
-    }
-  }
-
-  // Loading state for easter egg channels
-  &.loading {
-    position: relative;
-    opacity: 0.7;
-    pointer-events: none;
-  }
-
-  .channel-loader {
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.6);
-
-    .spinner {
-      font-size: 14px;
-      animation: spin 1s linear infinite;
-    }
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    pointer-events: none;
+    .channel-icon { font-size: 18px; }
+    .channel-name { font-size: 9px; letter-spacing: 0.5px; }
   }
 }
 
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
+.channel-loader {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.6);
+  .spinner { font-size: 14px; animation: spin 1s linear infinite; }
 }
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .menu-actions {
   display: flex;
@@ -501,78 +286,42 @@
   padding: 16px;
   background: #181818;
   border-radius: 12px;
-  box-shadow:
-    inset 2px 2px 6px rgba(0, 0, 0, 0.6),
-    inset -1px -1px 2px rgba(255, 255, 255, 0.05);
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.6), inset -1px -1px 2px rgba(255, 255, 255, 0.05);
   border: 1px solid #333;
+
+  button {
+    width: 90px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font: 700 10px 'Roboto Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ccc;
+    span, i { z-index: 1; }
+    i { font-size: 20px; margin-bottom: 2px; }
+  }
 
   @media #{$mobile-and-tablet-portrait} {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 8px;
-    padding: 8px; // Reduced padding
+    padding: 8px;
+    button { width: 100%; height: 50px; i { font-size: 16px; margin-bottom: 0; } }
   }
 }
 
-// Shared retro button styles
-.menu-actions button {
-  // Base styles handled by .retro-button
-  width: 90px;
-  height: 70px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-
-  font-family: 'Roboto Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #ccc;
-
-  span,
-  i {
-    z-index: 1;
-  }
-
-  i {
-    font-size: 20px;
-    margin-bottom: 2px;
-  }
-
-  @media #{$mobile-and-tablet-portrait} {
-    width: 100%;
-    height: 50px; // Smaller action buttons
-
-    i {
-      font-size: 16px;
-      margin-bottom: 0;
-    }
-  }
-}
-
-.settings-button,
-.about-button {
+.settings-button, .about-button {
   background: linear-gradient(145deg, #444, #333);
-
-  &:hover {
-    background: linear-gradient(145deg, #555, #444);
-    color: #fff;
-  }
+  &:hover { background: linear-gradient(145deg, #555, #444); color: #fff; }
 }
 
-.old-tv-button,
-.fullscreen-button {
+.old-tv-button, .fullscreen-button {
   background: linear-gradient(145deg, #2a2a2a, #222);
+  .toggle-content { display: flex; flex-direction: column; align-items: center; }
 
-  .toggle-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  // Toggle indicator light
   &::after {
     content: '';
     position: absolute;
@@ -589,17 +338,8 @@
   &.active {
     background: linear-gradient(145deg, #333, #222);
     color: #fff;
-
-    // Light up the indicator
-    &::after {
-      background: #0f0;
-      box-shadow: 0 0 6px #0f0;
-    }
-
-    .toggle-thumb {
-      background: #4caf50;
-      box-shadow: 0 0 8px #4caf50;
-    }
+    &::after { background: #0f0; box-shadow: 0 0 6px #0f0; }
+    .toggle-thumb { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
   }
 }
 
@@ -609,11 +349,11 @@
     display: flex;
     flex-direction: column;
     padding: 12px;
-    padding-bottom: 40px; // Space for trigger button
+    padding-bottom: 40px;
     width: 80vw;
     max-width: 600px;
-    height: auto; // Allow it to shrink
-    max-height: 95vh; // Cap the height
+    height: auto;
+    max-height: 95vh;
     gap: 0;
   }
 
@@ -657,7 +397,7 @@
   }
 
   .channel-list {
-    flex: 0 0 auto; // Don't stretch
+    flex: 0 0 auto;
     margin-bottom: 8px;
     margin-right: 0;
     padding: 8px;
@@ -695,147 +435,84 @@
   }
 }
 
-// D-Pad Actions Container (Support & Download)
 .d-pad-actions-container {
   display: flex;
   justify-content: space-around;
-  align-items: flex-end; // Align bottom
+  align-items: flex-end;
   padding: 0 16px;
-  margin-top: auto; // Push to bottom if flex column
   position: absolute;
   bottom: 12px;
   left: 0;
   width: 100%;
-  pointer-events: none; // Let clicks pass through container (except buttons)
+  pointer-events: none;
 
-  @media #{$mobile-and-tablet-portrait} {
-    bottom: 8px;
-    padding: 0 8px;
-  }
-
-  @media #{$mobile-and-tablet-landscape} {
-    bottom: 6px;
-  }
+  @media #{$mobile-and-tablet-portrait} { bottom: 8px; padding: 0 8px; }
+  @media #{$mobile-and-tablet-landscape} { bottom: 6px; }
 }
 
 .d-pad-spacer {
-  flex: 0 0 80px; // Space for d-pad (80px width)
-  height: 1px;
-
-  @media #{$mobile-and-tablet-portrait} {
-    flex: 0 0 60px; // Smaller space on mobile
-  }
+  flex: 0 0 80px;
+  @media #{$mobile-and-tablet-portrait} { flex: 0 0 60px; }
 }
 
-.button-placeholder {
-  flex: 1;
-  min-width: 70px;
-}
+.button-placeholder { flex: 1; min-width: 70px; }
 
 .retro-small-button {
-  pointer-events: all; // Re-enable clicks
+  pointer-events: all;
   flex: 1;
-  max-width: 100px; // Limit width
+  max-width: 100px;
   height: 36px;
   background: #1a1a1a;
   border: 1px solid #333;
-  border-radius: 18px; // Pill shape
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   cursor: pointer;
   color: #888;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
+  font: 700 9px 'Roboto Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 0.2s ease;
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    inset 1px 1px 1px rgba(255, 255, 255, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 1px 1px 1px rgba(255, 255, 255, 0.05);
 
-  i {
-    font-size: 14px;
-    color: #666;
-    transition: color 0.2s ease;
-  }
+  i { font-size: 14px; color: #666; transition: color 0.2s ease; }
 
   &:hover {
     background: #222;
     color: #ccc;
     border-color: #444;
     transform: translateY(-1px);
-    box-shadow:
-      0 3px 6px rgba(0, 0, 0, 0.5),
-      inset 1px 1px 1px rgba(255, 255, 255, 0.1);
-
-    i {
-      color: #fff;
-    }
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+    i { color: #fff; }
   }
 
-  &:active {
-    transform: translateY(1px);
-    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6);
-  }
+  &:active { transform: translateY(1px); box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6); }
+  &.support-button:hover i { color: #FFDD00; }
+  &.install-button:hover i { color: #00AAFF; }
+  &.share-button:hover i { color: #9D00FF; }
 
-  // Specific button colors (subtle hints)
-  &.support-button:hover i {
-    color: #FFDD00;
-  }
-
-  // Gold for coffee
-  &.install-button:hover i {
-    color: #00AAFF;
-  }
-
-  // Blue for download
-  &.share-button:hover i {
-    color: #9D00FF;
-  }
-
-  @media #{$mobile-and-tablet-landscape} {
-    height: 30px;
-    font-size: 8px;
-  }
+  @media #{$mobile-and-tablet-landscape} { height: 30px; font-size: 8px; }
 }
 
 // Keyboard Navigation Focus Styles
-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.4);
-  outline-offset: 2px;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.08),
-    inset 1px 1px 1px rgba(255, 255, 255, 0.1);
-}
-
-.retro-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.4);
-  outline-offset: 2px;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.08),
-    0 4px 8px rgba(0, 0, 0, 0.4),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.1),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.retro-small-button:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.4);
-  outline-offset: 2px;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.08),
-    0 3px 6px rgba(0, 0, 0, 0.5),
-    inset 1px 1px 1px rgba(255, 255, 255, 0.1);
-}
-
+button:focus-visible,
+.retro-button:focus-visible,
+.retro-small-button:focus-visible,
 .retro-round-button:focus-visible {
   outline: 2px solid rgba(255, 255, 255, 0.4);
   outline-offset: 2px;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.08),
-    0 4px 8px rgba(0, 0, 0, 0.5),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.15),
-    inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.retro-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 4px 8px rgba(0, 0, 0, 0.4), inset 2px 2px 4px rgba(255, 255, 255, 0.1), inset -2px -2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.retro-small-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 3px 6px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+.retro-round-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 4px 8px rgba(0, 0, 0, 0.5), inset 2px 2px 4px rgba(255, 255, 255, 0.15), inset -2px -2px 4px rgba(0, 0, 0, 0.5);
 }
