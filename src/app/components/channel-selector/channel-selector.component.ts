@@ -1,4 +1,4 @@
-import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output, computed, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output, computed, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { EasterEggService } from '../../services/easter-egg.service';
@@ -77,6 +77,19 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     });
     document.addEventListener('webkitfullscreenchange', () => {
       this.isFullscreen.set(!!(document as any).webkitFullscreenElement);
+    });
+
+    // Update focusable elements when channels change (e.g., NOA channel unlocks)
+    effect(() => {
+      // Track channels to react to changes
+      this.channels();
+      
+      // If menu is open, update focusable elements
+      if (this.isMenuOpen()) {
+        setTimeout(() => {
+          this.updateFocusableElements();
+        }, 100);
+      }
     });
   }
 
@@ -314,6 +327,11 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   async selectChannel(channel: Channel): Promise<void> {
+    // Prevent selecting NOA channel if it's not ready yet
+    if (channel === 'noa' && !this.isNoaChannelReady()) {
+      return;
+    }
+    
     if (channel !== this.currentChannel()) {
       // Request channel switch through service with static effect
       this.videoPlayerControl.requestChannelSwitch(channel, true);
