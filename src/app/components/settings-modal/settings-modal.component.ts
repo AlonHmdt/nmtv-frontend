@@ -6,7 +6,6 @@ import { QueueService } from '../../services/queue.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { Channel, Channels } from '../../models/video.model';
 import { 
-  isValidYouTubePlaylistUrl, 
   extractPlaylistId, 
   getPlaylistUrlError 
 } from '../../utils/youtube-url.utils';

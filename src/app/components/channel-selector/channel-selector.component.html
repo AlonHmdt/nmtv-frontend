@@ -86,16 +86,18 @@
 
       <div class="d-pad-spacer"></div>
 
-      @if (showInstallButton()) {
-      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-download"></i>
-        <span>App</span>
-      </button>
-      } @else {
-      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-share-fill"></i>
-        <span>Share</span>
-      </button>
+      @if (!isAndroidTV()) {
+        @if (showInstallButton()) {
+        <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+          <i class="bi bi-download"></i>
+          <span>App</span>
+        </button>
+        } @else {
+        <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+          <i class="bi bi-share-fill"></i>
+          <span>Share</span>
+        </button>
+        }
       }
     </div>
   </div>
@@ -104,4 +106,5 @@
   <app-settings-modal></app-settings-modal>
   <app-about-modal></app-about-modal>
   <app-install-modal></app-install-modal>
+  <app-support-modal></app-support-modal>
 </div>

@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { EasterEggService } from '../../services/easter-egg.service';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
-import { Channel, ChannelConfig, Channels } from '../../models/video.model';
+import { Channel, Channels } from '../../models/video.model';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
 import { InstallModalComponent } from '../install-modal/install-modal.component';
+import { SupportModalComponent } from '../support-modal/support-modal.component';
 import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
@@ -15,7 +16,7 @@ import { environment } from '../../../environments/environment';
 @Component({
   selector: 'app-channel-selector',
   standalone: true,
-  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent],
+  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent, SupportModalComponent],
   templateUrl: './channel-selector.component.html',
   styleUrls: ['./channel-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -31,6 +32,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
   @ViewChild(InstallModalComponent) installModal?: InstallModalComponent;
+  @ViewChild(SupportModalComponent) supportModal?: SupportModalComponent;
 
   powerOff = output<void>();
   menuStateChange = output<boolean>(); // Emit menu open/close state
@@ -63,6 +65,10 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     return !!this.pwaService.installPrompt() ||
       ((this.pwaService.isIOS() || this.pwaService.isMac() || this.pwaService.isAndroid()) && !this.pwaService.isStandalone());
   });
+
+  isAndroidTV(): boolean {
+    return this.helpersService.isAndroidTV();
+  }
 
   constructor() {
     // Listen for fullscreen changes
@@ -389,7 +395,12 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openSupport(): void {
+    if (this.isAndroidTV()) {
+      this.supportModal?.open();
+      return;
+    } else {    
     window.open('https://buymeacoffee.com/alonhmdt', '_blank');
+    }
   }
 
   installApp(): void {
