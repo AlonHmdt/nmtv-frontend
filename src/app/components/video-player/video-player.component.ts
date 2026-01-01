@@ -246,9 +246,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private getRandomStartTime(): number {
-    // Random start time between 2:00 (120s) and 3:30 (210s)
-    const MIN_START = 120;
-    const MAX_START = 210;
+    // Random start time between 1:40 (100s) and 2:40 (160s)
+    const MIN_START = 100;
+    const MAX_START = 160;
     return Math.floor(Math.random() * (MAX_START - MIN_START + 1)) + MIN_START;
   }
 
@@ -312,20 +312,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Press 'N' or 'n' to skip to next video (for testing)
     if (event.key === 'n' || event.key === 'N') {
       this.playNextVideo();
-    }
-
-    // Press 'Q' or 'W' to show curerent video or next video overlays (for testing)
-    if (event.key === 'q' || event.key === 'Q') {
-      this.overlayState.update(state => ({
-        ...state,
-        playingNow: { visible: true, animating: false }
-      }));
-    }
-    if (event.key === 'w' || event.key === 'W') {
-      this.overlayState.update(state => ({
-        ...state,
-        playingNext: { visible: true, animating: false }
-      }));
     }
 
     // Arrow Up/Down to change channels (only if menu is closed)
