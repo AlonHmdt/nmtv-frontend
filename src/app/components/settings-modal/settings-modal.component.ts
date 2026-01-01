@@ -1,9 +1,10 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, signal, computed, ChangeDetectionStrategy, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { QueueService } from '../../services/queue.service';
 import { ModalStateService } from '../../services/modal-state.service';
+import { KeyboardNavigationService } from '../../services/keyboard-navigation.service';
 import { Channel, Channels } from '../../models/video.model';
 import { 
   extractPlaylistId, 
@@ -28,6 +29,7 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
   customPlaylistService = inject(CustomPlaylistService);
   private queueService = inject(QueueService);
   private modalState = inject(ModalStateService);
+  private keyboardNav = inject(KeyboardNavigationService);
 
   isOpen = signal(false);
   selectedChannel = signal<Channel>(Channel.DECADE_1990S);
@@ -53,35 +55,47 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
     return this.customPlaylistService.getChannelCount(this.selectedChannel());
   });
 
+  constructor() {
+    // Update focusable elements when playlists change
+    effect(() => {
+      this.currentPlaylists();
+      
+      if (this.isOpen()) {
+        setTimeout(() => {
+          this.keyboardNav.updateFocusableElements('.settings-modal .modal-content', '.playlist-link');
+        }, 100);
+      }
+    });
+  }
+
   open(): void {
-    // Pre-select the current channel
     const currentChannel = this.queueService.currentChannel();
     this.selectedChannel.set(currentChannel);
     this.isOpen.set(true);
     this.resetForm();
-    // Notify global modal state
     this.modalState.openModal();
-    // Add event listeners when modal opens
     window.addEventListener('keydown', this.handleEscapeKey);
     window.addEventListener('keydown', this.handleArrowKeys);
+    
+    setTimeout(() => {
+      this.keyboardNav.updateFocusableElements('.settings-modal .modal-content', '.playlist-link');
+      if (!this.keyboardNav.focusElement('.channel-tab.active')) {
+        this.keyboardNav.focusFirstElement();
+      }
+    }, 100);
   }
 
   close(): void {
     this.isOpen.set(false);
     this.resetForm();
-    // Notify global modal state
     this.modalState.closeModal();
-    // Remove event listeners when modal closes
     window.removeEventListener('keydown', this.handleEscapeKey);
     window.removeEventListener('keydown', this.handleArrowKeys);
   }
 
-  ngOnInit(): void {
-    // Lifecycle method for cleanup
-  }
+  ngOnInit(): void {}
 
   ngOnDestroy(): void {
-    // Clean up listeners on component destroy
     window.removeEventListener('keydown', this.handleEscapeKey);
     window.removeEventListener('keydown', this.handleArrowKeys);
   }
@@ -94,10 +108,42 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
   };
 
   private handleArrowKeys = (event: KeyboardEvent): void => {
-    // Stop arrow key propagation when modal is open to prevent video player control
-    if (this.isOpen() && (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-      event.stopPropagation();
-      // Allow default scroll behavior
+    if (!this.isOpen()) return;
+    
+    // For input fields, allow Up/Down to navigate away, keep Left/Right for text editing
+    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        event.stopPropagation();
+        if (event.key === 'ArrowUp') {
+          this.keyboardNav.focusUp();
+        } else {
+          this.keyboardNav.focusDown();
+        }
+      }
+      return;
+    }
+
+    // Handle arrow navigation
+    event.preventDefault();
+    event.stopPropagation();
+    
+    switch (event.key) {
+      case 'ArrowDown':
+        this.keyboardNav.focusDown();
+        break;
+      case 'ArrowUp':
+        this.keyboardNav.focusUp();
+        break;
+      case 'ArrowRight':
+        this.keyboardNav.focusRight();
+        break;
+      case 'ArrowLeft':
+        this.keyboardNav.focusLeft();
+        break;
+      case 'Enter':
+        this.keyboardNav.activateFocusedElement();
+        break;
     }
   };
 

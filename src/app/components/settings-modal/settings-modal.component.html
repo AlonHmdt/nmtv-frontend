@@ -20,7 +20,7 @@
     <div class="channel-tabs">
       @for (channel of channels; track channel.id) {
       <button class="channel-tab retro-button" [class.active]="isChannelActive(channel.id)"
-        (click)="selectChannel(channel.id)">
+        (click)="selectChannel(channel.id)" (keydown.enter)="selectChannel(channel.id)">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
         @if (customPlaylistService.getChannelCount(channel.id) > 0) {
