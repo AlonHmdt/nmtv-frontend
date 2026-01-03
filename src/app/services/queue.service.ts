@@ -191,7 +191,6 @@ export class QueueService {
             // This prevents race conditions where rapid channel switching puts videos from
             // the previous channel into the new channel's queue
             if (channel !== this.currentChannelSignal()) {
-              console.log(`QueueService: Discarding block for channel ${channel} as we are now on ${this.currentChannelSignal()}`);
               return;
             }
 
