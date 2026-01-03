@@ -88,7 +88,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     touchStart: this.handleTouchStart.bind(this),
     touchEnd: this.handleTouchEnd.bind(this)
   }
-  private readonly CHANNEL_SWITCH_DELAY_MS = 1200; // Minimum duration for static effect visibility (increased to mask loading)
+  private readonly CHANNEL_SWITCH_DELAY_MS = 600; // Minimum duration for static effect visibility
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
   private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
 
@@ -128,13 +128,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             this.player.loadVideoById({
               videoId: video.id,
               startSeconds: this.getRandomStartTime(),
-              suggestedQuality: this.helpersService.isAndroidTV() ? 'hd1080' : 'default'
+              suggestedQuality: 'hd720'
             });
             this.isFirstVideo = false;
           } else {
             this.player.loadVideoById({
               videoId: video.id,
-              suggestedQuality: this.helpersService.isAndroidTV() ? 'hd1080' : 'default'
+              suggestedQuality: 'hd720'
             });
           }
         }
@@ -645,7 +645,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Set Full HD 1080p quality for Android TV to prevent 4K lag
     if (this.helpersService.isAndroidTV()) {
       try {
-        player.setPlaybackQuality('hd1080');
+        // We start with 720p for speed, then upgrade in handlePlayingState
+        // player.setPlaybackQuality('hd1080'); 
       } catch (e) {
         // Ignore if quality setting fails
       }
@@ -697,7 +698,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             if (currentVid) {
               player.loadVideoById({
                 videoId: currentVid.id,
-                suggestedQuality: this.helpersService.isAndroidTV() ? 'hd1080' : 'default'
+                suggestedQuality: 'hd720'
               });
             }
           } else {
@@ -743,11 +744,36 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.overlaysStarted) {
         this.initializeVideoOverlays();
       }
+      this.upgradeVideoQuality();
       return;
     }
 
     if (!this.overlaysStarted) {
       this.initializeVideoOverlays();
+    }
+    this.upgradeVideoQuality();
+  }
+
+  private upgradeVideoQuality(): void {
+    if (!this.player || !this.player.getPlaybackQuality) return;
+
+    // Check current quality to avoid loop
+    const currentQuality = this.player.getPlaybackQuality();
+    const isAndroid = this.helpersService.isAndroidTV();
+
+    // Upgrading quality after playback starts
+    if (isAndroid) {
+      // Android TV: Cap at 1080p. Only upgrade if lower.
+      if (currentQuality !== 'hd1080' && currentQuality !== 'highres') {
+        this.player.setPlaybackQuality('hd1080');
+      }
+    } else {
+      // Others: Go for max. Only set if not already highres.
+      // Note: 'highres' covers >1080p. If we are at hd1080, we might want to push to highres?
+      // Yes, if available.
+      if (currentQuality !== 'highres') {
+        this.player.setPlaybackQuality('highres');
+      }
     }
   }
 
@@ -845,7 +871,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       setTimeout(() => {
         if (this.player && currentVideo) {
-          this.player.loadVideoById(currentVideo.id);
+          this.player.loadVideoById({
+            videoId: currentVideo.id,
+            suggestedQuality: 'hd720'
+          });
         }
       }, 1000); // Wait 1 second before retry
     }
@@ -870,7 +899,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         const nextVideo = this.currentVideo();
 
         if (nextVideo && this.player) {
-          this.player.loadVideoById(nextVideo.id);
+          this.player.loadVideoById({
+            videoId: nextVideo.id,
+            suggestedQuality: 'hd720'
+          });
         } else if (!nextVideo) {
           console.error('No more videos in queue after skipping unavailable video');
         }
@@ -886,7 +918,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const nextVideo = this.currentVideo(); // Get the new current video after removal
 
     if (nextVideo && this.player) {
-      this.player.loadVideoById(nextVideo.id);
+      this.player.loadVideoById({
+        videoId: nextVideo.id,
+        suggestedQuality: 'hd720'
+      });
     } else if (!nextVideo) {
       console.error('No more videos in queue after skipping unavailable video');
     }
@@ -901,7 +936,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const video = this.currentVideo();
     if (video && this.player) {
       // Load from beginning (no startSeconds parameter)
-      this.player.loadVideoById(video.id);
+      this.player.loadVideoById({
+        videoId: video.id,
+        suggestedQuality: 'hd720'
+      });
     }
   }
 
