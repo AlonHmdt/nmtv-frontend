@@ -9,6 +9,7 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
+import { environment } from '../../../environments/environment';
 
 
 declare var YT: any;
@@ -58,6 +59,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   showVintageChannelIndicator = signal(false); // Show vintage channel name in top right corner
   volumeLevel = signal(100); // Volume level from 0-100
   showVolumeIndicator = signal(false); // Show vintage volume indicator
+  topHamburgerMenu = environment.features.topHamburgerMenu; // Feature flag for top menu
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -152,7 +154,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         this.showChannelSwitchStatic.set(false);
         // Stop static sound when effect ends
         this.helpersService.stopStaticSound();
-        
+
         // Unmute the player now that the channel switch is complete
         if (this.player && !this.isAwaitingIOSUnmute) {
           this.player.unMute();
@@ -184,7 +186,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (channelSwitch) {
         // Hide immediately when channel switch starts
         this.showVintageChannelIndicator.set(false);
-        
+
         // Show vintage channel indicator 1 second after channel switch starts
         this.setNamedTimeout('vintageChannelShow', () => {
           this.showVintageChannelIndicator.set(true);
@@ -216,7 +218,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (request) {
         this.unmuteIfNeeded();
-        
+
         if (request.withEffect) {
           this.initiateChannelSwitch();
           this.scheduleChannelLoad(request.channel);
@@ -297,7 +299,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.clearTimeouts();
     this.clearAllNamedTimeouts();
-    
+
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
       this.oldTVEffect = null;
@@ -307,7 +309,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     // Stop any playing static sound
     this.helpersService.stopStaticSound();
-    
+
     // Remove event listeners using bound handlers
     window.removeEventListener('keydown', this.boundHandlers.keyPress);
     window.removeEventListener('touchstart', this.boundHandlers.touchStart);
@@ -406,7 +408,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private isSwipeValid(): boolean {
     const now = Date.now();
-    
+
     // Check debounce
     if (now - this.lastSwipeTime < this.swipeConfig.debounceMs) {
       return false;
@@ -457,12 +459,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.minStaticTimePassed.set(false);
     this.isFirstVideo = true;
     this.clearChannelSwitchTimeouts();
-    
+
     // Mute the player during channel switch to prevent audio bleed-through
     if (this.player) {
       this.player.mute();
     }
-    
+
     // Play static sound effect
     this.helpersService.playStaticSound();
   }
@@ -622,7 +624,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private configurePlayer(player: any): void {
     player.getIframe().style.pointerEvents = 'none';
     player.setVolume(100);
-    
+
     // Set Full HD 1080p quality for Android TV to prevent 4K lag
     if (this.helpersService.isAndroidTV()) {
       try {
@@ -631,7 +633,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         // Ignore if quality setting fails
       }
     }
-    
+
     // Force disable captions on player ready (overrides user's YouTube account preferences)
     try {
       if (player.loadModule) {
@@ -669,7 +671,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const retryPlayback = (delay: number, attempt: number = 1) => {
       setTimeout(() => {
         const state = player.getPlayerState();
-        
+
         // If not playing or buffering, try to recover
         if (state !== YT.PlayerState.PLAYING && state !== YT.PlayerState.BUFFERING) {
           if (attempt >= 3) {
@@ -718,7 +720,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isFirstVideo) {
       // Mark as no longer first video
       this.isFirstVideo = false;
-      
+
       // Start overlays immediately since video already loaded at correct time
       if (!this.overlaysStarted) {
         this.initializeVideoOverlays();
@@ -785,6 +787,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 500);
   }
 
+  toggleMenu(): void {
+    this.videoPlayerControl.toggleMenu();
+  }
+
   private onPlayerError(event: any): void {
     console.error('YouTube player error:', event.data);
 
@@ -837,14 +843,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (currentVideo.playlistId) {
       const customPlaylistIds = this.customPlaylistService.getPlaylistIds(currentChannel);
       if (customPlaylistIds.includes(currentVideo.playlistId)) {
-        
+
         // Remove from queue locally only
         this.queueService.queue().splice(this.queueService.queue().indexOf(currentVideo), 1);
-        
+
         // Load next video
         this.loadAttempts = 0;
         const nextVideo = this.currentVideo();
-        
+
         if (nextVideo && this.player) {
           this.player.loadVideoById(nextVideo.id);
         } else if (!nextVideo) {

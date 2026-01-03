@@ -1,8 +1,10 @@
 <div class="channel-selector">
   <!-- Floating Remote Button -->
+  @if (!topHamburgerMenu) {
   <button class="remote-button" (click)="toggleMenu()" [class.active]="isMenuOpen()">
     <i class="bi bi-list"></i>
   </button>
+  }
 
   <!-- Side Menu (Remote Body) -->
   <div class="menu-overlay" [class.hidden]="!isMenuOpen()" (click)="toggleMenu()"></div>
@@ -10,7 +12,7 @@
 
     <!-- Vintage Header -->
     <div class="remote-header">
-      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()" 
+      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
         [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()">
 
       <div class="power-off-container">
@@ -21,15 +23,14 @@
         <span class="power-off-text">Power</span>
       </div>
 
-      <span class="model-text" (click)="onStereoClick()" 
-        [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onStereoClick()">STEREO SOUND</span>
+      <span class="model-text" (click)="onStereoClick()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
+        (keydown.enter)="onStereoClick()">STEREO SOUND</span>
     </div>
 
     <div class="channel-list retro-inset-panel">
       @for (channel of channels(); track channel.id) {
       <button class="channel-item retro-button" [class.active]="isActive(channel.id)"
-        [class.loading]="channel.isEasterEgg && isLoadingNoa()"
-        [disabled]="channel.isEasterEgg && !isNoaChannelReady()"
+        [class.loading]="channel.isEasterEgg && isLoadingNoa()" [disabled]="channel.isEasterEgg && !isNoaChannelReady()"
         (click)="selectChannel(channel.id)" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
@@ -52,7 +53,8 @@
         <span class="about-text">Unpack NMTV</span>
       </button>
 
-      <button class="old-tv-button retro-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+      <button class="old-tv-button retro-button" (click)="toggleOldTV()" [class.active]="oldTVEnabled()"
+        [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <div class="toggle-content">
           <i class="bi bi-magic old-tv-icon"></i>
           <span class="old-tv-text">VCR Mode</span>
@@ -89,17 +91,17 @@
       <div class="d-pad-spacer"></div>
 
       @if (!isAndroidTV()) {
-        @if (showInstallButton()) {
-        <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-          <i class="bi bi-download"></i>
-          <span>App</span>
-        </button>
-        } @else {
-        <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-          <i class="bi bi-share-fill"></i>
-          <span>Share</span>
-        </button>
-        }
+      @if (showInstallButton()) {
+      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+        <i class="bi bi-download"></i>
+        <span>App</span>
+      </button>
+      } @else {
+      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+        <i class="bi bi-share-fill"></i>
+        <span>Share</span>
+      </button>
+      }
       }
     </div>
   </div>

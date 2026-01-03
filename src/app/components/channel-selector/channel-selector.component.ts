@@ -39,11 +39,16 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   powerOff = output<void>();
   menuStateChange = output<boolean>(); // Emit menu open/close state
 
-  isMenuOpen = signal(false);
+  // Use service signal for menu state
+  isMenuOpen = this.videoPlayerControl.isMenuOpen;
+
+  // Feature flag
+  topHamburgerMenu = environment.features.topHamburgerMenu;
+
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
-  
+
   // Filter channels based on easter egg unlock state
   channels = computed(() => {
     const isUnlocked = this.easterEggService.isUnlocked();
@@ -85,12 +90,34 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     effect(() => {
       // Track channels to react to changes
       this.channels();
-      
+
       // If menu is open, update focusable elements
       if (this.isMenuOpen()) {
         setTimeout(() => {
           this.updateFocusableElements();
         }, 100);
+      }
+    });
+
+    // Handle menu open/close focus management
+    effect(() => {
+      const isOpen = this.isMenuOpen();
+      // Emit state change for parent components
+      this.menuStateChange.emit(isOpen);
+
+      if (isOpen) {
+        setTimeout(() => {
+          this.updateFocusableElements();
+          // Focus first element
+          if (this.focusableElements.length > 0) {
+            this.focusableElements[0]?.focus();
+          }
+        }, 100); // Small delay to ensure DOM is updated
+      } else {
+        // When menu closes, blur any focused element so arrow keys work for channel navigation
+        if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       }
     });
   }
@@ -111,7 +138,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
       if (this.modalState.isAnyModalOpen()) {
         return;
       }
-      
+
       event.preventDefault();
       if (this.isMenuOpen()) {
         // Close menu if open
@@ -325,25 +352,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   toggleMenu(): void {
-    this.isMenuOpen.update(v => !v);
-    this.menuStateChange.emit(this.isMenuOpen());
-
-    // Update focusable elements when menu opens
-    if (this.isMenuOpen()) {
-      setTimeout(() => {
-        this.updateFocusableElements();
-        // Focus first element
-        if (this.focusableElements.length > 0) {
-          this.focusableElements[0]?.focus();
-        }
-      }, 100); // Small delay to ensure DOM is updated
-    } else {
-      // When menu closes, blur any focused element so arrow keys work for channel navigation
-      if (document.activeElement instanceof HTMLElement) {
-        document.activeElement.blur();
-      }
-      
-    }
+    this.videoPlayerControl.toggleMenu();
   }
 
   async selectChannel(channel: Channel): Promise<void> {
@@ -351,13 +360,12 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     if (channel === Channel.NOA && !this.isNoaChannelReady()) {
       return;
     }
-    
+
     if (channel !== this.currentChannel()) {
       // Request channel switch through service with static effect
       this.videoPlayerControl.requestChannelSwitch(channel, true);
     }
-    this.isMenuOpen.set(false);
-    this.menuStateChange.emit(false);
+    this.videoPlayerControl.setMenuOpen(false);
 
     // Blur focused element so arrow keys work for channel navigation
     if (document.activeElement instanceof HTMLElement) {
@@ -370,8 +378,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openSettings(): void {
-    this.isMenuOpen.set(false);
-    this.menuStateChange.emit(false);
+    this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
@@ -379,8 +386,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openAbout(): void {
-    this.isMenuOpen.set(false);
-    this.menuStateChange.emit(false);
+    this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
@@ -398,8 +404,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     }
 
     // On web, just power off the TV effect
-    this.isMenuOpen.set(false);
-    this.menuStateChange.emit(false);
+    this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
     }
@@ -447,8 +452,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     if (this.isAndroidTV()) {
       this.supportModal?.open();
       return;
-    } else {    
-    window.open('https://buymeacoffee.com/alonhmdt', '_blank');
+    } else {
+      window.open('https://buymeacoffee.com/alonhmdt', '_blank');
     }
   }
 
@@ -522,7 +527,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private async flagCurrentVideo(): Promise<void> {
     const video = this.queueService.currentVideo();
     const currentChannel = this.queueService.currentChannel();
-    
+
     if (!video || video.isBumper) {
       this.resetStereoClickCount();
       return;

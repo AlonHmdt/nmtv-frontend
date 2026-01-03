@@ -88,7 +88,7 @@
 
 .nmtv-logo-container {
   position: fixed;
-  z-index: 4;
+  z-index: 20; // Increased to be above interaction-blocker (10)
   text-align: center;
   display: flex;
   top: 20px;
@@ -106,14 +106,66 @@
     transform: translateX(-50%);
     flex-direction: column;
     align-items: center;
+
+    // .logo-channel-group uses display: contents here
+
+    .playlist-name-badge {
+      order: 3; // Logo(1), BadgeRow(2), Playlist(3), MenuBtn(4)
+    }
   }
 
   .logo-channel-group {
+    // Default Desktop styles for group
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
+
+    // Mobile Portrait: Flatten structure to allow reordering with external Playlist badge
+    @media #{$mobile-and-tablet-portrait} {
+      display: contents;
+    }
+
+    .channel-info-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+
+      @media #{$mobile-and-tablet-portrait} {
+        order: 2;
+      }
+    }
+
+    .header-menu-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        color: #ffcc00;
+        transform: scale(1.1);
+      }
+
+      @media #{$mobile-and-tablet-portrait} {
+        order: 4; // Below Playlist (3)
+      }
+    }
+
+    .nmtv-logo {
+
+      // Order 1 is default, but explicit for clarity
+      @media #{$mobile-and-tablet-portrait} {
+        order: 1;
+      }
+    }
   }
+
+  // Ensure button removed from outer scope doesn't leave ghost styles
+  // .header-menu-btn was moved inside
 
   .nmtv-logo {
     width: 100px;
@@ -493,7 +545,7 @@
   color: #00ff00;
   font-family: 'VT323', 'Courier New', monospace;
   font-size: 60px;
-  font-weight: normal; 
+  font-weight: normal;
   min-width: 80px;
   text-align: center;
   display: flex;
