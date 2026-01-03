@@ -132,11 +132,11 @@
     height: 40px;
     filter: grayscale(100%) brightness(0.8);
     opacity: 0.9;
-    cursor: pointer;
+    // cursor: pointer;
     border-radius: 4px;
     padding: 2px;
     transition: all 0.2s ease;
-    @media (hover: hover) { &:hover { filter: grayscale(0%) brightness(1); opacity: 1; } }
+    // @media (hover: hover) { &:hover { filter: grayscale(0%) brightness(1); opacity: 1; } }
   }
 
   .model-text {
@@ -144,11 +144,11 @@
     color: #666;
     letter-spacing: 2px;
     display: none;
-    cursor: pointer;
+    // cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
-    @media (hover: hover) { &:hover { color: #999; } }
+    // @media (hover: hover) { &:hover { color: #999; } }
     @media (min-width: 600px) { display: block; }
   }
 
