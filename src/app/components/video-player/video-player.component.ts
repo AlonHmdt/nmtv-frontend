@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed, untracked, input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, inject, signal, effect, ChangeDetectionStrategy, ViewChild, ElementRef, computed, untracked, input, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
@@ -29,6 +29,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private easterEggService = inject(EasterEggService);
   private customPlaylistService = inject(CustomPlaylistService);
   private modalState = inject(ModalStateService);
+  private ngZone = inject(NgZone);
 
 
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
@@ -145,10 +146,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       const video = this.currentVideo();
       const ready = this.apiReady();
       const minTimePassed = this.minStaticTimePassed();
+      const isPlaying = this.isVideoPlaying();
+      const maxTimePassed = this.maxStaticTimePassed();
 
-      // Hide static when video is ready AND minimum time has passed
+      // Hide static when video is ready AND minimum time has passed AND (video is playing OR max wait time passed)
       // The minimum time is now longer (1400ms) to mask the loading/buffering
-      if (video && ready && minTimePassed && untracked(() => this.showChannelSwitchStatic())) {
+      if (video && ready && minTimePassed && (isPlaying || maxTimePassed) && untracked(() => this.showChannelSwitchStatic())) {
         this.showChannelSwitchStatic.set(false);
         // Stop static sound when effect ends
         this.helpersService.stopStaticSound();
@@ -288,6 +291,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.minStaticTimePassed.set(true);
         }, this.CHANNEL_SWITCH_DELAY_MS);
 
+        // Schedule max static time for power-on
+        this.setNamedTimeout('maxStatic', () => {
+          this.maxStaticTimePassed.set(true);
+        }, 5000);
+
         // Play static sound effect for power-on
         this.helpersService.playStaticSound();
       }, 0);
@@ -383,6 +391,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     return false;
   }
 
+  isVideoPlaying = signal(false); // Track if video is actually playing
+  maxStaticTimePassed = signal(false); // Safety flag to force hide static
+
   private isMenuOpen(): boolean {
     // Check if the side menu is currently open by looking for visible menu-overlay
     const menuOverlay = document.querySelector('.menu-overlay');
@@ -455,6 +466,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private initiateChannelSwitch(): void {
     this.showChannelSwitchStatic.set(true);
     this.minStaticTimePassed.set(false);
+    this.isVideoPlaying.set(false);
+    this.maxStaticTimePassed.set(false);
     this.isFirstVideo = true;
     this.clearChannelSwitchTimeouts();
 
@@ -465,6 +478,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Play static sound effect
     this.helpersService.playStaticSound();
+
+    // Schedule max static timeout (safety fallback)
+    this.setNamedTimeout('maxStatic', () => {
+      this.maxStaticTimePassed.set(true);
+    }, 5000);
   }
 
   private scheduleChannelLoad(nextChannel: Channel): void {
@@ -478,6 +496,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private clearChannelSwitchTimeouts(): void {
     this.clearNamedTimeout('minStatic');
+    this.clearNamedTimeout('maxStatic');
   }
 
   private adjustVolume(increase: boolean): void {
@@ -599,9 +618,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             widget_referrer: window.location.origin  // Help with browser caching
           },
           events: {
-            onReady: (event: any) => this.onPlayerReady(event),
-            onStateChange: (event: any) => this.onPlayerStateChange(event),
-            onError: (event: any) => this.onPlayerError(event)
+            onReady: (event: any) => this.ngZone.run(() => this.onPlayerReady(event)),
+            onStateChange: (event: any) => this.ngZone.run(() => this.onPlayerStateChange(event)),
+            onError: (event: any) => this.ngZone.run(() => this.onPlayerError(event))
           }
         };
 
@@ -704,6 +723,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onPlayerStateChange(event: any): void {
     if (event.data === YT.PlayerState.PLAYING) {
+      this.isVideoPlaying.set(true);
       this.handlePlayingState(event.target);
     } else if (event.data === YT.PlayerState.PAUSED) {
       this.handlePausedState(event.target);
