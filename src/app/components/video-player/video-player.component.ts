@@ -9,7 +9,6 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { Video, Channel, Channels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
-import { environment } from '../../../environments/environment';
 
 
 declare var YT: any;
@@ -59,7 +58,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   showVintageChannelIndicator = signal(false); // Show vintage channel name in top right corner
   volumeLevel = signal(100); // Volume level from 0-100
   showVolumeIndicator = signal(false); // Show vintage volume indicator
-  topHamburgerMenu = environment.features.topHamburgerMenu; // Feature flag for top menu
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);

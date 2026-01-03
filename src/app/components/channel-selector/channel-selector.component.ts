@@ -42,9 +42,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   // Use service signal for menu state
   isMenuOpen = this.videoPlayerControl.isMenuOpen;
 
-  // Feature flag
-  topHamburgerMenu = environment.features.topHamburgerMenu;
-
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);

@@ -1,10 +1,5 @@
 <div class="channel-selector">
-  <!-- Floating Remote Button -->
-  @if (!topHamburgerMenu) {
-  <button class="remote-button" (click)="toggleMenu()" [class.active]="isMenuOpen()">
-    <i class="bi bi-list"></i>
-  </button>
-  }
+  <!-- Floating button removed in favor of top menu -->
 
   <!-- Side Menu (Remote Body) -->
   <div class="menu-overlay" [class.hidden]="!isMenuOpen()" (click)="toggleMenu()"></div>
