@@ -127,13 +127,13 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             this.player.loadVideoById({
               videoId: video.id,
               startSeconds: this.getRandomStartTime(),
-              suggestedQuality: this.helpersService.isAndroidTV() ? 'medium' : 'default'
+              suggestedQuality: this.helpersService.isAndroidTV() ? 'hd1080' : 'default'
             });
             this.isFirstVideo = false;
           } else {
             this.player.loadVideoById({
               videoId: video.id,
-              suggestedQuality: this.helpersService.isAndroidTV() ? 'medium' : 'default'
+              suggestedQuality: this.helpersService.isAndroidTV() ? 'hd1080' : 'default'
             });
           }
         }
@@ -623,10 +623,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     player.getIframe().style.pointerEvents = 'none';
     player.setVolume(100);
     
-    // Set lower quality for Android TV to improve loading times
+    // Set Full HD 1080p quality for Android TV to prevent 4K lag
     if (this.helpersService.isAndroidTV()) {
       try {
-        player.setPlaybackQuality('medium');
+        player.setPlaybackQuality('hd1080');
       } catch (e) {
         // Ignore if quality setting fails
       }
@@ -678,7 +678,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             if (currentVid) {
               player.loadVideoById({
                 videoId: currentVid.id,
-                suggestedQuality: this.helpersService.isAndroidTV() ? 'medium' : 'default'
+                suggestedQuality: this.helpersService.isAndroidTV() ? 'hd1080' : 'default'
               });
             }
           } else {
