@@ -59,6 +59,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   showVintageChannelIndicator = signal(false); // Show vintage channel name in top right corner
   volumeLevel = signal(100); // Volume level from 0-100
   showVolumeIndicator = signal(false); // Show vintage volume indicator
+  isAndroidTv = signal(this.helpersService.isAndroidTV());
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);

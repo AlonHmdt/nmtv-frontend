@@ -17,9 +17,11 @@
         <div class="channel-badge">{{ currentChannelConfig()!.icon }} {{ currentChannelConfig()!.name }}</div>
         }
       </div>
+      @if (!isAndroidTv()) {
       <button class="header-menu-btn" (click)="toggleMenu()">
         <i class="bi bi-list"></i>
       </button>
+      }
     </div>
     @if (currentVideo() && !currentVideo().isBumper) {
     @if (currentChannel() === 'live') {
