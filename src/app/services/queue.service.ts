@@ -38,7 +38,6 @@ export class QueueService {
   private lastBlockWasCustom: boolean | null = null;
 
   async initializeQueue(channel: Channel): Promise<void> {
-    console.log('QueueService: Initializing queue for channel:', channel);
     this.currentChannelSignal.set(channel);
     this.currentIndexSignal.set(0);
     this.queueSignal.set([]);
@@ -49,15 +48,11 @@ export class QueueService {
     this.lastBlockWasCustom = null; // Reset for new channel
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
-    console.log(`QueueService: Using ${customPlaylistIds.length} custom playlists for channel ${channel}`);
 
     try {
-      console.log('Fetching initial programming block...');
       // Fetch initial block (random playlist)
       await this.fetchAndAppendBlock(channel, customPlaylistIds);
-      console.log('QueueService: Initial block loaded, total videos:', this.queueSignal().length);
     } catch (error) {
-      console.error('QueueService: Error filling queue:', error);
       throw error;
     }
   }
@@ -99,7 +94,6 @@ export class QueueService {
 
   // New method: Mark video as unavailable and auto-skip
   markVideoAsUnavailable(videoId: string): void {
-    console.log(`Video ${videoId} marked as unavailable, skipping...`);
     this.unavailableVideoIds.add(videoId);
     this.addPlayedVideo(videoId); // Also mark as played so we don't fetch it again
 
@@ -107,7 +101,6 @@ export class QueueService {
     this.queueSignal.update(queue => queue.filter(v => v.id !== videoId));
 
     // If it was the current video, the index now points to the next video automatically
-    console.log(`Video removed from queue. Current index: ${this.currentIndexSignal()}, Queue length: ${this.queueSignal().length}`);
 
     // Call backend to mark as unavailable in database (fire and forget)
     this.notifyBackendVideoUnavailable(videoId);
@@ -124,12 +117,10 @@ export class QueueService {
 
       if (response.ok) {
         const data = await response.json();
-        console.log('Video marked as unavailable:', data.message, videoId);
       } else {
-        console.warn('Backend could not mark video unavailable (may be using YouTube API mode):', videoId);
+        // Backend failure (silent)
       }
     } catch (error) {
-      console.warn('Could not notify backend about unavailable video (network or mode issue):', error);
       // Don't throw - this is fire-and-forget, app continues normally
     }
   }
@@ -180,7 +171,6 @@ export class QueueService {
       this.youtubeService.getNextVideos(channel, excludeVideoIds, excludePlaylistIds, customPlaylistIds, preferCustom)
         .subscribe({
           next: (block: VideoBlock) => {
-            console.log(`QueueService: Received block "${block.playlistLabel}" with ${block.items.length} items`);
 
             // Track this playlist as used
             if (block.playlistId) {
@@ -215,7 +205,6 @@ export class QueueService {
             resolve();
           },
           error: (err) => {
-            console.error('QueueService: Error fetching block:', err);
             reject(err);
           }
         });
@@ -223,7 +212,6 @@ export class QueueService {
   }
 
   private async addMoreVideos(): Promise<void> {
-    console.log('QueueService: Fetching next block of videos...');
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(this.currentChannelSignal());
     await this.fetchAndAppendBlock(this.currentChannelSignal(), customPlaylistIds);
   }

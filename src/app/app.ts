@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 import { VideoPlayerComponent } from './components/video-player/video-player.component';
 import { ChannelSelectorComponent } from './components/channel-selector/channel-selector.component';
 import { PowerButtonComponent } from './components/power-button/power-button.component';
 import { QueueService } from './services/queue.service';
 import { YoutubeService } from './services/youtube.service';
 import { PwaService } from './services/pwa.service';
+import { HelpersService } from './services/helpers.service';
 import { inject as injectAnalytics } from '@vercel/analytics';
 
 @Component({
@@ -18,6 +20,8 @@ export class App implements OnInit {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
   private pwaService = inject(PwaService); // Initialize PWA service early to catch install prompt
+  private helpersService = inject(HelpersService);
+  private document = inject(DOCUMENT);
 
   isPoweredOn = signal(false);
   isLoading = signal(true); // Start true to disable button, then set based on backend status
@@ -28,6 +32,11 @@ export class App implements OnInit {
   async ngOnInit(): Promise<void> {
     // Initialize Vercel Analytics
     injectAnalytics();
+
+    // Add Android TV specific class for CSS optimizations
+    if (this.helpersService.isAndroidTV()) {
+      this.document.body.classList.add('android-tv-mode');
+    }
 
     try {
       // Wait for backend to be ready with data first
@@ -51,7 +60,7 @@ export class App implements OnInit {
 
     while (retries < maxRetries) {
       const readyData = await this.youtubeService.checkBackendReady();
-      
+
       // Update progress based on cache size from backend
       if (readyData && typeof readyData === 'object') {
         const cacheSize = (readyData as any).cacheSize || 0;
@@ -59,7 +68,7 @@ export class App implements OnInit {
         const progress = Math.min(95, Math.floor((cacheSize / totalPlaylists) * 100));
         this.loadingProgress.set(progress);
       }
-      
+
       if (readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true)) {
         this.loadingProgress.set(100);
         this.backendIsReady.set(true);

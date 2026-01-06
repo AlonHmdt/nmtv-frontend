@@ -20,13 +20,11 @@ export class PwaService {
                 e.preventDefault();
                 // Stash the event so it can be triggered later.
                 this.installPrompt.set(e);
-                console.log('PWA Service: beforeinstallprompt captured');
             });
 
             window.addEventListener('appinstalled', () => {
                 this.installPrompt.set(null);
                 this.isStandalone.set(true);
-                console.log('PWA Service: App installed');
             });
         }
     }
@@ -59,7 +57,6 @@ export class PwaService {
         if (promptEvent) {
             promptEvent.prompt();
             const { outcome } = await promptEvent.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
             this.installPrompt.set(null);
         }
     }

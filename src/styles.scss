@@ -193,3 +193,34 @@ button,
   margin-bottom: 2px;
   animation: pulse 2s ease-in-out infinite;
 }
+
+/* ==========================================================================
+   ANDROID TV PERFORMANCE OVERRIDES
+   ========================================================================== */
+
+body.android-tv-mode {
+  /* Disable expensive backdrop filters globally */
+  * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  
+  /* Simplify vintage texture to flat color */
+  .vintage-texture-bg {
+    background-image: none !important;
+    background-color: #1a1a1a !important;
+  }
+  
+  /* Remove box shadows from buttons for cleaner rendering */
+  .retro-button, 
+  .retro-round-button,
+  .retro-inset-panel {
+    box-shadow: none !important;
+    border: 1px solid #444 !important;
+  }
+
+  /* Simplify active state */
+  .retro-button.active {
+    box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.3) !important;
+  }
+}

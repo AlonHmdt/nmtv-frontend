@@ -573,13 +573,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const video = this.currentVideo();
     if (!video) {
-      console.warn('No video available to play');
       return;
     }
 
     // Ensure YT API is actually ready
     if (!(window as any).YT || !(window as any).YT.Player) {
-      console.warn('YouTube API not ready, cannot initialize player');
       return;
     }
 
@@ -587,7 +585,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     requestAnimationFrame(() => {
       const playerElement = document.getElementById('youtube-player');
       if (!playerElement) {
-        console.warn('Player element #youtube-player not found in DOM, retrying...');
         // Retry after next frame if element not found
         setTimeout(() => {
           if (!this.player) {
@@ -627,7 +624,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.player = new YT.Player('youtube-player', playerConfig);
       } catch (error) {
-        console.error('Error initializing YouTube player:', error);
+        // Silent fail
       }
     });
   }
@@ -819,7 +816,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         },
         error: (err) => {
-          console.error('Error fetching video year:', err);
+          // Silent fail
         }
       });
     }, 5000);
@@ -837,7 +834,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onPlayerError(event: any): void {
-    console.error('YouTube player error:', event.data);
 
     const currentVideo = this.currentVideo();
 
@@ -856,7 +852,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     const errorMsg = errorMessages[event.data] || 'Unknown error';
-    console.warn(`Video error (${errorMsg}):`, currentVideo?.title || currentVideo?.id);
 
     // For errors 100, 101, 150 - video is definitely unavailable
     if ([100, 101, 150].includes(event.data)) {
@@ -867,7 +862,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // For other errors, retry once
     this.loadAttempts++;
     if (this.loadAttempts >= 2) {
-      console.warn(`Video failed to load after 2 attempts, skipping...`);
       this.handleUnavailableVideo();
     } else {
       setTimeout(() => {
@@ -905,7 +899,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             suggestedQuality: 'hd720'
           });
         } else if (!nextVideo) {
-          console.error('No more videos in queue after skipping unavailable video');
+          // No more videos
         }
         return;
       }
@@ -924,7 +918,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         suggestedQuality: 'hd720'
       });
     } else if (!nextVideo) {
-      console.error('No more videos in queue after skipping unavailable video');
+      // No more videos
     }
   }
 

@@ -28,7 +28,7 @@ export class CustomPlaylistService {
   private readonly STORAGE_KEY = 'nmtv_custom_playlists';
   private readonly MAX_PLAYLISTS_PER_CHANNEL = 5;
   private backendUrl = environment.backendUrl;
-  
+
   // Signal to track changes
   private customPlaylistsSignal = signal<CustomPlaylists>(this.loadFromStorage());
 
@@ -80,13 +80,11 @@ export class CustomPlaylistService {
 
     // Check if already exists
     if (channelPlaylists.some(p => p.id === playlistId)) {
-      console.warn('Playlist already exists for this channel');
       return false;
     }
 
     // Check max limit
     if (channelPlaylists.length >= this.MAX_PLAYLISTS_PER_CHANNEL) {
-      console.warn(`Maximum ${this.MAX_PLAYLISTS_PER_CHANNEL} playlists per channel`);
       return false;
     }
 
@@ -119,9 +117,8 @@ export class CustomPlaylistService {
     const channelPlaylists = current[channel] || [];
 
     const filtered = channelPlaylists.filter(p => p.id !== playlistId);
-    
+
     if (filtered.length === channelPlaylists.length) {
-      console.warn('Playlist not found');
       return false;
     }
 
@@ -172,22 +169,21 @@ export class CustomPlaylistService {
       const response = await firstValueFrom(
         this.http.get<{ videoCount: number; playlistName: string }>(`${this.backendUrl}/validate-playlist/${playlistId}`)
       );
-      
+
       return {
         isValid: true,
         videoCount: response.videoCount,
         playlistName: response.playlistName
       };
     } catch (error: any) {
-      console.error('Error validating playlist:', error);
-      
+
       if (error.status === 404) {
         return {
           isValid: false,
           error: 'Playlist not found or is private'
         };
       }
-      
+
       return {
         isValid: false,
         error: 'Failed to validate playlist. Please check the URL and try again.'
@@ -205,7 +201,7 @@ export class CustomPlaylistService {
         return JSON.parse(stored);
       }
     } catch (error) {
-      console.error('Error loading custom playlists from localStorage:', error);
+      // Silent fail
     }
     return {};
   }
@@ -217,7 +213,7 @@ export class CustomPlaylistService {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(playlists));
     } catch (error) {
-      console.error('Error saving custom playlists to localStorage:', error);
+      // Silent fail
     }
   }
 }

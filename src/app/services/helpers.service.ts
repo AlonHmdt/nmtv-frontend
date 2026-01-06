@@ -69,7 +69,7 @@ export class HelpersService {
 
         // Play the sound
         this.staticAudio.play().catch(error => {
-            console.warn('Failed to play static sound:', error);
+            // Silent error
         });
     }
 

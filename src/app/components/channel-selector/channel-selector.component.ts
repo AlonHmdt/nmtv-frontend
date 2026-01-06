@@ -475,16 +475,15 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
           url: window.location.href
         });
       } catch (error) {
-        console.error('Error sharing:', error);
+        // Silent error
       }
     } else {
       // Fallback: Copy to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
-        // Optional: Show a toast or alert, but for now just log
-        console.log('URL copied to clipboard');
+        await navigator.clipboard.writeText(window.location.href);
       } catch (err) {
-        console.error('Failed to copy URL:', err);
+        // Silent fail
       }
     }
   }
@@ -548,16 +547,13 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
       });
 
       if (response.ok) {
-        console.log('Video flagged successfully:', video.id);
         // Skip to next video
         await this.queueService.nextVideo();
       } else {
-        console.error('Failed to flag video:', await response.text());
         // Still skip to next video even if backend fails
         await this.queueService.nextVideo();
       }
     } catch (error) {
-      console.error('Error flagging video:', error);
       // Still skip to next video even if request fails
       await this.queueService.nextVideo();
     } finally {

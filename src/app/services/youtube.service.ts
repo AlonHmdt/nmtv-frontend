@@ -51,7 +51,6 @@ export class YoutubeService {
       }
       return false;
     } catch (error) {
-      console.error('Backend readiness check failed:', error);
       return false;
     }
   }
