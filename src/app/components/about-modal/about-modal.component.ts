@@ -29,9 +29,9 @@ export class AboutModalComponent implements OnInit, OnDestroy {
   private playerCheckInterval: any = null;
 
   constructor(private sanitizer: DomSanitizer) {
-    // Enable YouTube iframe API
+    // Enable YouTube iframe API with iOS-compatible parameters
     this.videoUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-      `https://www.youtube.com/embed/${this.videoId}?enablejsapi=1`
+      `https://www.youtube.com/embed/${this.videoId}?enablejsapi=1&playsinline=1&rel=0&modestbranding=1`
     );
 
     // Watch for modal close to clean up
