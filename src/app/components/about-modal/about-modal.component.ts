@@ -54,10 +54,15 @@ export class AboutModalComponent implements OnInit, OnDestroy {
 
   open(): void {
     this.isOpen.set(true);
-    // Initialize iframe player after modal opens
-    setTimeout(() => {
-      this.initIframePlayer();
-    }, 500); // Wait for iframe to be in DOM
+    // Initialize iframe player after modal opens (skip on iOS)
+    if (!this.isIOS()) {
+      setTimeout(() => {
+        this.initIframePlayer();
+      }, 500); // Wait for iframe to be in DOM
+    } else {
+      // On iOS, just pause the main video without trying to control the iframe
+      this.videoPlayerControl.pauseVideo();
+    }
     // Notify global modal state
     this.modalState.openModal();
     // Add event listeners when modal opens
@@ -73,6 +78,11 @@ export class AboutModalComponent implements OnInit, OnDestroy {
     // Remove event listeners when modal closes
     window.removeEventListener('keydown', this.handleEscapeKey);
     window.removeEventListener('keydown', this.handleArrowKeys);
+  }
+
+  private isIOS(): boolean {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+           (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   }
 
   private handleEscapeKey = (event: KeyboardEvent): void => {
