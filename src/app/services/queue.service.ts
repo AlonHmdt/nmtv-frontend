@@ -35,7 +35,8 @@ export class QueueService {
   private usedPlaylistIds = new Set<string>();
 
   // Track whether last block was from custom playlist (for zig-zag pattern)
-  private lastBlockWasCustom: boolean | null = null;
+  // This is tracked per channel to maintain proper zig-zag within each channel
+  private lastBlockWasCustomPerChannel = new Map<Channel, boolean>();
 
   async initializeQueue(channel: Channel): Promise<void> {
     this.currentChannelSignal.set(channel);
@@ -45,7 +46,7 @@ export class QueueService {
     this.playedVideosArray = [];
     this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
-    this.lastBlockWasCustom = null; // Reset for new channel
+    // Don't reset lastBlockWasCustomPerChannel - it persists across initialization
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
 
@@ -71,6 +72,7 @@ export class QueueService {
     this.playedVideosArray = [];
     this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
+    // Don't reset lastBlockWasCustomPerChannel - it persists across channel switches
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
 
@@ -93,7 +95,7 @@ export class QueueService {
   }
 
   // New method: Mark video as unavailable and auto-skip
-  markVideoAsUnavailable(videoId: string): void {
+  markVideoAsUnavailable(videoId: string, errorCode?: number): void {
     this.unavailableVideoIds.add(videoId);
     this.addPlayedVideo(videoId); // Also mark as played so we don't fetch it again
 
@@ -103,16 +105,17 @@ export class QueueService {
     // If it was the current video, the index now points to the next video automatically
 
     // Call backend to mark as unavailable in database (fire and forget)
-    this.notifyBackendVideoUnavailable(videoId);
+    this.notifyBackendVideoUnavailable(videoId, errorCode);
   }
 
-  private async notifyBackendVideoUnavailable(videoId: string): Promise<void> {
+  private async notifyBackendVideoUnavailable(videoId: string, errorCode?: number): Promise<void> {
     try {
       const response = await fetch(`${environment.backendUrl}/videos/${videoId}/unavailable`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({ errorCode })
       });
 
       if (response.ok) {
@@ -158,12 +161,15 @@ export class QueueService {
       // Determine preference for zig-zag pattern
       let preferCustom = false;
       if (customPlaylistIds.length > 0) {
-        if (this.lastBlockWasCustom === null) {
-          // First block: always prefer custom
+        const lastWasCustom = this.lastBlockWasCustomPerChannel.get(channel);
+        if (lastWasCustom === undefined) {
+          // First block for this channel: start with custom playlists
           preferCustom = true;
+          console.log(`[Frontend] First block for channel ${channel} - preferCustom=true`);
         } else {
           // Zig-zag: alternate between custom and official
-          preferCustom = !this.lastBlockWasCustom;
+          preferCustom = !lastWasCustom;
+          console.log(`[Frontend] Zig-zag for channel ${channel} - lastBlockWasCustom=${lastWasCustom}, preferCustom=${preferCustom}`);
         }
       }
 
@@ -185,9 +191,8 @@ export class QueueService {
             }
 
             // Track whether this block was from a custom playlist
-            // Check if the playlistId is in the customPlaylistIds array
             const isCustomBlock = customPlaylistIds.includes(block.playlistId);
-            this.lastBlockWasCustom = isCustomBlock;
+            this.lastBlockWasCustomPerChannel.set(channel, isCustomBlock);
 
             // Flatten block into Video[] with playlist metadata
             const enrichedVideos: Video[] = block.items.map(item => ({

@@ -6,6 +6,7 @@ export interface VideoItem {
   title?: string;   // Optional: present if no separator
   year?: number;    // Optional: release year fetched from IMVDb
   isBumper?: boolean; // Optional: true if this is a bumper/ident video
+  isLimited?: boolean; // Optional: true if video has location/region restrictions
 }
 
 // Programming block structure (returned from backend)
@@ -26,6 +27,7 @@ export interface Video {
   playlistId?: string;
   playlistName?: string;
   playlistLabel?: string; // Label of the playlist (e.g., "Top Rock Of All Time")
+  isLimited?: boolean; // True if video has location/region restrictions
 }
 
 export enum Channel {

@@ -855,14 +855,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // For errors 100, 101, 150 - video is definitely unavailable
     if ([100, 101, 150].includes(event.data)) {
-      this.handleUnavailableVideo();
+      this.handleUnavailableVideo(event.data);
       return;
     }
 
     // For other errors, retry once
     this.loadAttempts++;
     if (this.loadAttempts >= 2) {
-      this.handleUnavailableVideo();
+      this.handleUnavailableVideo(event.data);
     } else {
       setTimeout(() => {
         if (this.player && currentVideo) {
@@ -875,50 +875,56 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  private handleUnavailableVideo(): void {
+  private handleUnavailableVideo(errorCode?: number): void {
     const currentVideo = this.currentVideo();
     const currentChannel = this.currentChannel();
     if (!currentVideo) return;
+
+    // Check if video is location-restricted (isLimited flag)
+    // If so, just skip without marking as unavailable
+    if (currentVideo.isLimited) {
+      console.log('⚠️ Skipping location-restricted video (isLimited=true):', currentVideo.id);
+      this.skipToNextVideo(currentVideo);
+      return;
+    }
 
     // Don't mark as unavailable if it's from a custom playlist (localStorage)
     // Just skip to next video without marking in database
     if (currentVideo.playlistId) {
       const customPlaylistIds = this.customPlaylistService.getPlaylistIds(currentChannel);
       if (customPlaylistIds.includes(currentVideo.playlistId)) {
-
-        // Remove from queue locally only
-        this.queueService.queue().splice(this.queueService.queue().indexOf(currentVideo), 1);
-
-        // Load next video
-        this.loadAttempts = 0;
-        const nextVideo = this.currentVideo();
-
-        if (nextVideo && this.player) {
-          this.player.loadVideoById({
-            videoId: nextVideo.id,
-            suggestedQuality: 'hd720'
-          });
-        } else if (!nextVideo) {
-          // No more videos
-        }
+        this.skipToNextVideo(currentVideo);
         return;
       }
     }
 
-    // Mark video as unavailable in queue service (will also update DB)
-    this.queueService.markVideoAsUnavailable(currentVideo.id);
+    // Mark video as unavailable in queue service (will also update DB with error code)
+    this.queueService.markVideoAsUnavailable(currentVideo.id, errorCode);
 
     // Load next video immediately
-    this.loadAttempts = 0; // Reset attempts for next video
-    const nextVideo = this.currentVideo(); // Get the new current video after removal
+    this.loadNextVideoAfterRemoval();
+  }
+
+  private skipToNextVideo(videoToRemove: Video): void {
+    // Remove from queue locally only
+    const queue = this.queueService.queue();
+    const index = queue.indexOf(videoToRemove);
+    if (index !== -1) {
+      queue.splice(index, 1);
+    }
+
+    this.loadNextVideoAfterRemoval();
+  }
+
+  private loadNextVideoAfterRemoval(): void {
+    this.loadAttempts = 0;
+    const nextVideo = this.currentVideo();
 
     if (nextVideo && this.player) {
       this.player.loadVideoById({
         videoId: nextVideo.id,
         suggestedQuality: 'hd720'
       });
-    } else if (!nextVideo) {
-      // No more videos
     }
   }
 
