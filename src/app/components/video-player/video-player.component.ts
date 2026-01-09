@@ -883,7 +883,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Check if video is location-restricted (isLimited flag)
     // If so, just skip without marking as unavailable
     if (currentVideo.isLimited) {
-      console.log('⚠️ Skipping location-restricted video (isLimited=true):', currentVideo.id);
       this.skipToNextVideo(currentVideo);
       return;
     }
@@ -899,7 +898,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Mark video as unavailable in queue service (will also update DB with error code)
-    this.queueService.markVideoAsUnavailable(currentVideo.id, errorCode);
+    // Skip marking as unavailable when running on localhost
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocalhost) {
+      this.queueService.markVideoAsUnavailable(currentVideo.id, errorCode);
+    }
 
     // Load next video immediately
     this.loadNextVideoAfterRemoval();
