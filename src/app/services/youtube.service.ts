@@ -31,9 +31,13 @@ export class YoutubeService {
     });
   }
 
-  getVideoYear(title: string): Observable<{ year: number | null }> {
+  getVideoYear(title: string, videoId?: string): Observable<{ year: number | null }> {
+    const params: any = { title };
+    if (videoId) {
+      params.videoId = videoId;
+    }
     return this.http.get<{ year: number | null }>(`${this.backendUrl}/video/year`, {
-      params: { title }
+      params
     });
   }
 

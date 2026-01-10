@@ -804,15 +804,22 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    // Skip API call if year already exists (from DB)
+    if (video.year) {
+      return;
+    }
+
     const searchTitle = video.artist && video.song
       ? `${video.artist} ${video.song}`
       : video.title || '';
 
     this.setNamedTimeout('yearFetch', () => {
-      this.youtubeService.getVideoYear(searchTitle).subscribe({
+      // Pass videoId so backend can store the year in DB automatically
+      this.youtubeService.getVideoYear(searchTitle, video.id).subscribe({
         next: (response) => {
           if (response.year) {
             video.year = response.year;
+            // Year is automatically stored in DB by backend if DB mode is enabled
           }
         },
         error: (err) => {
