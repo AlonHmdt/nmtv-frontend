@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://nmtv.com/sitemap.xml
+Sitemap: https://nmtv.online/sitemap.xml
