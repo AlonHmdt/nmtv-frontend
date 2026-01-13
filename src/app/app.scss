@@ -1,14 +1,5 @@
 :host {
   display: block;
   width: 100%;
-  height: 100vh; /* Fallback */
-  height: 100dvh; /* Modern browsers */
-  overflow: hidden;
-}
-
-// Hide entire channel selector when channel switch static is showing
-:host:has(.tv-static-canvas.channel-switch) {
-  app-channel-selector {
-    display: none !important;
-  }
+  height: 100%;
 }

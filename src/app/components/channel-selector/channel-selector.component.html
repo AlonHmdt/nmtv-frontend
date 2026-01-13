@@ -12,8 +12,8 @@
 
       <div class="power-off-container">
         <div class="green-dot"></div>
-        <button class="power-off-button retro-round-button" (click)="turnOff()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-          <i class="bi bi-power"></i>
+        <button class="power-off-button retro-round-button" (click)="turnOff()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Power off TV">
+          <i class="bi bi-power" aria-hidden="true"></i>
         </button>
         <span class="power-off-text">Power</span>
       </div>
@@ -40,11 +40,11 @@
 
     <div class="menu-actions">
       <button class="settings-button retro-button" (click)="openSettings()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-tools settings-icon"></i>
+        <i class="bi bi-tools settings-icon" aria-hidden="true"></i>
         <span class="settings-text">Mix Master</span>
       </button>
       <button class="about-button retro-button" (click)="openAbout()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-lightbulb about-icon"></i>
+        <i class="bi bi-lightbulb about-icon" aria-hidden="true"></i>
         <span class="about-text">Unpack NMTV</span>
       </button>
 
@@ -78,8 +78,8 @@
     </div>
 
     <div class="d-pad-actions-container">
-      <button class="support-button retro-small-button" (click)="openSupport()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-cup-hot-fill"></i>
+      <button class="support-button retro-small-button" (click)="openSupport()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Support NMTV">
+        <i class="bi bi-cup-hot-fill" aria-hidden="true"></i>
         <span>Support</span>
       </button>
 
@@ -87,13 +87,13 @@
 
       @if (!isAndroidTV()) {
       @if (showInstallButton()) {
-      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-download"></i>
+      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Install NMTV app">
+        <i class="bi bi-download" aria-hidden="true"></i>
         <span>App</span>
       </button>
       } @else {
-      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1">
-        <i class="bi bi-share-fill"></i>
+      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Share NMTV">
+        <i class="bi bi-share-fill" aria-hidden="true"></i>
         <span>Share</span>
       </button>
       }
