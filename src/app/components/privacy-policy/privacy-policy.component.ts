@@ -10,5 +10,5 @@ import { RouterLink } from '@angular/router';
   styleUrls: ['./privacy-policy.component.scss']
 })
 export class PrivacyPolicyComponent {
-  lastUpdated = 'January 6, 2026';
+  lastUpdated = 'January 13, 2026';
 }
