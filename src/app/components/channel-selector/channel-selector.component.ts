@@ -13,6 +13,7 @@ import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { environment } from '../../../environments/environment';
+import { track } from '@vercel/analytics';
 
 @Component({
   selector: 'app-channel-selector',
@@ -359,6 +360,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     }
 
     if (channel !== this.currentChannel()) {
+      // Track channel selection
+      track('Channel Selected', { channel });
+      
       // Request channel switch through service with static effect
       this.videoPlayerControl.requestChannelSwitch(channel, true);
     }
@@ -375,6 +379,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openSettings(): void {
+    track('Settings Opened');
+    
     this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -383,6 +389,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openAbout(): void {
+    track('About Opened');
+    
     this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -391,6 +399,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   turnOff(): void {
+    track('Power Off');
+    
     // On Android TV, close the app completely
     if (this.helpersService.isAndroidTV()) {
       // Call Android native method to close app
@@ -419,10 +429,15 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   toggleOldTV(): void {
+    const newValue = !this.queueService.oldTVEnabled();
+    track('VCR Mode Toggled', { enabled: newValue });
+    
     this.queueService.oldTVEnabled.update(v => !v);
   }
 
   toggleFullscreen(): void {
+    track('Fullscreen Toggled', { entering: !document.fullscreenElement });
+    
     if (!document.fullscreenElement) {
       // Enter fullscreen
       const elem = document.documentElement;
@@ -446,6 +461,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openSupport(): void {
+    track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
+    
     if (this.isAndroidTV()) {
       this.supportModal?.open();
       return;
@@ -455,6 +472,14 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   installApp(): void {
+    let platform = 'unknown';
+    if (this.pwaService.installPrompt()) platform = 'native';
+    else if (this.pwaService.isIOS()) platform = 'ios';
+    else if (this.pwaService.isMac()) platform = 'mac';
+    else if (this.pwaService.isAndroid()) platform = 'android';
+    
+    track('Install App Clicked', { platform });
+    
     if (this.pwaService.installPrompt()) {
       this.pwaService.promptInstall();
     } else if (this.pwaService.isIOS()) {
@@ -467,7 +492,10 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   async shareApp(): Promise<void> {
-    if (typeof navigator !== 'undefined' && navigator.share) {
+    const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
+    track('Share App Clicked', { method: hasNativeShare ? 'native' : 'clipboard' });
+    
+    if (hasNativeShare) {
       try {
         await navigator.share({
           title: 'NMTV - Noa\'s Music Television',
@@ -489,6 +517,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   onLogoClick(): void {
+    track('Logo Clicked');
     this.easterEggService.handleLogoClick();
   }
 
@@ -508,6 +537,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
     // If 5 clicks reached, flag the video
     if (this.stereoClickCount >= 5) {
+      track('Video Flagged', { videoId: this.queueService.currentVideo()?.id });
       this.flagCurrentVideo();
     }
   }
