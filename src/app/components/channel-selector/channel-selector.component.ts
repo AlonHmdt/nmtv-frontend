@@ -13,7 +13,14 @@ import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { environment } from '../../../environments/environment';
-import { track } from '@vercel/analytics';
+
+declare global {
+  interface Window {
+    umami?: {
+      track: (eventName: string, eventData?: Record<string, any>) => void;
+    };
+  }
+}
 
 @Component({
   selector: 'app-channel-selector',
@@ -46,6 +53,13 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
+
+  // Umami tracking helper
+  private track(eventName: string, eventData?: Record<string, any>): void {
+    if (typeof window !== 'undefined' && window.umami) {
+      window.umami.track(eventName, eventData);
+    }
+  }
 
   // Filter channels based on easter egg unlock state
   channels = computed(() => {
@@ -361,7 +375,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
     if (channel !== this.currentChannel()) {
       // Track channel selection
-      track('Channel Selected', { channel });
+      this.track('Channel Selected', { channel });
       
       // Request channel switch through service with static effect
       this.videoPlayerControl.requestChannelSwitch(channel, true);
@@ -379,7 +393,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openSettings(): void {
-    track('Settings Opened');
+    this.track('Settings Opened');
     
     this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
@@ -389,7 +403,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openAbout(): void {
-    track('About Opened');
+    this.track('About Opened');
     
     this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
@@ -399,7 +413,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   turnOff(): void {
-    track('Power Off');
+    this.track('Power Off');
     
     // On Android TV, close the app completely
     if (this.helpersService.isAndroidTV()) {
@@ -430,13 +444,13 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   toggleOldTV(): void {
     const newValue = !this.queueService.oldTVEnabled();
-    track('VCR Mode Toggled', { enabled: newValue });
+    this.track('VCR Mode Toggled', { enabled: newValue });
     
     this.queueService.oldTVEnabled.update(v => !v);
   }
 
   toggleFullscreen(): void {
-    track('Fullscreen Toggled', { entering: !document.fullscreenElement });
+    this.track('Fullscreen Toggled', { entering: !document.fullscreenElement });
     
     if (!document.fullscreenElement) {
       // Enter fullscreen
@@ -461,7 +475,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   openSupport(): void {
-    track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
+    this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
     
     if (this.isAndroidTV()) {
       this.supportModal?.open();
@@ -478,7 +492,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     else if (this.pwaService.isMac()) platform = 'mac';
     else if (this.pwaService.isAndroid()) platform = 'android';
     
-    track('Install App Clicked', { platform });
+    this.track('Install App Clicked', { platform });
     
     if (this.pwaService.installPrompt()) {
       this.pwaService.promptInstall();
@@ -493,7 +507,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   async shareApp(): Promise<void> {
     const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-    track('Share App Clicked', { method: hasNativeShare ? 'native' : 'clipboard' });
+    this.track('Share App Clicked', { method: hasNativeShare ? 'native' : 'clipboard' });
     
     if (hasNativeShare) {
       try {
@@ -517,7 +531,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   onLogoClick(): void {
-    track('Logo Clicked');
+    this.track('Logo Clicked');
     this.easterEggService.handleLogoClick();
   }
 
@@ -537,7 +551,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
     // If 5 clicks reached, flag the video
     if (this.stereoClickCount >= 5) {
-      track('Video Flagged', { videoId: this.queueService.currentVideo()?.id });
+      this.track('Video Flagged', { videoId: this.queueService.currentVideo()?.id });
       this.flagCurrentVideo();
     }
   }
