@@ -38,6 +38,7 @@ export enum Channel {
   DECADE_1980S = '1980s',
   LIVE = 'live',
   SHOWS = 'shows',
+  RANDOM = 'random',
   NOA = 'noa'
 }
 export interface ChannelConfig {
@@ -56,5 +57,6 @@ export const Channels: ChannelConfig[] = [
   { id: Channel.DECADE_1980S, name: '1980s', icon: '📻' },
   { id: Channel.LIVE, name: 'Live', icon: '🎬' },
   { id: Channel.SHOWS, name: 'Shows', icon: '📺' },
+  { id: Channel.RANDOM, name: 'Random', icon: '🎲' },
   { id: Channel.NOA, name: 'NOA', icon: '🐼', isEasterEgg: true }
 ];

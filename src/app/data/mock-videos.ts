@@ -90,6 +90,11 @@ export const MOCK_VIDEOS: { [key in Channel]: Video[] } = {
     { id: 'LsoLEjrDogU', artist: 'Panic! At The Disco', song: 'High Hopes' },
     { id: '09R8_2nJtjg', artist: 'Rihanna', song: 'Umbrella' },
     { id: '3AtDnEC4zak', artist: 'Maroon 5', song: 'Sugar' },
+  ],
+  [Channel.RANDOM]: [
+    { id: 'LsoLEjrDogU', artist: 'Panic! At The Disco', song: 'High Hopes' },
+    { id: '09R8_2nJtjg', artist: 'Rihanna', song: 'Umbrella' },
+    { id: '3AtDnEC4zak', artist: 'Maroon 5', song: 'Sugar' },
   ]
 };
 
@@ -104,11 +109,11 @@ export const MOCK_BUMPERS: Video[] = [
 export function getRandomVideos(channel: Channel, count: number): Video[] {
   const videos = [...MOCK_VIDEOS[channel]];
   const result: Video[] = [];
-  
+
   for (let i = 0; i < count && videos.length > 0; i++) {
     const randomIndex = Math.floor(Math.random() * videos.length);
     result.push(videos.splice(randomIndex, 1)[0]);
   }
-  
+
   return result;
 }

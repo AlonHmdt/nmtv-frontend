@@ -103,6 +103,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     Channel.DECADE_1980S,
     Channel.LIVE,
     Channel.SHOWS,
+    Channel.RANDOM,
     Channel.NOA
   ] as const;
 
