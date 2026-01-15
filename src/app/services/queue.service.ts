@@ -2,7 +2,6 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { Video, Channel, VideoBlock, VideoItem } from '../models/video.model';
 import { YoutubeService } from './youtube.service';
 import { CustomPlaylistService } from './custom-playlist.service';
-import { catchError, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -94,7 +93,7 @@ export class QueueService {
     }
   }
 
-  // New method: Mark video as unavailable and auto-skip
+  // New method: Mark video as unavailable
   markVideoAsUnavailable(videoId: string, errorCode?: number): void {
     this.unavailableVideoIds.add(videoId);
     this.addPlayedVideo(videoId); // Also mark as played so we don't fetch it again
@@ -105,7 +104,9 @@ export class QueueService {
     // If it was the current video, the index now points to the next video automatically
 
     // Call backend to mark as unavailable in database (fire and forget)
-    this.notifyBackendVideoUnavailable(videoId, errorCode);
+    if (environment.production) {
+      this.notifyBackendVideoUnavailable(videoId, errorCode);
+    }
   }
 
   private async notifyBackendVideoUnavailable(videoId: string, errorCode?: number): Promise<void> {
@@ -219,5 +220,11 @@ export class QueueService {
   private async addMoreVideos(): Promise<void> {
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(this.currentChannelSignal());
     await this.fetchAndAppendBlock(this.currentChannelSignal(), customPlaylistIds);
+  }
+
+  // Remove a video from the local queue without notifying backend
+  // Used for limited/custom playlist videos that shouldn't be marked unavailable in DB
+  removeVideoLocally(videoId: string): void {
+    this.queueSignal.update(queue => queue.filter(v => v.id !== videoId));
   }
 }

@@ -904,25 +904,17 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // Mark video as unavailable in queue service (will also update DB with error code)
-    // Skip marking as unavailable when running on localhost
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (!isLocalhost) {
-      this.queueService.markVideoAsUnavailable(currentVideo.id, errorCode);
-    }
+    // Mark video as unavailable in queue service; service guards backend writes in dev
+    this.queueService.markVideoAsUnavailable(currentVideo.id, errorCode);
 
     // Load next video immediately
     this.loadNextVideoAfterRemoval();
   }
 
   private skipToNextVideo(videoToRemove: Video): void {
-    // Remove from queue locally only
-    const queue = this.queueService.queue();
-    const index = queue.indexOf(videoToRemove);
-    if (index !== -1) {
-      queue.splice(index, 1);
-    }
-
+    // Remove from queue locally only (without backend notification)
+    // Used for limited videos or custom playlist videos
+    this.queueService.removeVideoLocally(videoToRemove.id);
     this.loadNextVideoAfterRemoval();
   }
 
