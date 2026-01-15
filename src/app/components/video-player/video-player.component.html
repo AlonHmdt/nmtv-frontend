@@ -6,7 +6,7 @@
     [class.active]="oldTVEnabled() || showChannelSwitchStatic()"></canvas>
 
   <!-- Transparent overlay to block all interaction with video -->
-  <div class="interaction-blocker"></div>
+  <div class="interaction-blocker" (click)="toggleMute()"></div>
 
   <!-- MTV Logo with Channel -->
   <div class="nmtv-logo-container" [style.display]="showChannelSwitchStatic() ? 'none' : 'flex'">
@@ -41,7 +41,10 @@
   <div class="unmute-message">
     <div class="unmute-content">
       <i class="bi bi-volume-mute-fill unmute-icon"></i>
-      <div class="unmute-text">Tap to Unmute</div>
+      <div class="unmute-text-group">
+        <div class="unmute-label">MUTED</div>
+        <div class="unmute-subtext">TAP TO UNMUTE</div>
+      </div>
     </div>
   </div>
   }

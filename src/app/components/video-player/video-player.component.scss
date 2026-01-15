@@ -360,41 +360,69 @@
 }
 
 .unmute-content {
-  background: rgba(0, 0, 0, 0.50);
-  padding: 24px 40px;
-  border-radius: 16px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.85);
+  border: 4px solid #00ff00; // Vintage green border
+  padding: 24px 32px;
+  box-shadow:
+    0 0 15px rgba(0, 255, 0, 0.3),
+    inset 0 0 10px rgba(0, 255, 0, 0.2);
 
   @media #{$mobile-and-tablet} {
-    padding: 20px 32px;
-    gap: 12px;
+    padding: 16px 24px;
+    gap: 16px;
+    border-width: 3px;
   }
 }
 
 .unmute-icon {
-  font-size: 32px;
-  color: #fff;
-  animation: unmuteIconPulse 2s ease-in-out infinite;
+  font-size: 48px;
+  color: #00ff00;
+  filter: drop-shadow(0 0 5px rgba(0, 255, 0, 0.5));
+  animation: pulse 1.5s infinite ease-in-out;
 
   @media #{$mobile-and-tablet} {
-    font-size: 24px;
+    font-size: 32px;
   }
 }
 
-.unmute-text {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 600;
-  text-align: center;
-  letter-spacing: 0.5px;
+.unmute-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unmute-label {
+  color: #00ff00;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 48px;
+  line-height: 1;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+
+  @media #{$mobile-and-tablet} {
+    font-size: 28px;
+    letter-spacing: 2px;
+  }
+}
+
+.unmute-subtext {
+  color: #00ff00;
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: normal;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
 
   @media #{$mobile-and-tablet} {
     font-size: 16px;
+    letter-spacing: 1px;
   }
 }
 

@@ -60,6 +60,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   volumeLevel = signal(100); // Volume level from 0-100
   showVolumeIndicator = signal(false); // Show vintage volume indicator
   isAndroidTv = signal(this.helpersService.isAndroidTV());
+  isUserMuted = signal(false); // Track if user explicitly muted the player
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -157,8 +158,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         // Stop static sound when effect ends
         this.helpersService.stopStaticSound();
 
-        // Unmute the player now that the channel switch is complete
-        if (this.player && !this.isAwaitingIOSUnmute) {
+        // Unmute the player now that the channel switch is complete, BUT only if user hasn't muted
+        if (this.player && !this.isAwaitingIOSUnmute && !this.isUserMuted()) {
           this.player.unMute();
         }
       }
@@ -297,8 +298,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           this.maxStaticTimePassed.set(true);
         }, 5000);
 
-        // Play static sound effect for power-on
-        this.helpersService.playStaticSound();
+        // Play static sound effect for power-on only if not muted
+        if (!this.isUserMuted()) {
+          this.helpersService.playStaticSound();
+        }
       }, 0);
     }
   }
@@ -348,9 +351,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.isInsideModal(target)) {
       return;
     }
-
-    // Unmute on first touch if muted for iOS
-    this.unmuteIfNeeded();
 
     this.touchStart = {
       x: event.touches[0].clientX,
@@ -477,8 +477,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.player.mute();
     }
 
-    // Play static sound effect
-    this.helpersService.playStaticSound();
+    // Play static sound effect only if not muted
+    if (!this.isUserMuted()) {
+      this.helpersService.playStaticSound();
+    }
 
     // Schedule max static timeout (safety fallback)
     this.setNamedTimeout('maxStatic', () => {
@@ -527,6 +529,25 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setNamedTimeout('volumeIndicator', () => {
       this.showVolumeIndicator.set(false);
     }, this.VOLUME_INDICATOR_DURATION);
+  }
+
+  toggleMute(): void {
+    if (!this.player) return;
+
+    if (this.player.isMuted()) {
+      // User is unmuting
+      this.player.unMute();
+      this.isAwaitingIOSUnmute = false; // Clear iOS wait flag
+      this.isUserMuted.set(false);
+      this.showUnmuteMessage.set(false);
+      this.showVolumeIndicatorWithTimeout();
+    } else {
+      // User is muting
+      this.player.mute();
+      this.isUserMuted.set(true);
+      this.showUnmuteMessage.set(true);
+      this.helpersService.stopStaticSound(); // Stop any SFX immediately
+    }
   }
 
   private loadYouTubeAPI(): void {
