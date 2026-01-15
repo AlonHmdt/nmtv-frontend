@@ -9,11 +9,12 @@
     <div class="remote-header">
       <div class="brand-logo-container">
         <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
-        [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()">
+          [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()">
       </div>
       <div class="power-off-container">
         <div class="green-dot"></div>
-        <button class="power-off-button retro-round-button" (click)="turnOff()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Power off TV">
+        <button class="power-off-button retro-round-button" (click)="turnOff()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
+          aria-label="Power off TV">
           <i class="bi bi-power" aria-hidden="true"></i>
         </button>
         <span class="power-off-text">Power</span>
@@ -21,6 +22,17 @@
 
       <span class="model-text" (click)="onStereoClick()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
         (keydown.enter)="onStereoClick()">STEREO SOUND</span>
+    </div>
+
+    <div class="special-broadcast-slot" *ngIf="specialChannelEnabled()">
+      <button class="special-event-button retro-button" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+        <div class="special-content">
+          <span class="special-icon">👨‍🎤</span>
+          <span class="special-text"> 10 YEARS WITHOUT DAVID BOWIE</span>
+          <span class="special-icon">👨‍🎤</span>
+        </div>
+        <div class="scanlines-overlay"></div>
+      </button>
     </div>
 
     <div class="channel-list retro-inset-panel">

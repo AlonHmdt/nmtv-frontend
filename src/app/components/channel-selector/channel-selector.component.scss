@@ -264,6 +264,85 @@
       letter-spacing: 0.5px;
     }
   }
+
+}
+
+.special-broadcast-slot {
+  margin-bottom: 12px;
+
+  .special-event-button {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // Inherits retro-button styles for background/border
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+
+    // Add specific hover like other menu buttons
+    &:hover {
+      background: linear-gradient(145deg, #444, #333);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 4px 8px rgba(0, 0, 0, 0.5);
+      filter: brightness(1.1);
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+      filter: brightness(0.95);
+    }
+
+    .special-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    .special-text {
+      font: 700 11px 'Roboto Mono', monospace;
+      color: #ccc; // Standard text color
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .special-icon {
+      font-size: 14px;
+      // Use yellow/gold only for the star icon to make it stand out slightly, or keep standard?
+      // User said "colors same as other buttons", but icon color is usually allowed to differ.
+      // I'll keep the star gold but remove shadow
+      color: #ffd700;
+    }
+  }
+
+  @media #{$mobile-and-tablet-portrait} {
+    margin-bottom: 8px;
+
+    .special-event-button {
+      height: 36px;
+
+      .special-text {
+        font-size: 10px;
+      }
+    }
+  }
+
+  // Mobile Landscape: Place it neatly
+  @media #{$mobile-and-tablet-landscape} {
+    margin-bottom: 8px;
+    margin-right: 0;
+
+    .special-event-button {
+      height: 36px;
+    }
+  }
 }
 
 .channel-loader {
@@ -427,7 +506,7 @@
       gap: 8px;
       flex: 1;
       justify-content: center;
-      
+
       .power-off-text {
         display: none;
       }

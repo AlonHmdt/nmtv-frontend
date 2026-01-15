@@ -53,6 +53,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
+  // Special channel is enabled when NOA easter egg is unlocked
+  specialChannelEnabled = this.easterEggService.isUnlocked;
 
   // Umami tracking helper
   private track(eventName: string, eventData?: Record<string, any>): void {
@@ -376,7 +378,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     if (channel !== this.currentChannel()) {
       // Track channel selection
       this.track('Channel Selected', { channel });
-      
+
       // Request channel switch through service with static effect
       this.videoPlayerControl.requestChannelSwitch(channel, true);
     }
@@ -394,7 +396,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   openSettings(): void {
     this.track('Settings Opened');
-    
+
     this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -404,7 +406,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   openAbout(): void {
     this.track('About Opened');
-    
+
     this.videoPlayerControl.setMenuOpen(false);
     if (document.activeElement instanceof HTMLElement) {
       document.activeElement.blur();
@@ -414,7 +416,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   turnOff(): void {
     this.track('Power Off');
-    
+
     // On Android TV, close the app completely
     if (this.helpersService.isAndroidTV()) {
       // Call Android native method to close app
@@ -445,13 +447,13 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   toggleOldTV(): void {
     const newValue = !this.queueService.oldTVEnabled();
     this.track('VCR Mode Toggled', { enabled: newValue });
-    
+
     this.queueService.oldTVEnabled.update(v => !v);
   }
 
   toggleFullscreen(): void {
     this.track('Fullscreen Toggled', { entering: !document.fullscreenElement });
-    
+
     if (!document.fullscreenElement) {
       // Enter fullscreen
       const elem = document.documentElement;
@@ -476,7 +478,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   openSupport(): void {
     this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
-    
+
     if (this.isAndroidTV()) {
       this.supportModal?.open();
       return;
@@ -491,9 +493,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     else if (this.pwaService.isIOS()) platform = 'ios';
     else if (this.pwaService.isMac()) platform = 'mac';
     else if (this.pwaService.isAndroid()) platform = 'android';
-    
+
     this.track('Install App Clicked', { platform });
-    
+
     if (this.pwaService.installPrompt()) {
       this.pwaService.promptInstall();
     } else if (this.pwaService.isIOS()) {
@@ -508,7 +510,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   async shareApp(): Promise<void> {
     const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
     this.track('Share App Clicked', { method: hasNativeShare ? 'native' : 'clipboard' });
-    
+
     if (hasNativeShare) {
       try {
         await navigator.share({
