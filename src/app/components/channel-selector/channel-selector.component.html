@@ -7,9 +7,10 @@
 
     <!-- Vintage Header -->
     <div class="remote-header">
-      <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
+      <div class="brand-logo-container">
+        <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
         [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()">
-
+      </div>
       <div class="power-off-container">
         <div class="green-dot"></div>
         <button class="power-off-button retro-round-button" (click)="turnOff()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Power off TV">
@@ -78,25 +79,25 @@
     </div>
 
     <div class="d-pad-actions-container">
-      <button class="support-button retro-small-button" (click)="openSupport()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Support NMTV">
+      <button class="support-button retro-small-button" (click)="openSupport()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
+        aria-label="Support NMTV">
         <i class="bi bi-cup-hot-fill" aria-hidden="true"></i>
         <span>Support</span>
       </button>
 
-      <div class="d-pad-spacer"></div>
-
       @if (!isAndroidTV()) {
       @if (showInstallButton()) {
-      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Install NMTV app">
+      <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
+        aria-label="Install NMTV app">
         <i class="bi bi-download" aria-hidden="true"></i>
         <span>App</span>
       </button>
-      } @else {
-      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1" aria-label="Share NMTV">
+      }
+      <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
+        aria-label="Share NMTV">
         <i class="bi bi-share-fill" aria-hidden="true"></i>
         <span>Share</span>
       </button>
-      }
       }
     </div>
   </div>

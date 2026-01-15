@@ -15,7 +15,11 @@
   z-index: 999;
   transition: opacity 0.25s ease;
   will-change: opacity;
-  &.hidden { opacity: 0; pointer-events: none; }
+
+  &.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .side-menu {
@@ -35,8 +39,9 @@
   transition: transform 0.35s cubic-bezier(0.19, 1, 0.22, 1);
   padding: 20px 20px 60px;
   will-change: transform;
-  &.open { 
-    transform: translateX(-50%) translateY(0); 
+
+  &.open {
+    transform: translateX(-50%) translateY(0);
     box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8), inset 2px 2px 2px rgba(255, 255, 255, 0.1), inset -2px 0 2px rgba(0, 0, 0, 0.5);
   }
 
@@ -59,58 +64,67 @@
   background: rgba(0, 0, 0, 0.2);
   border-radius: 12px 12px 0 0;
 
-  .brand-logo {
-    height: 40px;
-    filter: grayscale(100%) brightness(0.8);
-    opacity: 0.9;
-    // cursor: pointer;
-    border-radius: 4px;
-    padding: 2px;
-    transition: all 0.2s ease;
-    // @media (hover: hover) { &:hover { filter: grayscale(0%) brightness(1); opacity: 1; } }
+  .brand-logo-container {
+    flex: 1;
+
+    .brand-logo {
+      height: 40px;
+      filter: grayscale(100%) brightness(0.8);
+      opacity: 0.9;
+      border-radius: 4px;
+      padding: 2px;
+      transition: all 0.2s ease;
+    }
+  }
+
+  .power-off-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+
+    .power-off-button {
+      width: 40px;
+      height: 40px;
+
+      i {
+        font-size: 18px;
+        filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+      }
+    }
+
+    .power-off-text {
+      font: bold 8px 'Roboto Mono', monospace;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
   }
 
   .model-text {
     font: bold 9px 'Roboto Mono', monospace;
     color: #666;
     letter-spacing: 2px;
-    display: none;
-    // cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
     transition: all 0.2s ease;
-    // @media (hover: hover) { &:hover { color: #999; } }
-    @media (min-width: 600px) { display: block; }
+    flex: 1;
+    text-align: end;
   }
 
   @media #{$mobile-and-tablet-portrait} {
     padding: 8px 12px;
     margin-bottom: 8px;
-    .brand-logo { height: 32px; }
+
+    .brand-logo {
+      height: 32px;
+    }
   }
 }
 
-.power-off-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  margin: 0 12px;
-}
 
-.power-off-button {
-  width: 40px;
-  height: 40px;
-  i { font-size: 18px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); }
-}
-
-.power-off-text {
-  font: bold 8px 'Roboto Mono', monospace;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.05);
-}
 
 @media #{$short-landscape} {
   .side-menu {
@@ -130,11 +144,23 @@
     border-right: 2px solid rgba(0, 0, 0, 0.5);
     margin: 0;
     border-radius: 12px 0 0 12px;
-    .brand-logo { height: 30px; transform: rotate(-90deg); margin-bottom: 12px; }
-    .model-text { display: none; }
+
+    .brand-logo {
+      height: 30px;
+      transform: rotate(-90deg);
+      margin-bottom: 12px;
+    }
+
+    .model-text {
+      display: none;
+    }
   }
 
-  .channel-list { grid-area: 1/2/2/3; padding: 0 0 12px 12px; }
+  .channel-list {
+    grid-area: 1/2/2/3;
+    padding: 0 0 12px 12px;
+  }
+
   .menu-actions {
     grid-area: 2/2/3/3;
     flex-direction: row;
@@ -144,9 +170,16 @@
     border: none;
     box-shadow: none;
     background: transparent;
-    button { width: auto; min-width: 80px; height: 50px; flex: 1; }
+
+    button {
+      width: auto;
+      min-width: 80px;
+      height: 50px;
+      flex: 1;
+    }
   }
 }
+
 .channel-list {
   flex: 1;
   overflow-y: auto;
@@ -156,9 +189,20 @@
   gap: 12px;
   margin-bottom: 20px;
 
-  &::-webkit-scrollbar { width: 6px; }
-  &::-webkit-scrollbar-track { background: #111; border-radius: 3px; }
-  &::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; border: 2px solid #111; }
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #111;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 3px;
+    border: 2px solid #111;
+  }
 
   @media #{$mobile-and-tablet-portrait} {
     grid-auto-rows: max-content;
@@ -177,7 +221,11 @@
   gap: 6px;
   height: 80px;
 
-  .channel-icon { font-size: 24px; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3)); }
+  .channel-icon {
+    font-size: 24px;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+  }
+
   .channel-name {
     font: 700 10px 'Roboto Mono', monospace;
     text-transform: uppercase;
@@ -186,16 +234,35 @@
     line-height: 1.2;
   }
 
-  &.active .channel-name { text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4); }
-  &.loading { position: relative; opacity: 0.7; pointer-events: none; }
-  &:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+  &.active .channel-name {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  &.loading {
+    position: relative;
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 
   @media #{$mobile-and-tablet-portrait} {
     height: 60px;
     padding: 4px;
     gap: 4px;
-    .channel-icon { font-size: 18px; }
-    .channel-name { font-size: 9px; letter-spacing: 0.5px; }
+
+    .channel-icon {
+      font-size: 18px;
+    }
+
+    .channel-name {
+      font-size: 9px;
+      letter-spacing: 0.5px;
+    }
   }
 }
 
@@ -205,10 +272,18 @@
   right: 8px;
   transform: translateY(-50%);
   color: rgba(255, 255, 255, 0.6);
-  .spinner { font-size: 14px; animation: spin 1s linear infinite; }
+
+  .spinner {
+    font-size: 14px;
+    animation: spin 1s linear infinite;
+  }
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 .menu-actions {
   display: flex;
@@ -231,8 +306,16 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     color: #ccc;
-    span, i { z-index: 1; }
-    i { font-size: 20px; margin-bottom: 2px; }
+
+    span,
+    i {
+      z-index: 1;
+    }
+
+    i {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
   }
 
   @media #{$mobile-and-tablet-portrait} {
@@ -240,18 +323,38 @@
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     padding: 8px;
-    button { width: 100%; height: 50px; i { font-size: 16px; margin-bottom: 0; } }
+
+    button {
+      width: 100%;
+      height: 50px;
+
+      i {
+        font-size: 16px;
+        margin-bottom: 0;
+      }
+    }
   }
 }
 
-.settings-button, .about-button {
+.settings-button,
+.about-button {
   background: linear-gradient(145deg, #444, #333);
-  &:hover { background: linear-gradient(145deg, #555, #444); color: #fff; }
+
+  &:hover {
+    background: linear-gradient(145deg, #555, #444);
+    color: #fff;
+  }
 }
 
-.old-tv-button, .fullscreen-button {
+.old-tv-button,
+.fullscreen-button {
   background: linear-gradient(145deg, #2a2a2a, #222);
-  .toggle-content { display: flex; flex-direction: column; align-items: center; }
+
+  .toggle-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
   &::after {
     content: '';
@@ -269,8 +372,16 @@
   &.active {
     background: linear-gradient(145deg, #333, #222);
     color: #fff;
-    &::after { background: #0f0; box-shadow: 0 0 6px #0f0; }
-    .toggle-thumb { background: #4caf50; box-shadow: 0 0 8px #4caf50; }
+
+    &::after {
+      background: #0f0;
+      box-shadow: 0 0 6px #0f0;
+    }
+
+    .toggle-thumb {
+      background: #4caf50;
+      box-shadow: 0 0 8px #4caf50;
+    }
   }
 }
 
@@ -300,22 +411,23 @@
     border-radius: 12px 12px 0 0;
     padding: 8px 16px;
 
-    .brand-logo {
-      height: 30px;
-      transform: none;
-      margin-bottom: 0;
-    }
 
-    .model-text {
-      display: block;
-      font-size: 8px;
+    .brand-logo-container {
+      flex: 1;
+
+      .brand-logo {
+        height: 30px;
+        transform: none;
+        margin-bottom: 0;
+      }
     }
 
     .power-off-container {
-      margin: 0;
       flex-direction: row;
       gap: 8px;
-
+      flex: 1;
+      justify-content: center;
+      
       .power-off-text {
         display: none;
       }
@@ -325,6 +437,13 @@
         margin-right: 4px;
       }
     }
+
+    .model-text {
+      display: block;
+      font-size: 8px;
+      flex: 1;
+    }
+
   }
 
   .channel-list {
@@ -377,16 +496,15 @@
   width: 100%;
   pointer-events: none;
 
-  @media #{$mobile-and-tablet-portrait} { bottom: 8px; padding: 0 8px; }
-  @media #{$mobile-and-tablet-landscape} { bottom: 6px; }
-}
+  @media #{$mobile-and-tablet-portrait} {
+    bottom: 8px;
+    padding: 0 8px;
+  }
 
-.d-pad-spacer {
-  flex: 0 0 80px;
-  @media #{$mobile-and-tablet-portrait} { flex: 0 0 60px; }
+  @media #{$mobile-and-tablet-landscape} {
+    bottom: 6px;
+  }
 }
-
-.button-placeholder { flex: 1; min-width: 70px; }
 
 .retro-small-button {
   pointer-events: all;
@@ -408,7 +526,11 @@
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 1px 1px 1px rgba(255, 255, 255, 0.05);
 
-  i { font-size: 14px; color: #666; transition: color 0.2s ease; }
+  i {
+    font-size: 14px;
+    color: #666;
+    transition: color 0.2s ease;
+  }
 
   &:hover {
     background: #222;
@@ -416,15 +538,33 @@
     border-color: #444;
     transform: translateY(-1px);
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(255, 255, 255, 0.1);
-    i { color: #fff; }
+
+    i {
+      color: #fff;
+    }
   }
 
-  &:active { transform: translateY(1px); box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6); }
-  &.support-button:hover i { color: #FFDD00; }
-  &.install-button:hover i { color: #00AAFF; }
-  &.share-button:hover i { color: #9D00FF; }
+  &:active {
+    transform: translateY(1px);
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6);
+  }
 
-  @media #{$mobile-and-tablet-landscape} { height: 30px; font-size: 8px; }
+  &.support-button:hover i {
+    color: #FFDD00;
+  }
+
+  &.install-button:hover i {
+    color: #00AAFF;
+  }
+
+  &.share-button:hover i {
+    color: #9D00FF;
+  }
+
+  @media #{$mobile-and-tablet-landscape} {
+    height: 30px;
+    font-size: 8px;
+  }
 }
 
 // Keyboard Navigation Focus Styles
