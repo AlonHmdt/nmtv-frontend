@@ -82,7 +82,7 @@ export class EasterEggService {
       // Calculate remaining time to meet minimum duration
       const elapsed = Date.now() - startTime;
       const remainingTime = Math.max(0, minLoadingDuration - elapsed);
-      
+
       // Wait for remaining time before hiding loader
       setTimeout(() => {
         this.isLoadingNoaSignal.set(false);

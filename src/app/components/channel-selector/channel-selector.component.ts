@@ -34,10 +34,11 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private queueService = inject(QueueService);
   private helpersService = inject(HelpersService);
   private pwaService = inject(PwaService);
-  private easterEggService = inject(EasterEggService);
+  public easterEggService = inject(EasterEggService);
   private videoPlayerControl = inject(VideoPlayerControlService);
   private customPlaylistService = inject(CustomPlaylistService);
   private modalState = inject(ModalStateService);
+  public isSpecialChannelEnabled = false;
 
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
@@ -53,8 +54,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   currentChannel = this.queueService.currentChannel;
   oldTVEnabled = this.queueService.oldTVEnabled;
   isFullscreen = signal(false);
-  // Special channel is enabled when NOA easter egg is unlocked
-  specialChannelEnabled = this.easterEggService.isUnlocked;
 
   // Umami tracking helper
   private track(eventName: string, eventData?: Record<string, any>): void {
@@ -101,9 +100,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
     // Update focusable elements when special channel visibility changes
     effect(() => {
-      // Track special channel state to react to changes
-      this.specialChannelEnabled();
-
       // If menu is open, update focusable elements
       if (this.isMenuOpen()) {
         setTimeout(() => {
@@ -535,7 +531,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     this.track('Logo Clicked');
 
     // If easter egg is unlocked, clicking logo switches to NOA channel
-    if (this.specialChannelEnabled()) {
+    if (this.easterEggService.isUnlocked()) {
       this.selectChannel(Channel.NOA);
     } else {
       // Otherwise handle click for potential unlock

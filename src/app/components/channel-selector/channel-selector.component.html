@@ -11,7 +11,7 @@
         <div class="logo-wrapper">
           <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
             [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()"
-            [class.clickable]="specialChannelEnabled()">
+            [class.clickable]="easterEggService.isUnlocked()">
 
           @if (isLoadingNoa()) {
           <div class="loading-indicator">
@@ -35,7 +35,7 @@
         (keydown.enter)="onStereoClick()">STEREO SOUND</span>
     </div>
 
-    <div class="special-broadcast-slot" *ngIf="specialChannelEnabled()">
+    <div class="special-broadcast-slot" *ngIf="isSpecialChannelEnabled">
       <button class="special-event-button retro-button" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <div class="special-content">
           <span class="special-icon">👨‍🎤</span>
