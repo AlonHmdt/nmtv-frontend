@@ -541,7 +541,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.isAwaitingIOSUnmute = false; // Clear iOS wait flag
       this.isUserMuted.set(false);
       this.showUnmuteMessage.set(false);
-      this.showVolumeIndicatorWithTimeout();
+      // this.showVolumeIndicatorWithTimeout();
     } else {
       // User is muting
       this.player.mute();
