@@ -7,7 +7,7 @@ import { HelpersService } from '../../services/helpers.service';
 import { EasterEggService } from '../../services/easter-egg.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
-import { Video, Channel, Channels } from '../../models/video.model';
+import { Video, Channel, Channels, getNavigationChannels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
 
 
@@ -50,7 +50,18 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   currentChannel = this.queueService.currentChannel;
   currentChannelConfig = computed(() => {
     const channel = this.currentChannel();
-    return Channels.find(c => c.id === channel);
+    
+    // First, check in the static Channels array
+    let config = Channels.find(c => c.id === channel);
+    
+    // If not found (special channel), get it from navigation channels
+    if (!config) {
+      const specialEnabled = !!this.youtubeService.specialEventData()?.enabled;
+      const allChannels = getNavigationChannels(specialEnabled);
+      config = allChannels.find(c => c.id === channel);
+    }
+    
+    return config;
   });
   oldTVEnabled = this.queueService.oldTVEnabled;
   showChannelSwitchStatic = signal(true); // Show static when switching channels (starts true for power-on)
@@ -94,18 +105,18 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
   private readonly VOLUME_INDICATOR_DURATION = 2000; // Show volume indicator for 2 seconds
 
-  // Available channels in order (NOA will be filtered out if locked)
-  private readonly ALL_CHANNELS = [
-    Channel.ROCK,
-    Channel.HIP_HOP,
-    Channel.DECADE_2000S,
-    Channel.DECADE_1990S,
-    Channel.DECADE_1980S,
-    Channel.LIVE,
-    Channel.SHOWS,
-    Channel.RANDOM,
-    Channel.NOA
-  ] as const;
+  // Dynamic available channels (includes special when enabled, excludes NOA when locked)
+  private availableChannels = computed(() => {
+    const specialEnabled = !!this.youtubeService.specialEventData()?.enabled;
+    const allChannels = getNavigationChannels(specialEnabled).map(ch => ch.id);
+    
+    // Add NOA if unlocked
+    if (this.easterEggService.isUnlocked()) {
+      allChannels.push(Channel.NOA);
+    }
+    
+    return allChannels;
+  });
 
   constructor() {
     // Watch for when video changes (initial load or channel switch)
@@ -450,11 +461,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private calculateNextChannel(goUp: boolean): Channel {
-    // Filter out NOA channel if not unlocked
-    const availableChannels = this.easterEggService.isUnlocked()
-      ? [...this.ALL_CHANNELS]
-      : this.ALL_CHANNELS.filter(ch => ch !== Channel.NOA) as Channel[];
-
+    const availableChannels = this.availableChannels();
     const currentChannel = this.currentChannel();
     const currentIndex = availableChannels.indexOf(currentChannel);
 

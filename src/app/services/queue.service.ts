@@ -58,8 +58,8 @@ export class QueueService {
   }
 
   async switchChannel(channel: Channel): Promise<void> {
-    // Save the current channel to localStorage (except NOA channel - easter egg should not persist)
-    if (channel !== Channel.NOA) {
+    // Save the current channel to localStorage (except NOA and SPECIAL channels - easter eggs and events should not persist)
+    if (channel !== Channel.NOA && channel !== Channel.SPECIAL) {
       localStorage.setItem('lastChannel', channel);
     }
 

@@ -1,9 +1,10 @@
 import { Component, inject, signal, ViewChild, ChangeDetectionStrategy, output, computed, OnInit, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { YoutubeService } from '../../services/youtube.service';
 import { QueueService } from '../../services/queue.service';
 import { EasterEggService } from '../../services/easter-egg.service';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
-import { Channel, Channels } from '../../models/video.model';
+import { Channel, Channels, getNavigationChannels } from '../../models/video.model';
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
 import { InstallModalComponent } from '../install-modal/install-modal.component';
@@ -38,7 +39,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private videoPlayerControl = inject(VideoPlayerControlService);
   private customPlaylistService = inject(CustomPlaylistService);
   private modalState = inject(ModalStateService);
-  public isSpecialChannelEnabled = false;
+  private youtubeService = inject(YoutubeService); // Inject YoutubeService
+
+  public isSpecialChannelEnabled = signal(false); // Change to signal
 
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
@@ -62,9 +65,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Filter channels - always exclude easter egg channels from the list (they are accessed via logo)
+  // Filter channels - exclude easter egg channels and special channel (special has its own slot)
   channels = computed(() => {
-    return Channels.filter(ch => !ch.isEasterEgg);
+    return getNavigationChannels(this.isSpecialChannelEnabled()).filter(ch => ch.id !== Channel.SPECIAL);
   });
 
   // Easter egg state for NOA channel
@@ -134,6 +137,16 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Listen for Space key to toggle menu
     window.addEventListener('keydown', this.handleKeyPress.bind(this));
+    this.checkSpecialEvent();
+  }
+
+  private checkSpecialEvent(): void {
+    // Use the special event data already fetched by the home component
+    // instead of making another backend request
+    const specialEventData = this.youtubeService.specialEventData();
+    if (specialEventData && specialEventData.enabled) {
+      this.isSpecialChannelEnabled.set(true);
+    }
   }
 
   ngOnDestroy(): void {
@@ -525,6 +538,11 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
         // Silent fail
       }
     }
+  }
+
+  onSpecialChannelClick(): void {
+    this.track('Special Channel Clicked');
+    this.selectChannel(Channel.SPECIAL);
   }
 
   onLogoClick(): void {

@@ -5,6 +5,32 @@ import { PowerButtonComponent } from '../power-button/power-button.component';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
 
+interface SpecialEventPlaylist {
+  id: string;
+  label: string;
+}
+
+interface SpecialEventConfig {
+  enabled: boolean;
+  id: string;
+  label: string;
+  playlists: SpecialEventPlaylist[];
+}
+
+interface BackendReadyResponse {
+  ready: boolean;
+  mode?: 'youtube_api' | 'database';
+  cacheSize?: number;
+  totalPlaylists?: number;
+  bumpersLoaded?: boolean;
+  bumpersCount?: number;
+  loadingTime?: number;
+  noaChannelReady?: boolean;
+  specialEvent?: SpecialEventConfig;
+}
+
+type ReadyData = boolean | BackendReadyResponse;
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -46,17 +72,20 @@ export class HomeComponent implements OnInit {
     let retries = 0;
 
     while (retries < maxRetries) {
-      const readyData = await this.youtubeService.checkBackendReady();
+      const readyData: ReadyData = await this.youtubeService.checkBackendReady();
       
       // Update progress based on cache size from backend
       if (readyData && typeof readyData === 'object') {
-        const cacheSize = (readyData as any).cacheSize || 0;
-        const totalPlaylists = (readyData as any).totalPlaylists || 50; // Use backend's count or fallback
+        const cacheSize = readyData.cacheSize || 0;
+        const totalPlaylists = readyData.totalPlaylists || 50;
         const progress = Math.min(95, Math.floor((cacheSize / totalPlaylists) * 100));
         this.loadingProgress.set(progress);
+        
+        // Store special event data for other components to use
+        this.youtubeService.specialEventData.set(readyData.specialEvent || null);
       }
       
-      if (readyData === true || (typeof readyData === 'object' && (readyData as any).ready === true)) {
+      if (readyData === true || (typeof readyData === 'object' && readyData.ready === true)) {
         this.loadingProgress.set(100);
         this.backendIsReady.set(true);
         this.isLoading.set(false);

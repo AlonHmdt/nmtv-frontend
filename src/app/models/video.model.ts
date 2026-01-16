@@ -1,3 +1,5 @@
+import { signal, computed } from '@angular/core';
+
 // Individual video item within a block
 export interface VideoItem {
   id: string;
@@ -39,7 +41,8 @@ export enum Channel {
   LIVE = 'live',
   SHOWS = 'shows',
   RANDOM = 'random',
-  NOA = 'noa'
+  NOA = 'noa',
+  SPECIAL = 'special'
 }
 export interface ChannelConfig {
   id: Channel;
@@ -60,3 +63,19 @@ export const Channels: ChannelConfig[] = [
   { id: Channel.RANDOM, name: 'Random', icon: '🎲' },
   { id: Channel.NOA, name: 'NOA', icon: '🐼', isEasterEgg: true }
 ];
+
+// Get channels available for navigation (includes special when enabled, excludes easter eggs)
+export function getNavigationChannels(isSpecialChannelEnabled: boolean): ChannelConfig[] {
+  const channels = Channels.filter(ch => !ch.isEasterEgg);
+  
+  if (isSpecialChannelEnabled) {
+    channels.push({ id: Channel.SPECIAL, name: 'SPECIAL', icon: '⭐' });
+  }
+  
+  return channels;
+}
+
+// Get channels for settings modal (excludes easter eggs and special channel)
+export function getSettingsChannels(): ChannelConfig[] {
+  return Channels.filter(ch => !ch.isEasterEgg && ch.id !== Channel.SPECIAL);
+}

@@ -35,8 +35,10 @@
         (keydown.enter)="onStereoClick()">STEREO SOUND</span>
     </div>
 
-    <div class="special-broadcast-slot" *ngIf="isSpecialChannelEnabled">
-      <button class="special-event-button retro-button" [attr.tabindex]="isMenuOpen() ? 0 : -1">
+    @if (isSpecialChannelEnabled()) {
+    <div class="special-broadcast-slot">
+      <button class="special-event-button retro-button" (click)="onSpecialChannelClick()"
+        [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <div class="special-content">
           <span class="special-icon">👨‍🎤</span>
           <span class="special-text"> 10 YEARS WITHOUT DAVID BOWIE</span>
@@ -45,6 +47,7 @@
         <div class="scanlines-overlay"></div>
       </button>
     </div>
+    }
 
     <div class="channel-list retro-inset-panel">
       @for (channel of channels(); track channel.id) {

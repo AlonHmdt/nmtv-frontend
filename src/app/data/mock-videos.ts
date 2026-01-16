@@ -95,6 +95,11 @@ export const MOCK_VIDEOS: { [key in Channel]: Video[] } = {
     { id: 'LsoLEjrDogU', artist: 'Panic! At The Disco', song: 'High Hopes' },
     { id: '09R8_2nJtjg', artist: 'Rihanna', song: 'Umbrella' },
     { id: '3AtDnEC4zak', artist: 'Maroon 5', song: 'Sugar' },
+  ],
+  [Channel.SPECIAL]: [
+    { id: 'LsoLEjrDogU', artist: 'Panic! At The Disco', song: 'High Hopes' },
+    { id: '09R8_2nJtjg', artist: 'Rihanna', song: 'Umbrella' },
+    { id: '3AtDnEC4zak', artist: 'Maroon 5', song: 'Sugar' },
   ]
 };
 

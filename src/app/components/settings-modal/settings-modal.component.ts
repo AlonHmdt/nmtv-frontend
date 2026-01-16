@@ -5,7 +5,7 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { QueueService } from '../../services/queue.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { KeyboardNavigationService } from '../../services/keyboard-navigation.service';
-import { Channel, Channels } from '../../models/video.model';
+import { Channel, getSettingsChannels } from '../../models/video.model';
 import { 
   extractPlaylistId, 
   getPlaylistUrlError 
@@ -40,7 +40,7 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
   isAdding = signal(false);
   isApplying = signal(false);
 
-  channels: ChannelData[] = Channels.filter(ch => !ch.isEasterEgg);
+  channels: ChannelData[] = getSettingsChannels();
 
   // Computed values
   currentPlaylists = computed(() => {

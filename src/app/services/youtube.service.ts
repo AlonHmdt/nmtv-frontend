@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { VideoBlock, Channel } from '../models/video.model';
@@ -10,6 +10,9 @@ import { environment } from '../../environments/environment';
 export class YoutubeService {
   private http = inject(HttpClient);
   private backendUrl = environment.backendUrl;
+  
+  // Store special event data from initial ready check
+  public specialEventData = signal<any>(null);
 
   getChannelVideos(channel: Channel, customPlaylists: string[] = []): Observable<VideoBlock> {
     let params = [];
