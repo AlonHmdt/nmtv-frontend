@@ -63,10 +63,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Filter channels based on easter egg unlock state
+  // Filter channels - always exclude easter egg channels from the list (they are accessed via logo)
   channels = computed(() => {
-    const isUnlocked = this.easterEggService.isUnlocked();
-    return Channels.filter(ch => !ch.isEasterEgg || isUnlocked);
+    return Channels.filter(ch => !ch.isEasterEgg);
   });
 
   // Easter egg state for NOA channel
@@ -100,10 +99,10 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
       this.isFullscreen.set(!!(document as any).webkitFullscreenElement);
     });
 
-    // Update focusable elements when channels change (e.g., NOA channel unlocks)
+    // Update focusable elements when special channel visibility changes
     effect(() => {
-      // Track channels to react to changes
-      this.channels();
+      // Track special channel state to react to changes
+      this.specialChannelEnabled();
 
       // If menu is open, update focusable elements
       if (this.isMenuOpen()) {
@@ -534,7 +533,14 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
   onLogoClick(): void {
     this.track('Logo Clicked');
-    this.easterEggService.handleLogoClick();
+
+    // If easter egg is unlocked, clicking logo switches to NOA channel
+    if (this.specialChannelEnabled()) {
+      this.selectChannel(Channel.NOA);
+    } else {
+      // Otherwise handle click for potential unlock
+      this.easterEggService.handleLogoClick();
+    }
   }
 
   // Flag video feature - click 5 times on "STEREO SOUND" text

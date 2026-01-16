@@ -8,8 +8,19 @@
     <!-- Vintage Header -->
     <div class="remote-header">
       <div class="brand-logo-container">
-        <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
-          [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()">
+        <div class="logo-wrapper">
+          <img src="images/nmtv-logo.png" alt="NMTV" class="brand-logo" (click)="onLogoClick()"
+            [attr.tabindex]="isMenuOpen() ? 0 : -1" (keydown.enter)="onLogoClick()"
+            [class.clickable]="specialChannelEnabled()">
+
+          @if (isLoadingNoa()) {
+          <div class="loading-indicator">
+            <i class="bi bi-arrow-clockwise spinner"></i>
+          </div>
+          } @else if (isNoaChannelReady()) {
+          <span class="easter-egg-indicator">🐼</span>
+          }
+        </div>
       </div>
       <div class="power-off-container">
         <div class="green-dot"></div>
@@ -38,15 +49,9 @@
     <div class="channel-list retro-inset-panel">
       @for (channel of channels(); track channel.id) {
       <button class="channel-item retro-button" [class.active]="isActive(channel.id)"
-        [class.loading]="channel.isEasterEgg && isLoadingNoa()" [disabled]="channel.isEasterEgg && !isNoaChannelReady()"
         (click)="selectChannel(channel.id)" [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <span class="channel-icon">{{ channel.icon }}</span>
         <span class="channel-name">{{ channel.name }}</span>
-        @if (channel.isEasterEgg && isLoadingNoa()) {
-        <span class="channel-loader">
-          <i class="bi bi-arrow-clockwise spinner"></i>
-        </span>
-        }
       </button>
       }
     </div>
