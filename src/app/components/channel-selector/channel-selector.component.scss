@@ -498,7 +498,7 @@
     width: 80vw;
     max-width: 600px;
     height: auto;
-    max-height: 95vh;
+    max-height: 100vh;
     gap: 0;
   }
 
@@ -553,10 +553,10 @@
     flex: 0 0 auto;
     margin-bottom: 8px;
     margin-right: 0;
-    padding: 8px;
+    padding: 4px;
     overflow-y: auto;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: 4px;
 
     .channel-item {
       height: 55px;
@@ -570,8 +570,8 @@
   .menu-actions {
     flex-direction: row;
     width: 100%;
-    padding: 8px;
-    gap: 8px;
+    padding: 4px;
+    gap: 4px;
     overflow-x: auto;
     overflow-y: hidden;
     border: 1px solid #333;
