@@ -12,5 +12,9 @@ export const routes: Routes = [
     path: 'privacy-policy',
     component: PrivacyPolicyComponent,
     title: 'Privacy Policy - NMTV'
+  },
+  {
+    path: '**',
+    redirectTo: '/'
   }
 ];
