@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment';
 export class YoutubeService {
   private http = inject(HttpClient);
   private backendUrl = environment.backendUrl;
-  
+
   // Store special event data from initial ready check
   public specialEventData = signal<any>(null);
 
@@ -53,6 +53,12 @@ export class YoutubeService {
 
       if (response.ok) {
         const data = await response.json();
+
+        // Cache special event data if present
+        if (data && data.specialEvent) {
+          this.specialEventData.set(data.specialEvent);
+        }
+
         // Return full data object for progress tracking
         return data;
       }

@@ -1,0 +1,303 @@
+<div class="admin-container">
+    <div class="sidebar">
+        <div class="header">
+            <div class="header-top">
+                <h1>NMTV Backoffice</h1>
+                <button class="logout-btn" (click)="logout()" title="Logout">
+                    Logout
+                </button>
+            </div>
+            <p>Add videos to playlists or create new ones.</p>
+        </div>
+
+        <div class="input-section">
+            <textarea [(ngModel)]="inputList" placeholder="Paste YouTube Video IDs here (comma or newline separated, max 50)..."
+                rows="6"></textarea>
+            @if (inputError()) {
+                <div class="input-error">{{ inputError() }}</div>
+            }
+            <button (click)="processInput()" [disabled]="isLoading()" class="process-btn">
+                {{ isLoading() ? 'Processing...' : 'Scan Videos' }}
+            </button>
+        </div>
+
+        <!-- YouTube Playlist Browser -->
+        <div class="yt-playlist-section">
+            <h3>YouTube Playlist</h3>
+            <div class="yt-playlist-input">
+                <input
+                    type="text"
+                    [ngModel]="ytPlaylistInput()"
+                    (ngModelChange)="ytPlaylistInput.set($event)"
+                    (keydown.enter)="loadYoutubePlaylist()"
+                    placeholder="Paste playlist URL or ID..."
+                    [disabled]="isLoadingYtPlaylist()"
+                />
+                <button
+                    class="load-btn"
+                    (click)="loadYoutubePlaylist()"
+                    [disabled]="isLoadingYtPlaylist() || !ytPlaylistInput()"
+                >
+                    {{ isLoadingYtPlaylist() ? '...' : 'Load' }}
+                </button>
+            </div>
+            @if (ytPlaylistError()) {
+                <div class="yt-playlist-error">{{ ytPlaylistError() }}</div>
+            }
+        </div>
+
+        <!-- Lists Browser Section -->
+        <div class="lists-browser-section">
+            <h3>Browse Lists</h3>
+
+            <select
+                class="list-category-select"
+                [ngModel]="selectedListCategory()"
+                (ngModelChange)="onListCategorySelect($event)"
+            >
+                <option value="" disabled>Select a list category...</option>
+                @for (cat of listCategories(); track cat.name) {
+                    <option [value]="cat.name">{{ cat.name }} ({{ cat.count }} videos)</option>
+                }
+            </select>
+
+            @if ((selectedListCategory() || ytPlaylistId()) && listTotalPages() > 0) {
+                <div class="list-info">
+                    <span>{{ listTotalItems() }} videos</span>
+                    <span>Page {{ listCurrentPage() }} of {{ listTotalPages() }}</span>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <button
+                        class="page-btn"
+                        [disabled]="listCurrentPage() === 1 || isLoadingList() || isLoadingYtPlaylist()"
+                        (click)="ytPlaylistId() ? onYtPlaylistPageChange(listCurrentPage() - 1) : onListPageChange(listCurrentPage() - 1)"
+                    >
+                        ←
+                    </button>
+
+                    @for (pageNum of getPageNumbers(); track $index) {
+                        @if (pageNum === -1) {
+                            <span class="ellipsis">...</span>
+                        } @else {
+                            <button
+                                class="page-btn"
+                                [class.active]="pageNum === listCurrentPage()"
+                                [disabled]="isLoadingList() || isLoadingYtPlaylist()"
+                                (click)="ytPlaylistId() ? onYtPlaylistPageChange(pageNum) : onListPageChange(pageNum)"
+                            >
+                                {{ pageNum }}
+                            </button>
+                        }
+                    }
+
+                    <button
+                        class="page-btn"
+                        [disabled]="listCurrentPage() === listTotalPages() || isLoadingList() || isLoadingYtPlaylist()"
+                        (click)="ytPlaylistId() ? onYtPlaylistPageChange(listCurrentPage() + 1) : onListPageChange(listCurrentPage() + 1)"
+                    >
+                        →
+                    </button>
+                </div>
+
+                <!-- Jump to page -->
+                <div class="jump-to-page">
+                    <span>Go to:</span>
+                    <input
+                        type="number"
+                        [min]="1"
+                        [max]="listTotalPages()"
+                        [value]="listCurrentPage()"
+                        (keydown.enter)="onJumpToPage($event)"
+                        [disabled]="isLoadingList() || isLoadingYtPlaylist()"
+                        placeholder="#"
+                    />
+                    <button
+                        class="go-btn"
+                        [disabled]="isLoadingList() || isLoadingYtPlaylist()"
+                        (click)="onJumpToPageFromInput($event)"
+                    >
+                        Go
+                    </button>
+                </div>
+            }
+
+            @if (isLoadingList() || isLoadingYtPlaylist()) {
+                <div class="loading-state">Loading...</div>
+            }
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="results-section" *ngIf="processedVideos().length > 0">
+            <h2>
+                @if (ytPlaylistId()) {
+                    {{ ytPlaylistTitle() }} - Page {{ listCurrentPage() }} ({{ processedVideos().length }} of {{ listTotalItems() }})
+                } @else if (selectedListCategory()) {
+                    {{ selectedListCategory() }} - Page {{ listCurrentPage() }} ({{ processedVideos().length }} of {{ listTotalItems() }})
+                } @else {
+                    Results ({{ processedVideos().length }})
+                }
+            </h2>
+
+            <div class="video-list">
+                <div *ngFor="let video of processedVideos()" class="video-card">
+                    <!-- Video Preview -->
+                    <div class="video-preview">
+                        <iframe *ngIf="video.showPreview" [src]="video.safeUrl" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen>
+                        </iframe>
+                        <div *ngIf="!video.showPreview" class="preview-placeholder" (click)="togglePreview(video)">
+                            <img [src]="video.metadata?.thumbnail || 'https://img.youtube.com/vi/' + video.id + '/hqdefault.jpg'"
+                                loading="lazy" alt="Video thumbnail">
+                            <div class="play-overlay">
+                                <span>▶ Load Preview</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Metadata -->
+                    <div class="video-info">
+                        <div class="title-row">
+                            <h3>{{ video.metadata?.title || 'Video ID: ' + video.id }}</h3>
+                            @if (video.metadata?.title; as title) {
+                                <button class="copy-btn" (click)="copyToClipboard(title)" title="Copy title">
+                                    @if (copiedId() === title) { ✓ } @else { 📋 }
+                                </button>
+                            }
+                        </div>
+
+                        <div class="meta-row id-row">
+                            <span class="label">ID:</span>
+                            <span class="id-text">{{ video.id }}</span>
+                            <button class="copy-btn" (click)="copyToClipboard(video.id)" title="Copy ID">
+                                <span *ngIf="copiedId() === video.id">✓</span>
+                                <span *ngIf="copiedId() !== video.id">📋</span>
+                            </button>
+                        </div>
+
+                        <div class="meta-row" *ngIf="video.metadata?.duration">
+                            <span class="label">Duration:</span> {{ video.metadata?.duration }}s
+                        </div>
+                        <div class="meta-row" *ngIf="video.metadata?.artist || video.metadata?.parsedTitle">
+                            <span class="label">Parsed:</span>
+                            <span *ngIf="video.metadata?.artist">{{ video.metadata?.artist }} - {{ video.metadata?.song
+                                }}</span>
+                            <span *ngIf="!video.metadata?.artist">{{ video.metadata?.parsedTitle }}</span>
+                        </div>
+
+                        <!-- Year Row -->
+                        <div class="meta-row year-row">
+                            <span class="label">Year:</span>
+                            <span *ngIf="video.year" class="year-val">{{ video.year }}</span>
+                            <button *ngIf="!video.year" class="year-btn" (click)="fetchYear(video)"
+                                [disabled]="video.yearFetching">
+                                {{ video.yearFetching ? 'Fetching...' : 'Fetch Year' }}
+                            </button>
+                        </div>
+
+                        <!-- DB Status -->
+                        <div class="status-box" [class.exists]="video.existsInDb">
+                            <ng-container *ngIf="video.existsInDb">
+                                <strong>✅ In Database</strong>
+                                <div class="playlist-tags">
+                                    @for (pl of video.dbInfo?.playlists; track pl.id) {
+                                        <span class="tag-with-remove">
+                                            <span class="tag-text">{{ pl.channelName }}: {{ pl.name }}</span>
+                                            <button
+                                                class="remove-tag-btn"
+                                                (click)="removeFromPlaylist(video, pl.id)"
+                                                [disabled]="video.isProcessing"
+                                                title="Remove from playlist"
+                                            >×</button>
+                                        </span>
+                                    }
+                                </div>
+                            </ng-container>
+                            <ng-container *ngIf="!video.existsInDb">
+                                <strong>❌ Not in Database</strong>
+                            </ng-container>
+                        </div>
+
+                        <!-- Bumper Status -->
+                        <div class="bumper-box" [class.is-bumper]="video.isBumper">
+                            <div class="bumper-status">
+                                @if (video.isBumper) {
+                                    <strong>🎬 Is Bumper</strong>
+                                } @else {
+                                    <span class="not-bumper">Not a bumper</span>
+                                }
+                            </div>
+                            <button
+                                class="bumper-btn"
+                                [class.remove]="video.isBumper"
+                                [disabled]="video.bumperProcessing || !video.metadata"
+                                (click)="toggleBumper(video)"
+                            >
+                                @if (video.bumperProcessing) {
+                                    ...
+                                } @else if (video.isBumper) {
+                                    Remove Bumper
+                                } @else {
+                                    Add Bumper
+                                }
+                            </button>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="actions-box">
+                            <h4>Add to Playlists</h4>
+
+                            <div class="form-row">
+                                <select [ngModel]="video.selectedChannelId"
+                                    (ngModelChange)="onChannelSelect(video, $event)" class="channel-select">
+                                    <option value="" disabled selected>Select Channel</option>
+                                    <option *ngFor="let ch of channels()" [value]="ch.id">{{ ch.name }}</option>
+                                </select>
+                            </div>
+
+                            @if (video.selectedChannelId) {
+                                <div class="playlist-checkboxes">
+                                    @for (pl of getPlaylists(video.selectedChannelId); track pl.id) {
+                                        <label class="playlist-checkbox">
+                                            <input
+                                                type="checkbox"
+                                                [checked]="isPlaylistSelected(video, pl.id)"
+                                                (change)="togglePlaylistSelection(video, pl.id)"
+                                            />
+                                            <span>{{ pl.name }}</span>
+                                        </label>
+                                    }
+                                </div>
+
+                                @if (video.selectedPlaylistIds.length > 0) {
+                                    <div class="selected-count">
+                                        {{ video.selectedPlaylistIds.length }} playlist{{ video.selectedPlaylistIds.length > 1 ? 's' : '' }} selected
+                                    </div>
+                                }
+                            }
+
+                            <button class="add-btn" [disabled]="video.selectedPlaylistIds.length === 0 || video.isProcessing"
+                                (click)="addToPlaylists(video)">
+                                @if (video.isProcessing) {
+                                    Adding...
+                                } @else if (video.selectedPlaylistIds.length > 1) {
+                                    Add to {{ video.selectedPlaylistIds.length }} Playlists
+                                } @else {
+                                    Add Video
+                                }
+                            </button>
+
+                            <div class="feedback-msg" [class.error]="video.messageType === 'error'"
+                                *ngIf="video.message">
+                                {{ video.message }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

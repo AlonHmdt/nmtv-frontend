@@ -1,0 +1,107 @@
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a2e;
+    padding: 20px;
+}
+
+.login-card {
+    background: #16213e;
+    border-radius: 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+
+    h1 {
+        color: #fff;
+        font-size: 1.8rem;
+        margin: 0 0 8px 0;
+        text-align: center;
+    }
+
+    .subtitle {
+        color: #888;
+        text-align: center;
+        margin: 0 0 30px 0;
+        font-size: 0.95rem;
+    }
+}
+
+.form-group {
+    margin-bottom: 20px;
+
+    input {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #2a2a4a;
+        border-radius: 8px;
+        background: #0f0f23;
+        color: #fff;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+
+        &:focus {
+            border-color: #e94560;
+        }
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        &::placeholder {
+            color: #666;
+        }
+    }
+}
+
+.error-message {
+    background: rgba(233, 69, 96, 0.15);
+    border: 1px solid #e94560;
+    color: #e94560;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.info-message {
+    background: rgba(74, 158, 255, 0.15);
+    border: 1px solid #4a9eff;
+    color: #4a9eff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 14px 20px;
+    background: #e94560;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+
+    &:hover:not(:disabled) {
+        background: #d63850;
+    }
+
+    &:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
