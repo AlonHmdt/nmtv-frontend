@@ -57,6 +57,9 @@ export class AdminComponent {
     listTotalItems = signal<number>(0);
     isLoadingList = signal<boolean>(false);
 
+    // LocalStorage key for persisting page positions
+    private readonly LIST_PAGES_STORAGE_KEY = 'admin_list_pages';
+
     // YouTube playlist browser state
     ytPlaylistInput = signal<string>('');
     ytPlaylistTitle = signal<string>('');
@@ -341,6 +344,30 @@ export class AdminComponent {
     // LISTS BROWSER METHODS
     // ============================================
 
+    private getSavedPageForList(category: string): number {
+        try {
+            const stored = localStorage.getItem(this.LIST_PAGES_STORAGE_KEY);
+            if (stored) {
+                const pages = JSON.parse(stored) as Record<string, number>;
+                return pages[category] || 1;
+            }
+        } catch (e) {
+            console.error('Failed to read list pages from localStorage:', e);
+        }
+        return 1;
+    }
+
+    private savePageForList(category: string, page: number) {
+        try {
+            const stored = localStorage.getItem(this.LIST_PAGES_STORAGE_KEY);
+            const pages = stored ? JSON.parse(stored) as Record<string, number> : {};
+            pages[category] = page;
+            localStorage.setItem(this.LIST_PAGES_STORAGE_KEY, JSON.stringify(pages));
+        } catch (e) {
+            console.error('Failed to save list page to localStorage:', e);
+        }
+    }
+
     loadListCategories() {
         this.adminService.getListCategories().subscribe({
             next: (response) => {
@@ -361,8 +388,11 @@ export class AdminComponent {
         this.ytPlaylistError.set('');
 
         this.selectedListCategory.set(categoryName);
-        this.listCurrentPage.set(1);
-        this.loadListPage(categoryName, 1);
+        
+        // Restore saved page or default to 1
+        const savedPage = this.getSavedPageForList(categoryName);
+        this.listCurrentPage.set(savedPage);
+        this.loadListPage(categoryName, savedPage);
     }
 
     loadListPage(category: string, page: number) {
@@ -375,6 +405,9 @@ export class AdminComponent {
                 this.listCurrentPage.set(response.page);
                 this.listTotalPages.set(response.totalPages);
                 this.listTotalItems.set(response.totalItems);
+                
+                // Save the actual page (might differ from requested if capped)
+                this.savePageForList(category, response.page);
 
                 // Single request to fetch YouTube metadata AND check DB existence
                 try {
@@ -428,6 +461,8 @@ export class AdminComponent {
         const category = this.selectedListCategory();
         if (!category || page < 1 || page > this.listTotalPages()) return;
 
+        // Save page position to localStorage
+        this.savePageForList(category, page);
         this.loadListPage(category, page);
     }
 
