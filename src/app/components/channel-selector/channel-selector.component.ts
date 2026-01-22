@@ -457,6 +457,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     this.track('VCR Mode Toggled', { enabled: newValue });
 
     this.queueService.oldTVEnabled.update(v => !v);
+    this.toggleMenu();
   }
 
   toggleFullscreen(): void {
