@@ -2,6 +2,7 @@ import { Injectable, signal, computed, inject } from '@angular/core';
 import { Video, Channel, VideoBlock, VideoItem } from '../models/video.model';
 import { YoutubeService } from './youtube.service';
 import { CustomPlaylistService } from './custom-playlist.service';
+import { ChannelStateService } from './channel-state.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -10,11 +11,16 @@ import { environment } from '../../environments/environment';
 export class QueueService {
   private youtubeService = inject(YoutubeService);
   private customPlaylistService = inject(CustomPlaylistService);
+  private channelStateService = inject(ChannelStateService);
 
   // Signals for reactive state management
   private queueSignal = signal<Video[]>([]);
   private currentIndexSignal = signal<number>(0);
   private currentChannelSignal = signal<Channel>(Channel.DECADE_1990S);
+
+  // Playback position tracking (updated by VideoPlayerComponent)
+  private currentPlaybackPosition = signal<number>(0);
+  private currentVideoDuration = signal<number>(0);
 
   // Old TV effect toggle (includes: vignette, snow, scanlines, vcr tracking, wobbly)
   oldTVEnabled = signal<boolean>(false);
@@ -37,6 +43,15 @@ export class QueueService {
   // This is tracked per channel to maintain proper zig-zag within each channel
   private lastBlockWasCustomPerChannel = new Map<Channel, boolean>();
 
+  // Saved queues per channel for state persistence (allows returning to same video)
+  private savedQueuesPerChannel = new Map<Channel, {
+    queue: Video[];
+    currentIndex: number;
+    playedVideoIds: Set<string>;
+    playedVideosArray: string[];
+    usedPlaylistIds: Set<string>;
+  }>();
+
   async initializeQueue(channel: Channel): Promise<void> {
     this.currentChannelSignal.set(channel);
     this.currentIndexSignal.set(0);
@@ -46,6 +61,14 @@ export class QueueService {
     this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
     // Don't reset lastBlockWasCustomPerChannel - it persists across initialization
+
+    // Clear any saved queue and state for this channel (fresh start)
+    this.savedQueuesPerChannel.delete(channel);
+    this.channelStateService.clearState(channel);
+    
+    // Reset playback position tracking
+    this.currentPlaybackPosition.set(0);
+    this.currentVideoDuration.set(0);
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
 
@@ -63,19 +86,97 @@ export class QueueService {
       localStorage.setItem('lastChannel', channel);
     }
 
-    // Reset state for new channel
-    this.currentChannelSignal.set(channel);
-    this.currentIndexSignal.set(0);
-    this.queueSignal.set([]);
-    this.playedVideoIds.clear();
-    this.playedVideosArray = [];
-    this.unavailableVideoIds.clear();
-    this.usedPlaylistIds.clear();
-    // Don't reset lastBlockWasCustomPerChannel - it persists across channel switches
+    // Save current channel state before switching (for channel state persistence)
+    const previousChannel = this.currentChannelSignal();
+    const currentVideo = this.currentVideo();
+    const position = this.currentPlaybackPosition();
+    const duration = this.currentVideoDuration();
+    const videoIndex = this.currentIndexSignal();
+    const queue = this.queueSignal();
 
-    const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
+    if (currentVideo && position > 0 && duration > 0) {
+      // Check if video is near the end (last 5 seconds)
+      const isVideoEnding = duration > 0 && position >= duration - 5;
+      
+      if (isVideoEnding) {
+        // Video is about to end - save queue with NEXT video index
+        // So user gets a fresh song when they return
+        const nextIndex = videoIndex + 1;
+        if (nextIndex < queue.length) {
+          this.savedQueuesPerChannel.set(previousChannel, {
+            queue: [...queue],
+            currentIndex: nextIndex,
+            playedVideoIds: new Set(this.playedVideoIds),
+            playedVideosArray: [...this.playedVideosArray],
+            usedPlaylistIds: new Set(this.usedPlaylistIds)
+          });
+          // Don't save channel state - let them start fresh on next video
+        }
+      } else {
+        // Normal case - save current position
+        this.channelStateService.saveState(previousChannel, currentVideo.id, position, videoIndex, duration);
+        
+        // Also save the queue so we can return to the same video
+        this.savedQueuesPerChannel.set(previousChannel, {
+          queue: [...queue],
+          currentIndex: videoIndex,
+          playedVideoIds: new Set(this.playedVideoIds),
+          playedVideosArray: [...this.playedVideosArray],
+          usedPlaylistIds: new Set(this.usedPlaylistIds)
+        });
+      }
+    }
 
-    await this.fetchAndAppendBlock(channel, customPlaylistIds);
+    // Reset playback position tracking
+    this.currentPlaybackPosition.set(0);
+    this.currentVideoDuration.set(0);
+
+    // Check if we have a saved queue for the target channel
+    const savedQueue = this.savedQueuesPerChannel.get(channel);
+    const hasChannelState = this.channelStateService.hasState(channel);
+
+    if (savedQueue && hasChannelState && savedQueue.queue.length > 0) {
+      // Get the target video for validation
+      const targetVideo = savedQueue.queue[savedQueue.currentIndex];
+      
+      // Restore the saved queue instead of fetching new videos
+      // IMPORTANT: Restore state FIRST to set restoredState signal BEFORE queue changes trigger effects
+      const videoDurations = this.getVideoDurations();
+      const result = this.channelStateService.restoreState(channel, targetVideo?.id, videoDurations);
+      
+      let targetIndex = savedQueue.currentIndex;
+      if (result.type === 'restored') {
+        targetIndex = result.state.videoIndex;
+      } else if (result.type === 'expired') {
+        // Too much time has passed - advance to next video for fresh start
+        targetIndex = Math.min(savedQueue.currentIndex + 1, savedQueue.queue.length - 1);
+      }
+      // For 'not-found', keep savedQueue.currentIndex (same video, fresh start)
+      
+      // Now set the queue and index - this will trigger VideoPlayer effect which reads restoredState
+      this.currentChannelSignal.set(channel);
+      this.playedVideoIds = new Set(savedQueue.playedVideoIds);
+      this.playedVideosArray = [...savedQueue.playedVideosArray];
+      this.usedPlaylistIds = new Set(savedQueue.usedPlaylistIds);
+      this.unavailableVideoIds.clear();
+      this.currentIndexSignal.set(targetIndex);
+      this.queueSignal.set(savedQueue.queue);
+    } else {
+      // No saved queue - fetch fresh videos (first visit or state expired)
+      // Clear any stale restored state BEFORE queue changes trigger effects
+      this.channelStateService.clearRestoredState();
+      
+      this.currentChannelSignal.set(channel);
+      this.currentIndexSignal.set(0);
+      this.queueSignal.set([]);
+      this.playedVideoIds.clear();
+      this.playedVideosArray = [];
+      this.unavailableVideoIds.clear();
+      this.usedPlaylistIds.clear();
+
+      const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
+      await this.fetchAndAppendBlock(channel, customPlaylistIds);
+    }
   }
 
   // Helper method: Add video to played tracking with rolling window limit
@@ -147,6 +248,45 @@ export class QueueService {
   getLastSelectedChannel(): Channel {
     const saved = localStorage.getItem('lastChannel');
     return (saved as Channel) || Channel.DECADE_1990S;
+  }
+
+  /**
+   * Update current playback position (called by VideoPlayerComponent).
+   * Used to track position for channel state persistence.
+   */
+  updatePlaybackPosition(position: number, duration: number): void {
+    this.currentPlaybackPosition.set(position);
+    this.currentVideoDuration.set(duration);
+  }
+
+  /**
+   * Get video durations for the current queue (for boundary calculations).
+   */
+  getVideoDurations(): number[] {
+    // Return empty array - durations will be fetched as videos load
+    // For now, we use the stored duration from when state was saved
+    return [];
+  }
+
+  /**
+   * Get the restored state signal for VideoPlayerComponent to consume.
+   */
+  getRestoredState() {
+    return this.channelStateService.restoredState;
+  }
+
+  /**
+   * Clear restored state after VideoPlayerComponent has consumed it.
+   */
+  clearRestoredState(): void {
+    this.channelStateService.clearRestoredState();
+  }
+
+  /**
+   * Check if channel has saved state.
+   */
+  hasChannelState(channel: Channel): boolean {
+    return this.channelStateService.hasState(channel);
   }
 
   private async fetchAndAppendBlock(channel: Channel, customPlaylistIds: string[]): Promise<void> {

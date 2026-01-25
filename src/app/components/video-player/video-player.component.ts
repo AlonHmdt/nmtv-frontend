@@ -9,6 +9,7 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { Video, Channel, Channels, getNavigationChannels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
+import { RestoredState } from '../../models/channel-state.model';
 
 
 declare var YT: any;
@@ -83,6 +84,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private oldTVEffect: OldTVEffect | null = null;
   private isAwaitingIOSUnmute = false; // Track if waiting for user interaction to unmute on iOS
 
+  // Channel state persistence - restored state from QueueService
+  private restoredState = this.queueService.getRestoredState();
+  private positionUpdateInterval: number | null = null;
+
   // Touch gesture tracking
   private touchStart = { x: 0, y: 0, time: 0 };
   private touchEnd = { x: 0, y: 0 };
@@ -123,9 +128,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const video = this.currentVideo();
       const ready = this.apiReady();
-
-      // Check if channel changed
-      // Note: isFirstVideo is handled in switchToNextChannel for manual switches
+      
+      // DON'T track restoredState as a dependency - read it only when loading
+      // This prevents the effect from triggering when restoredState changes before the queue updates
 
       if (video && ready) {
         // Reset overlays for new video
@@ -134,17 +139,28 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (!this.player) {
           this.initPlayer();
-          // isFirstVideo will be handled in handlePlayingState via seekTo
         } else {
           if (this.isFirstVideo) {
+            // Read restored state only when actually loading (untracked to avoid dependency)
+            const restored = untracked(() => this.restoredState());
+            
             // For channel switches, load directly at the desired time
-            // Extended static duration (1200ms) masks any loading time
+            // Use restored position if available, otherwise random start
+            const startSeconds = restored ? restored.position : this.getRandomStartTime();
+            
+            console.log(`[VideoPlayer] Loading video at ${startSeconds.toFixed(1)}s (restored: ${restored ? 'yes' : 'no, using random'})`);
+            
             this.player.loadVideoById({
               videoId: video.id,
-              startSeconds: this.getRandomStartTime(),
+              startSeconds: startSeconds,
               suggestedQuality: 'hd720'
             });
             this.isFirstVideo = false;
+            
+            // Clear restored state after using it
+            if (restored) {
+              untracked(() => this.queueService.clearRestoredState());
+            }
           } else {
             this.player.loadVideoById({
               videoId: video.id,
@@ -321,6 +337,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.clearTimeouts();
     this.clearAllNamedTimeouts();
+    this.stopPositionUpdates();
 
     if (this.oldTVEffect) {
       this.oldTVEffect.destroy();
@@ -473,6 +490,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initiateChannelSwitch(): void {
+    // Update position one final time before switching (for channel state persistence)
+    this.updatePlaybackPosition();
+    this.stopPositionUpdates();
+
     this.showChannelSwitchStatic.set(true);
     this.minStaticTimePassed.set(false);
     this.isVideoPlaying.set(false);
@@ -624,6 +645,19 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
 
       try {
+        // Determine start position: use restored state if available, otherwise random for first video
+        const restored = untracked(() => this.restoredState());
+        let startSeconds = 0;
+        
+        if (this.isFirstVideo) {
+          startSeconds = restored ? restored.position : this.getRandomStartTime();
+          
+          // Clear restored state after using it
+          if (restored) {
+            this.queueService.clearRestoredState();
+          }
+        }
+
         const playerConfig: any = {
           videoId: video.id,
           width: '100%',
@@ -642,7 +676,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             origin: window.location.origin,
             mute: 0,  // Unmuted since user clicked power button
             cc_load_policy: 0,  // Disable captions by default (0 = off, 1 = on if available)
-            start: this.isFirstVideo ? this.getRandomStartTime() : 0,
+            start: startSeconds,
           },
           events: {
             onReady: (event: any) => this.ngZone.run(() => this.onPlayerReady(event)),
@@ -763,6 +797,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private handlePlayingState(player: any): void {
     this.loadAttempts = 0;
 
+    // Start periodic position updates for channel state persistence
+    this.startPositionUpdates();
+
     if (this.isFirstVideo) {
       // Mark as no longer first video
       this.isFirstVideo = false;
@@ -779,6 +816,51 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       this.initializeVideoOverlays();
     }
     this.upgradeVideoQuality();
+  }
+
+  /**
+   * Start periodic position updates for channel state persistence.
+   * Updates every 2 seconds to keep position current.
+   */
+  private startPositionUpdates(): void {
+    // Clear any existing interval
+    this.stopPositionUpdates();
+
+    // Update position immediately
+    this.updatePlaybackPosition();
+
+    // Then update every 2 seconds
+    this.positionUpdateInterval = window.setInterval(() => {
+      this.updatePlaybackPosition();
+    }, 2000);
+  }
+
+  /**
+   * Stop periodic position updates.
+   */
+  private stopPositionUpdates(): void {
+    if (this.positionUpdateInterval !== null) {
+      clearInterval(this.positionUpdateInterval);
+      this.positionUpdateInterval = null;
+    }
+  }
+
+  /**
+   * Update current playback position to QueueService.
+   */
+  private updatePlaybackPosition(): void {
+    if (!this.player) return;
+
+    try {
+      const position = this.player.getCurrentTime();
+      const duration = this.player.getDuration();
+
+      if (position > 0 && duration > 0) {
+        this.queueService.updatePlaybackPosition(position, duration);
+      }
+    } catch (e) {
+      // Player may not be ready, ignore
+    }
   }
 
   private upgradeVideoQuality(): void {
@@ -805,6 +887,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handlePausedState(player: any): void {
+    // Update position one last time when pausing
+    this.updatePlaybackPosition();
+    
     if (!this.videoPlayerControl.shouldPause()) {
       player.playVideo();
     }
