@@ -7,6 +7,7 @@ export interface VideoItem {
   song?: string;    // Optional: present if title has " - " separator
   title?: string;   // Optional: present if no separator
   year?: number;    // Optional: release year fetched from IMVDb
+  duration?: number; // Optional: duration in seconds from backend DB
   isBumper?: boolean; // Optional: true if this is a bumper/ident video
   isLimited?: boolean; // Optional: true if video has location/region restrictions
 }
@@ -25,6 +26,7 @@ export interface Video {
   song?: string;
   title?: string;
   year?: number;
+  duration?: number; // Duration in seconds from backend DB
   isBumper?: boolean;
   playlistId?: string;
   playlistName?: string;

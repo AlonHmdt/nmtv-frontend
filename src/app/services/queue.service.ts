@@ -90,7 +90,8 @@ export class QueueService {
     const previousChannel = this.currentChannelSignal();
     const currentVideo = this.currentVideo();
     const position = this.currentPlaybackPosition();
-    const duration = this.currentVideoDuration();
+    // Prefer backend duration (more reliable), fall back to player duration
+    const duration = currentVideo?.duration ?? this.currentVideoDuration();
     const videoIndex = this.currentIndexSignal();
     const queue = this.queueSignal();
 
@@ -141,7 +142,8 @@ export class QueueService {
       
       // Restore the saved queue instead of fetching new videos
       // IMPORTANT: Restore state FIRST to set restoredState signal BEFORE queue changes trigger effects
-      const videoDurations = this.getVideoDurations();
+      // Use durations from the SAVED queue (not current queue which is about to be replaced)
+      const videoDurations = savedQueue.queue.map(v => v.duration).filter((d): d is number => d != null && d > 0);
       const result = this.channelStateService.restoreState(channel, targetVideo?.id, videoDurations);
       
       let targetIndex = savedQueue.currentIndex;
@@ -261,11 +263,13 @@ export class QueueService {
 
   /**
    * Get video durations for the current queue (for boundary calculations).
+   * Returns durations from backend data when available.
    */
   getVideoDurations(): number[] {
-    // Return empty array - durations will be fetched as videos load
-    // For now, we use the stored duration from when state was saved
-    return [];
+    const queue = this.queueSignal();
+    // Extract durations from queue videos (from backend DB)
+    // Filter out undefined/null durations
+    return queue.map(v => v.duration).filter((d): d is number => d != null && d > 0);
   }
 
   /**
