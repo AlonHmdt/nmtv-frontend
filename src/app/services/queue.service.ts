@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Video, Channel, VideoBlock, VideoItem } from '../models/video.model';
+import { Video, Channel, VideoBlock } from '../models/video.model';
 import { YoutubeService } from './youtube.service';
 import { CustomPlaylistService } from './custom-playlist.service';
 import { ChannelStateService } from './channel-state.service';
@@ -143,26 +143,60 @@ export class QueueService {
       // Restore the saved queue instead of fetching new videos
       // IMPORTANT: Restore state FIRST to set restoredState signal BEFORE queue changes trigger effects
       // Use durations from the SAVED queue (not current queue which is about to be replaced)
-      const videoDurations = savedQueue.queue.map(v => v.duration).filter((d): d is number => d != null && d > 0);
+      // Keep array aligned with queue indices - use 0 for missing durations (will stop boundary calculation)
+      const videoDurations = savedQueue.queue.map(v => v.duration ?? 0);
       const result = this.channelStateService.restoreState(channel, targetVideo?.id, videoDurations);
       
       let targetIndex = savedQueue.currentIndex;
+      let shouldFetchFresh = false;
+      
       if (result.type === 'restored') {
-        targetIndex = result.state.videoIndex;
+        // Check if all videos in queue have ended (index exceeds queue length)
+        if (result.state.videoIndex >= savedQueue.queue.length) {
+          // All videos ended - fetch fresh playlist from backend
+          shouldFetchFresh = true;
+          console.log(`[QueueService] All ${savedQueue.queue.length} videos ended, fetching fresh playlist`);
+        } else {
+          targetIndex = result.state.videoIndex;
+        }
       } else if (result.type === 'expired') {
         // Too much time has passed - advance to next video for fresh start
-        targetIndex = Math.min(savedQueue.currentIndex + 1, savedQueue.queue.length - 1);
+        if (savedQueue.currentIndex + 1 >= savedQueue.queue.length) {
+          // Would go past queue - fetch fresh
+          shouldFetchFresh = true;
+        } else {
+          targetIndex = savedQueue.currentIndex + 1;
+        }
       }
       // For 'not-found', keep savedQueue.currentIndex (same video, fresh start)
       
-      // Now set the queue and index - this will trigger VideoPlayer effect which reads restoredState
-      this.currentChannelSignal.set(channel);
-      this.playedVideoIds = new Set(savedQueue.playedVideoIds);
-      this.playedVideosArray = [...savedQueue.playedVideosArray];
-      this.usedPlaylistIds = new Set(savedQueue.usedPlaylistIds);
-      this.unavailableVideoIds.clear();
-      this.currentIndexSignal.set(targetIndex);
-      this.queueSignal.set(savedQueue.queue);
+      if (shouldFetchFresh) {
+        // Clear saved state and fetch new content
+        this.savedQueuesPerChannel.delete(channel);
+        this.channelStateService.clearState(channel);
+        this.channelStateService.clearRestoredState();
+        
+        this.currentChannelSignal.set(channel);
+        this.currentIndexSignal.set(0);
+        this.queueSignal.set([]);
+        // Keep playedVideoIds to avoid repeating recently watched videos
+        this.playedVideoIds = new Set(savedQueue.playedVideoIds);
+        this.playedVideosArray = [...savedQueue.playedVideosArray];
+        this.usedPlaylistIds = new Set(savedQueue.usedPlaylistIds);
+        this.unavailableVideoIds.clear();
+
+        const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
+        await this.fetchAndAppendBlock(channel, customPlaylistIds);
+      } else {
+        // Resume within the saved queue
+        this.currentChannelSignal.set(channel);
+        this.playedVideoIds = new Set(savedQueue.playedVideoIds);
+        this.playedVideosArray = [...savedQueue.playedVideosArray];
+        this.usedPlaylistIds = new Set(savedQueue.usedPlaylistIds);
+        this.unavailableVideoIds.clear();
+        this.currentIndexSignal.set(targetIndex);
+        this.queueSignal.set(savedQueue.queue);
+      }
     } else {
       // No saved queue - fetch fresh videos (first visit or state expired)
       // Clear any stale restored state BEFORE queue changes trigger effects
@@ -264,12 +298,13 @@ export class QueueService {
   /**
    * Get video durations for the current queue (for boundary calculations).
    * Returns durations from backend data when available.
+   * Uses 0 for videos without duration (boundary calculation will stop there).
    */
   getVideoDurations(): number[] {
     const queue = this.queueSignal();
     // Extract durations from queue videos (from backend DB)
-    // Filter out undefined/null durations
-    return queue.map(v => v.duration).filter((d): d is number => d != null && d > 0);
+    // Use 0 for missing durations to preserve index alignment
+    return queue.map(v => v.duration ?? 0);
   }
 
   /**

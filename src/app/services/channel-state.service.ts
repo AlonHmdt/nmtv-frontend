@@ -99,8 +99,15 @@ export class ChannelStateService {
     // Handle video boundaries - advance through videos if elapsed time exceeds duration
     if (videoDurations.length > 0) {
       // Full boundary handling when durations are available
-      while (videoIndex < videoDurations.length && newPosition > videoDurations[videoIndex]) {
-        newPosition -= videoDurations[videoIndex];
+      // Use default duration (4 min) for videos with unknown duration (0)
+      const DEFAULT_VIDEO_DURATION = 240; // 4 minutes in seconds
+      
+      while (videoIndex < videoDurations.length) {
+        const duration = videoDurations[videoIndex] || DEFAULT_VIDEO_DURATION;
+        if (newPosition <= duration) {
+          break; // Stay on this video
+        }
+        newPosition -= duration;
         videoIndex++;
         videoSkips++;
       }
