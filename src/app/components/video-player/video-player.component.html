@@ -30,8 +30,6 @@
     } @else if (currentVideo().title) {
     <div class="playlist-name-badge">{{ currentVideo().title }}</div>
     }
-    } @else if (currentVideo().playlistLabel) {
-    <div class="playlist-name-badge">{{ currentVideo().playlistLabel }}</div>
     }
     }
   </div>
@@ -63,9 +61,6 @@
       @if (currentVideo()!.year) {
       <div class="year">({{ currentVideo()!.year }})</div>
       }
-      @if (currentVideo()!.playlistName) {
-      <div class="playlist-badge">🎵 {{ currentVideo()!.playlistName }}</div>
-      }
     </div>
   </div>
   }
@@ -81,8 +76,8 @@
       } @else {
       <div class="title">{{ upcomingVideo()!.title }}</div>
       }
-      @if (upcomingVideo()!.playlistName) {
-      <div class="playlist-badge">🎵 {{ upcomingVideo()!.playlistName }}</div>
+      @if (upcomingVideo()!.year) {
+      <div class="year">({{ upcomingVideo()!.year }})</div>
       }
     </div>
   </div>

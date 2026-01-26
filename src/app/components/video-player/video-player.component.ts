@@ -7,7 +7,7 @@ import { HelpersService } from '../../services/helpers.service';
 import { EasterEggService } from '../../services/easter-egg.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
-import { Video, Channel, Channels, getNavigationChannels } from '../../models/video.model';
+import { VideoItem, Channel, Channels, getNavigationChannels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
 import { RestoredState } from '../../models/channel-state.model';
 
@@ -913,7 +913,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.clearNamedTimeout('yearFetch');
   }
 
-  private scheduleYearFetch(video: Video | undefined, channel: Channel): void {
+  private scheduleYearFetch(video: VideoItem | undefined, channel: Channel): void {
     if (!video || channel === Channel.LIVE || channel === Channel.SHOWS || video.isBumper) {
       return;
     }
@@ -1025,7 +1025,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadNextVideoAfterRemoval();
   }
 
-  private skipToNextVideo(videoToRemove: Video): void {
+  private skipToNextVideo(videoToRemove: VideoItem): void {
     // Remove from queue locally only (without backend notification)
     // Used for limited videos or custom playlist videos
     this.queueService.removeVideoLocally(videoToRemove.id);
@@ -1094,7 +1094,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.overlayTimeouts.push(timeout);
   }
 
-  private scheduleSecondPlayingNowOverlay(remainingTime: number, upcomingVideo: Video | undefined): void {
+  private scheduleSecondPlayingNowOverlay(remainingTime: number, upcomingVideo: VideoItem | undefined): void {
     const showBeforeEnd = (remainingTime - 50) * 1000;
 
     const timeout = window.setTimeout(() => {

@@ -545,6 +545,21 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     this.selectChannel(Channel.SPECIAL);
   }
 
+  getSpecialEventLabel(): string {
+    const specialEventData = this.youtubeService.specialEventData();
+    return specialEventData?.label || 'SPECIAL EVENT';
+  }
+
+  getSpecialEventIcon1(): string {
+    const specialEventData = this.youtubeService.specialEventData();
+    return specialEventData?.icon1 || '';
+  }
+
+  getSpecialEventIcon2(): string {
+    const specialEventData = this.youtubeService.specialEventData();
+    return specialEventData?.icon2 || '';
+  }
+
   onLogoClick(): void {
     this.track('Logo Clicked');
 

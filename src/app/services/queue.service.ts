@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Video, Channel, VideoBlock } from '../models/video.model';
+import { VideoItem, Channel, VideoBlock } from '../models/video.model';
 import { YoutubeService } from './youtube.service';
 import { CustomPlaylistService } from './custom-playlist.service';
 import { ChannelStateService } from './channel-state.service';
@@ -14,7 +14,7 @@ export class QueueService {
   private channelStateService = inject(ChannelStateService);
 
   // Signals for reactive state management
-  private queueSignal = signal<Video[]>([]);
+  private queueSignal = signal<VideoItem[]>([]);
   private currentIndexSignal = signal<number>(0);
   private currentChannelSignal = signal<Channel>(Channel.DECADE_1990S);
 
@@ -45,7 +45,7 @@ export class QueueService {
 
   // Saved queues per channel for state persistence (allows returning to same video)
   private savedQueuesPerChannel = new Map<Channel, {
-    queue: Video[];
+    queue: VideoItem[];
     currentIndex: number;
     playedVideoIds: Set<string>;
     playedVideosArray: string[];
@@ -374,18 +374,11 @@ export class QueueService {
             const isCustomBlock = customPlaylistIds.includes(block.playlistId);
             this.lastBlockWasCustomPerChannel.set(channel, isCustomBlock);
 
-            // Flatten block into Video[] with playlist metadata
-            const enrichedVideos: Video[] = block.items.map(item => ({
-              ...item,
-              playlistId: block.playlistId,
-              playlistLabel: block.playlistLabel
-            }));
-
-            // Append to queue
-            this.queueSignal.update(queue => [...queue, ...enrichedVideos]);
+            // Append block items directly to queue (no conversion needed)
+            this.queueSignal.update(queue => [...queue, ...block.items]);
 
             // Track video IDs
-            enrichedVideos.forEach(v => this.addPlayedVideo(v.id));
+            block.items.forEach(v => this.addPlayedVideo(v.id));
 
             resolve();
           },
