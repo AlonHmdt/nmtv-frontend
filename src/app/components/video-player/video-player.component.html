@@ -30,6 +30,8 @@
     } @else if (currentVideo().title) {
     <div class="playlist-name-badge">{{ currentVideo().title }}</div>
     }
+    } @else if (queueService.currentBlock()?.playlistLabel) {
+    <div class="playlist-name-badge">{{ queueService.currentBlock()!.playlistLabel }}</div>
     }
     }
   </div>

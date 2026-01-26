@@ -23,7 +23,7 @@ declare var YT: any;
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
-  private queueService = inject(QueueService);
+  queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
   private videoPlayerControl = inject(VideoPlayerControlService);
   private helpersService = inject(HelpersService);
