@@ -9,7 +9,6 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { VideoItem, Channel, Channels, getNavigationChannels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
-import { RestoredState } from '../../models/channel-state.model';
 
 
 declare var YT: any;
@@ -145,10 +144,18 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             const restored = untracked(() => this.restoredState());
             
             // For channel switches, load directly at the desired time
-            // Use restored position if available, otherwise random start
-            const startSeconds = restored ? restored.position : this.getRandomStartTime();
+            // Use restored position if available, but if videos were skipped, start fresh
+            let startSeconds = this.getRandomStartTime(); // default
             
-            console.log(`[VideoPlayer] Loading video at ${startSeconds.toFixed(1)}s (restored: ${restored ? 'yes' : 'no, using random'})`);
+            if (restored) {
+              if (restored.videoSkips > 0) {
+                // Videos were skipped (e.g., bumpers) - start the target video fresh from beginning
+                startSeconds = 0;
+              } else {
+                // No skips - use restored position
+                startSeconds = restored.position;
+              }
+            }
             
             this.player.loadVideoById({
               videoId: video.id,
@@ -650,7 +657,17 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
         let startSeconds = 0;
         
         if (this.isFirstVideo) {
-          startSeconds = restored ? restored.position : this.getRandomStartTime();
+          if (restored) {
+            if (restored.videoSkips > 0) {
+              // Videos were skipped (e.g., bumpers) - start fresh
+              startSeconds = 0;
+            } else {
+              // No skips - use restored position
+              startSeconds = restored.position;
+            }
+          } else {
+            startSeconds = this.getRandomStartTime();
+          }
           
           // Clear restored state after using it
           if (restored) {
@@ -1045,6 +1062,15 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private async playNextVideo(): Promise<void> {
+    // When manually advancing, save state pointing to the NEXT video with current elapsed time
+    // This prevents switchChannel() from overriding with wrong state
+    const currentVideo = this.currentVideo();
+    const playerPosition = this.player?.getCurrentTime() || 0;
+    
+    if (currentVideo && playerPosition > 0) {
+      this.queueService.saveStateForNextVideo(playerPosition);
+    }
+
     this.clearTimeouts();
     this.overlaysStarted = false; // Reset for next video
     // isFirstVideo is already false at this point (set in effect)

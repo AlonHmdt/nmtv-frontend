@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Channel } from '../models/video.model';
+import { Channel, VideoItem } from '../models/video.model';
 import { ChannelState, RestoredState, StateRestoreResult } from '../models/channel-state.model';
 
 /**
@@ -24,16 +24,47 @@ export class ChannelStateService {
    * @param position - Current playback position in seconds
    * @param videoIndex - Current video index in the queue
    * @param videoDuration - Duration of current video in seconds
+   * @param currentVideo - The current video object (to check if it's a bumper)
+   * @param queueVideos - Array of video objects in the queue (to get next video after bumper)
    */
   saveState(
     channel: Channel,
     videoId: string,
     position: number,
     videoIndex: number,
-    videoDuration: number
+    videoDuration: number,
+    currentVideo?: VideoItem,
+    queueVideos?: VideoItem[]
   ): void {
-    // Validate inputs
-    if (!videoId || position < 0 || videoIndex < 0 || videoDuration <= 0) {
+    // If current video is a bumper, save state for the next video instead
+    if (currentVideo?.isBumper && queueVideos && queueVideos.length > videoIndex + 1) {
+      const nextVideo = queueVideos[videoIndex + 1];
+      
+      // Calculate how much time the bumper consumed
+      // Use the current position in the bumper as the starting position for the next video
+      // This ensures timeline progression continues naturally
+      const bumperTimeElapsed = position;
+      
+      const state: ChannelState = {
+        channelId: channel,
+        videoId: nextVideo.id,
+        position: bumperTimeElapsed, // Start next video with elapsed bumper time
+        savedAt: Date.now(),
+        videoIndex: videoIndex + 1, // Point to next video
+        videoDuration: nextVideo.duration || 240, // Use next video duration or default
+        highWaterMark: bumperTimeElapsed // Initialize with elapsed bumper time
+      };
+
+      this.states.update(map => {
+        const newMap = new Map(map);
+        newMap.set(channel, state);
+        return newMap;
+      });
+      return;
+    }
+    
+    // Validate inputs (allow 0 duration for bumpers/short videos)
+    if (!videoId || position < 0 || videoIndex < 0 || videoDuration < 0) {
       return;
     }
 
@@ -73,10 +104,10 @@ export class ChannelStateService {
    *
    * @param channel - The channel being returned to
    * @param targetVideoId - The video ID we're about to play (for validation)
-   * @param videoDurations - Array of video durations in the queue (for boundary handling)
+   * @param queueVideos - Array of video objects in the queue (for boundary handling and bumper detection)
    * @returns StateRestoreResult indicating success or failure reason
    */
-  restoreState(channel: Channel, targetVideoId?: string, videoDurations: number[] = []): StateRestoreResult {
+  restoreState(channel: Channel, targetVideoId?: string, queueVideos: VideoItem[] = []): StateRestoreResult {
     const state = this.states().get(channel);
 
     if (!state) {
@@ -97,13 +128,23 @@ export class ChannelStateService {
     let videoSkips = 0;
 
     // Handle video boundaries - advance through videos if elapsed time exceeds duration
-    if (videoDurations.length > 0) {
-      // Full boundary handling when durations are available
+    if (queueVideos.length > 0) {
+      // Full boundary handling when video data is available
       // Use default duration (4 min) for videos with unknown duration (0)
       const DEFAULT_VIDEO_DURATION = 240; // 4 minutes in seconds
       
-      while (videoIndex < videoDurations.length) {
-        const duration = videoDurations[videoIndex] || DEFAULT_VIDEO_DURATION;
+      while (videoIndex < queueVideos.length) {
+        const video = queueVideos[videoIndex];
+        const duration = video.duration || DEFAULT_VIDEO_DURATION;
+        
+        // If this is a bumper and we've elapsed past it, skip to next video immediately
+        if (video.isBumper && newPosition > duration) {
+          newPosition -= duration;
+          videoIndex++;
+          videoSkips++;
+          continue;
+        }
+        
         if (newPosition <= duration) {
           break; // Stay on this video
         }
@@ -132,8 +173,6 @@ export class ChannelStateService {
       videoIndex,
       videoSkips
     };
-
-    console.log(`[ChannelState] Restore: saved=${state.position.toFixed(1)}s + elapsed=${elapsedSeconds.toFixed(1)}s = ${newPosition.toFixed(1)}s`);
 
     this.restoredState.set(restored);
 
