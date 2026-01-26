@@ -1,6 +1,6 @@
 import { signal, computed } from '@angular/core';
 
-// Individual video item within a block
+// Video item with all needed properties (unified model)
 export interface VideoItem {
   id: string;
   artist?: string;  // Optional: present if title has " - " separator
@@ -10,6 +10,7 @@ export interface VideoItem {
   duration?: number; // Optional: video duration in seconds
   isBumper?: boolean; // Optional: true if this is a bumper/ident video
   isLimited?: boolean; // Optional: true if video has location/region restrictions
+  playlistId?: string; // Optional: ID of the playlist this video belongs to
 }
 
 // Programming block structure (returned from backend)
@@ -19,20 +20,6 @@ export interface VideoBlock {
   items: VideoItem[];     // Array of videos in this block
 }
 
-// Legacy Video interface (for backwards compatibility during transition)
-export interface Video {
-  id: string;
-  artist?: string;
-  song?: string;
-  title?: string;
-  year?: number;
-  duration?: number; // Optional: video duration in seconds
-  isBumper?: boolean;
-  playlistId?: string;
-  playlistName?: string;
-  playlistLabel?: string; // Label of the playlist (e.g., "Top Rock Of All Time")
-  isLimited?: boolean; // True if video has location/region restrictions
-}
 
 export enum Channel {
   ROCK = 'rock',
