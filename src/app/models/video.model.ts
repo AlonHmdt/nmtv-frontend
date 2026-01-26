@@ -1,5 +1,3 @@
-import { signal, computed } from '@angular/core';
-
 // Video item with all needed properties (unified model)
 export interface VideoItem {
   id: string;
