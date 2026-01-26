@@ -15,6 +15,7 @@ export class QueueService {
   private queueSignal = signal<VideoItem[]>([]);
   private currentIndexSignal = signal<number>(0);
   private currentChannelSignal = signal<Channel>(Channel.DECADE_1990S);
+  private currentBlockSignal = signal<VideoBlock | null>(null);
 
   // Old TV effect toggle (includes: vignette, snow, scanlines, vcr tracking, wobbly)
   oldTVEnabled = signal<boolean>(false);
@@ -24,6 +25,7 @@ export class QueueService {
   currentVideo = computed(() => this.queueSignal()[this.currentIndexSignal()]);
   upcomingVideo = computed(() => this.queueSignal()[this.currentIndexSignal() + 1]);
   currentChannel = computed(() => this.currentChannelSignal());
+  currentBlock = computed(() => this.currentBlockSignal());
 
   private playedVideoIds = new Set<string>();
   private playedVideosArray: string[] = []; // Track order for FIFO removal
@@ -194,6 +196,9 @@ export class QueueService {
             // Track whether this block was from a custom playlist
             const isCustomBlock = customPlaylistIds.includes(block.playlistId);
             this.lastBlockWasCustomPerChannel.set(channel, isCustomBlock);
+
+            // Update current block
+            this.currentBlockSignal.set(block);
 
             // Append block items directly to queue (no conversion needed)
             this.queueSignal.update(queue => [...queue, ...block.items]);
