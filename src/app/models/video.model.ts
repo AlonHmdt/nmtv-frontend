@@ -5,7 +5,7 @@ export interface VideoItem {
   song?: string;    // Optional: present if title has " - " separator
   title?: string;   // Optional: present if no separator
   year?: number;    // Optional: release year fetched from IMVDb
-  duration?: number; // Optional: video duration in seconds
+  duration?: number; // Optional: duration in seconds from backend DB
   isBumper?: boolean; // Optional: true if this is a bumper/ident video
   isLimited?: boolean; // Optional: true if video has location/region restrictions
   playlistId?: string; // Optional: ID of the playlist this video belongs to
@@ -17,7 +17,6 @@ export interface VideoBlock {
   playlistId: string;     // ID of the playlist
   items: VideoItem[];     // Array of videos in this block
 }
-
 
 export enum Channel {
   ROCK = 'rock',
