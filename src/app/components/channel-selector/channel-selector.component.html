@@ -40,9 +40,9 @@
       <button class="special-event-button retro-button" (click)="onSpecialChannelClick()"
         [attr.tabindex]="isMenuOpen() ? 0 : -1">
         <div class="special-content">
-          <span class="special-icon">👨‍🎤</span>
-          <span class="special-text"> 10 YEARS WITHOUT DAVID BOWIE</span>
-          <span class="special-icon">👨‍🎤</span>
+          <span class="special-icon">{{ getSpecialEventIcon1() }}</span>
+          <span class="special-text">{{ getSpecialEventLabel() }}</span>
+          <span class="special-icon">{{ getSpecialEventIcon2() }}</span>
         </div>
         <div class="scanlines-overlay"></div>
       </button>
