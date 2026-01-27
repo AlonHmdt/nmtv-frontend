@@ -80,4 +80,45 @@ export class HelpersService {
             this.staticAudio = null;
         }
     }
+
+    isChromeForCasting(): boolean {
+        if (typeof navigator === 'undefined' || typeof window === 'undefined') {
+            return false;
+        }
+        
+        const userAgent = navigator.userAgent;
+        
+        // Check for Chrome in user agent (more reliable than window.chrome)
+        const isChrome = userAgent.includes('Chrome/') && !userAgent.includes('Chromium/');
+        
+        // Exclude Chrome-based browsers that don't support Cast
+        const isEdgeChromium = userAgent.includes('Edg');
+        const isOperaChromium = userAgent.includes('OPR');
+        const isVivaldi = userAgent.includes('Vivaldi');
+        const isBrave = userAgent.includes('Brave');
+        
+        // Also check for window.chrome as additional confirmation
+        const hasChromeAPI = !!(window as any).chrome;
+        
+        const result = isChrome && !isEdgeChromium && !isOperaChromium && !isVivaldi && !isBrave;
+        console.log('Chrome detection:', { 
+            isChrome, 
+            hasChromeAPI, 
+            userAgent, 
+            isEdgeChromium, 
+            isOperaChromium, 
+            isVivaldi, 
+            isBrave, 
+            result 
+        });
+        return result;
+    }
+
+    isCastSupported(): boolean {
+        const hasPresentation = 'presentation' in navigator;
+        const isChrome = this.isChromeForCasting();
+        const result = hasPresentation && isChrome;
+        console.log('Cast support:', { hasPresentation, isChrome, result });
+        return result;
+    }
 }

@@ -153,6 +153,19 @@
       @media #{$mobile-and-tablet-portrait} {
         order: 4; // Below Playlist (3)
       }
+
+      &.cast-btn {
+        margin-left: 15px;
+
+        &.casting {
+          color: #ffcc00;
+        }
+
+        @media #{$mobile-and-tablet-portrait} {
+          order: 5; // After menu button
+          margin-left: 10px;
+        }
+      }
     }
 
     .nmtv-logo {

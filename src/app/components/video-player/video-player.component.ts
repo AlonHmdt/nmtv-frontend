@@ -13,6 +13,28 @@ import { OldTVEffect, EffectMode } from './tv-static-effect';
 
 declare var YT: any;
 
+// Presentation API type declarations for Chrome Cast
+declare global {
+  interface Window {
+    PresentationRequest?: any;
+  }
+}
+
+interface PresentationRequest {
+  new (urls: string[]): PresentationRequest;
+  start(): Promise<any>;
+  getAvailability(): Promise<any>;
+}
+
+interface PresentationAvailability {
+  value: boolean;
+  addEventListener(type: string, listener: () => void): void;
+}
+
+interface PresentationConnection {
+  addEventListener(type: string, listener: () => void): void;
+}
+
 @Component({
   selector: 'app-video-player',
   standalone: true,
@@ -72,6 +94,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   showVolumeIndicator = signal(false); // Show vintage volume indicator
   isAndroidTv = signal(this.helpersService.isAndroidTV());
   isUserMuted = signal(false); // Track if user explicitly muted the player
+  
+  // Cast functionality
+  isCastAvailable = signal<boolean>(false);
+  isCasting = signal<boolean>(false);
 
   private overlayTimeouts: number[] = [];
   private apiReady = signal(false);
@@ -279,6 +305,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load YouTube API and set apiReady signal
     // This must happen in ngOnInit to ensure it runs before effects process
     this.loadYouTubeAPI();
+
+    // Initialize cast availability detection
+    this.initializeCastAvailability();
 
     // Add keyboard shortcut for testing: Press 'N' to skip to next video
     window.addEventListener('keydown', this.boundHandlers.keyPress);
@@ -1067,5 +1096,96 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       playingNow: { visible: false, animating: false },
       playingNext: { visible: false, animating: false }
     });
+  }
+
+  // Cast functionality methods
+  private initializeCastAvailability(): void {
+    console.log('Initializing cast availability...');
+    if (!this.helpersService.isCastSupported()) {
+      console.log('Cast not supported');
+      return;
+    }
+
+    try {
+      // Use the correct Cast URL format for tab casting
+      const request = new (window as any).PresentationRequest([
+        'https://www.google.com/cast#__castAppId__=CC1AD845',
+        'cast:'
+      ]);
+      
+      request.getAvailability().then((availability: PresentationAvailability) => {
+        console.log('Cast availability:', availability.value);
+        this.ngZone.run(() => {
+          this.isCastAvailable.set(availability.value);
+        });
+        
+        availability.addEventListener('change', () => {
+          console.log('Cast availability changed:', availability.value);
+          this.ngZone.run(() => {
+            this.isCastAvailable.set(availability.value);
+          });
+        });
+      }).catch((error: any) => {
+        console.log('Cast availability check failed:', error);
+        // For localhost development, assume Cast is available if Chrome supports it
+        if (location.hostname === 'localhost') {
+          console.log('localhost detected, assuming Cast available');
+          this.ngZone.run(() => {
+            this.isCastAvailable.set(true);
+          });
+        }
+      });
+    } catch (error: any) {
+      console.log('Cast initialization failed:', error);
+    }
+  }
+
+  startCasting(): void {
+    if (!this.helpersService.isCastSupported()) {
+      console.log('Cast not supported, cannot start casting');
+      return;
+    }
+
+    try {
+      // Use the correct Cast URL format for tab casting
+      const request = new (window as any).PresentationRequest([
+        'https://www.google.com/cast#__castAppId__=CC1AD845',
+        'cast:'
+      ]);
+      
+      request.start().then((connection: PresentationConnection) => {
+        console.log('Cast connection established');
+        this.ngZone.run(() => {
+          this.isCasting.set(true);
+        });
+        
+        connection.addEventListener('close', () => {
+          console.log('Cast connection closed');
+          this.ngZone.run(() => {
+            this.isCasting.set(false);
+          });
+        });
+        
+        connection.addEventListener('terminate', () => {
+          console.log('Cast connection terminated');
+          this.ngZone.run(() => {
+            this.isCasting.set(false);
+          });
+        });
+      }).catch((error: any) => {
+        console.log('Cast failed:', error);
+      });
+    } catch (error: any) {
+      console.log('Cast start failed:', error);
+    }
+  }
+
+  showCastButton(): boolean {
+    const castSupported = this.helpersService.isCastSupported();
+    const castAvailable = this.isCastAvailable();
+    const androidTv = this.isAndroidTv();
+    const result = castSupported && castAvailable && !androidTv;
+    console.log('showCastButton:', { castSupported, castAvailable, androidTv, result });
+    return result;
   }
 }
