@@ -11,11 +11,13 @@ export class QueueService {
   private youtubeService = inject(YoutubeService);
   private customPlaylistService = inject(CustomPlaylistService);
 
+  // Track blocks for proper currentBlock management
+  private currentPlaylistLabelSignal = signal<string>('');
+
   // Signals for reactive state management
   private queueSignal = signal<VideoItem[]>([]);
   private currentIndexSignal = signal<number>(0);
   private currentChannelSignal = signal<Channel>(Channel.DECADE_1990S);
-  private currentBlockSignal = signal<VideoBlock | null>(null);
 
   // Old TV effect toggle (includes: vignette, snow, scanlines, vcr tracking, wobbly)
   oldTVEnabled = signal<boolean>(false);
@@ -25,7 +27,7 @@ export class QueueService {
   currentVideo = computed(() => this.queueSignal()[this.currentIndexSignal()]);
   upcomingVideo = computed(() => this.queueSignal()[this.currentIndexSignal() + 1]);
   currentChannel = computed(() => this.currentChannelSignal());
-  currentBlock = computed(() => this.currentBlockSignal());
+  currentPlaylistLabel = computed(() => this.currentPlaylistLabelSignal());
 
   private playedVideoIds = new Set<string>();
   private playedVideosArray: string[] = []; // Track order for FIFO removal
@@ -47,6 +49,7 @@ export class QueueService {
     this.playedVideosArray = [];
     this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
+    this.currentPlaylistLabelSignal.set('');
     // Don't reset lastBlockWasCustomPerChannel - it persists across initialization
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
@@ -54,6 +57,8 @@ export class QueueService {
     try {
       // Fetch initial block (random playlist)
       await this.fetchAndAppendBlock(channel, customPlaylistIds);
+      // Set initial playlist label
+      this.updatePlaylistLabel();
     } catch (error) {
       throw error;
     }
@@ -73,11 +78,14 @@ export class QueueService {
     this.playedVideosArray = [];
     this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
+    this.currentPlaylistLabelSignal.set('');
     // Don't reset lastBlockWasCustomPerChannel - it persists across channel switches
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
 
     await this.fetchAndAppendBlock(channel, customPlaylistIds);
+    // Set initial playlist label
+    this.updatePlaylistLabel();
   }
 
   // Helper method: Add video to played tracking with rolling window limit
@@ -138,6 +146,9 @@ export class QueueService {
     // Move to the next video
     this.currentIndexSignal.set(currentIndex + 1);
 
+    // Update playlist label if we've moved to a video from a different playlist
+    this.updatePlaylistLabel();
+
     // Check if we need to add more videos to maintain queue buffer
     // Fetch more when we have fewer than 6 videos left
     const remainingVideos = queue.length - this.currentIndexSignal();
@@ -197,14 +208,23 @@ export class QueueService {
             const isCustomBlock = customPlaylistIds.includes(block.playlistId);
             this.lastBlockWasCustomPerChannel.set(channel, isCustomBlock);
 
-            // Update current block
-            this.currentBlockSignal.set(block);
+            // Set current playlist label if this is the first block (queue is empty)
+            if (this.queueSignal().length === 0) {
+              this.currentPlaylistLabelSignal.set(block.playlistLabel);
+            }
 
-            // Append block items directly to queue (no conversion needed)
-            this.queueSignal.update(queue => [...queue, ...block.items]);
+            // Enrich video items with playlist metadata from the block
+            const enrichedVideos: VideoItem[] = block.items.map(item => ({
+              ...item,
+              playlistId: block.playlistId,
+              playlistLabel: block.playlistLabel
+            }));
+
+            // Append enriched videos to queue
+            this.queueSignal.update(queue => [...queue, ...enrichedVideos]);
 
             // Track video IDs
-            block.items.forEach(v => this.addPlayedVideo(v.id));
+            enrichedVideos.forEach(v => this.addPlayedVideo(v.id));
 
             resolve();
           },
@@ -218,6 +238,19 @@ export class QueueService {
   private async addMoreVideos(): Promise<void> {
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(this.currentChannelSignal());
     await this.fetchAndAppendBlock(this.currentChannelSignal(), customPlaylistIds);
+  }
+
+  private updatePlaylistLabel(): void {
+    const currentVideo = this.currentVideo();
+    if (!currentVideo) return;
+
+    // Check if we need to update the playlist label
+    const currentLabel = this.currentPlaylistLabelSignal();
+    const videoPlaylistLabel = (currentVideo as any).playlistLabel || '';
+    
+    if (currentLabel !== videoPlaylistLabel) {
+      this.currentPlaylistLabelSignal.set(videoPlaylistLabel);
+    }
   }
 
   // Remove a video from the local queue without notifying backend
