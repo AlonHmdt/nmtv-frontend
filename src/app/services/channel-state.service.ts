@@ -55,11 +55,7 @@ export class ChannelStateService {
         highWaterMark: bumperTimeElapsed // Initialize with elapsed bumper time
       };
 
-      this.states.update(map => {
-        const newMap = new Map(map);
-        newMap.set(channel, state);
-        return newMap;
-      });
+      this.updateState(channel, state);
       return;
     }
     
@@ -91,11 +87,7 @@ export class ChannelStateService {
       highWaterMark
     };
 
-    this.states.update(map => {
-      const newMap = new Map(map);
-      newMap.set(channel, state);
-      return newMap;
-    });
+    this.updateState(channel, state);
   }
 
   /**
@@ -209,5 +201,16 @@ export class ChannelStateService {
    */
   hasState(channel: Channel): boolean {
     return this.states().has(channel);
+  }
+
+  /**
+   * Helper method to update the states map immutably.
+   */
+  private updateState(channel: Channel, state: ChannelState): void {
+    this.states.update(map => {
+      const newMap = new Map(map);
+      newMap.set(channel, state);
+      return newMap;
+    });
   }
 }
