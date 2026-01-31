@@ -1,9 +1,3 @@
-@if (deviceType() !== 'androidtv') {
-<div class="product-hunt-top-strip">
-  <span>💜 SUPPORT AND UPVOTE NMTV ON PRODUCT HUNT 💜</span>
-</div>
-}
-
 <div class="crt-off-screen" [class.powering-on]="isAnimating()"
   [class.animation-complete]="!isAnimating() && isPoweredOn()">
   @if (!isAnimating()) {
