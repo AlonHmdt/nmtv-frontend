@@ -17,7 +17,6 @@ interface SavedChannelState {
   currentIndex: number;                  // Current position in the queue
   playedVideos: PlayedVideosTracker;     // Tracking for deduplication
   usedPlaylistIds: Set<string>;          // Playlists already used (for variety)
-  currentBlock?: VideoBlock | null;      // Current playlist block info (optional for backwards compatibility)
 }
 
 @Injectable({
@@ -28,14 +27,11 @@ export class QueueService {
   private customPlaylistService = inject(CustomPlaylistService);
   private channelStateService = inject(ChannelStateService);
 
-  // Track blocks for proper currentBlock management
-  private currentPlaylistLabelSignal = signal<string>('');
-
   // Signals for reactive state management
+  private currentPlaylistLabelSignal = signal<string>('');
   private queueSignal = signal<VideoItem[]>([]);
   private currentIndexSignal = signal<number>(0);
   private currentChannelSignal = signal<Channel>(Channel.DECADE_1990S);
-  private currentBlockSignal = signal<VideoBlock | null>(null);
 
   // Playback position tracking (updated by VideoPlayerComponent)
   private currentPlaybackPosition = signal<number>(0);
@@ -49,23 +45,10 @@ export class QueueService {
   currentVideo = computed(() => this.queueSignal()[this.currentIndexSignal()]);
   upcomingVideo = computed(() => this.queueSignal()[this.currentIndexSignal() + 1]);
   currentChannel = computed(() => this.currentChannelSignal());
-  currentBlock = computed(() => {
-    const storedBlock = this.currentBlockSignal();
-    const currentVid = this.currentVideo();
-    
-    // Only show block info if the current video actually belongs to the stored block
-    if (storedBlock && currentVid?.playlistId == storedBlock.playlistId) {
-      return storedBlock;
-    }
-    
-    // If current video doesn't match stored block, don't show playlist label
-    return null;
-  });
   currentPlaylistLabel = computed(() => this.currentPlaylistLabelSignal());
 
   private playedVideoIds = new Set<string>();
   private playedVideosArray: string[] = []; // Track order for FIFO removal
-  private unavailableVideoIds = new Set<string>();
   private readonly MAX_TRACKED_VIDEOS = 100; // Track last 100 videos for deduplication
 
   // Track used playlists to avoid repetition until all are used
@@ -84,7 +67,6 @@ export class QueueService {
     this.queueSignal.set([]);
     this.playedVideoIds.clear();
     this.playedVideosArray = [];
-    this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
     this.currentPlaylistLabelSignal.set('');
     // Don't reset lastBlockWasCustomPerChannel - it persists across initialization
@@ -206,7 +188,6 @@ export class QueueService {
         this.playedVideoIds = new Set(savedQueue.playedVideos.ids);
         this.playedVideosArray = [...savedQueue.playedVideos.orderedArray];
         this.usedPlaylistIds = new Set(savedQueue.usedPlaylistIds);
-        this.unavailableVideoIds.clear();
 
         const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
         await this.fetchAndAppendBlock(channel, customPlaylistIds);
@@ -225,7 +206,6 @@ export class QueueService {
       this.queueSignal.set([]);
       this.playedVideoIds.clear();
       this.playedVideosArray = [];
-      this.unavailableVideoIds.clear();
       this.usedPlaylistIds.clear();
 
       const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
@@ -250,8 +230,7 @@ export class QueueService {
 
   // New method: Mark video as unavailable
   markVideoAsUnavailable(videoId: string, errorCode?: number): void {
-    this.unavailableVideoIds.add(videoId);
-    this.addPlayedVideo(videoId); // Also mark as played so we don't fetch it again
+    this.addPlayedVideo(videoId); // Mark as played so we don't fetch it again
 
     // Remove from queue
     this.queueSignal.update(queue => queue.filter(v => v.id !== videoId));
@@ -354,18 +333,6 @@ export class QueueService {
   }
 
   /**
-   * Get video durations for the current queue (for backward compatibility).
-   * Note: ChannelStateService now uses full video objects for better bumper detection.
-   * Uses 0 for videos without duration to preserve index alignment.
-   */
-  getVideoDurations(): number[] {
-    const queue = this.queueSignal();
-    // Extract durations from queue videos (from backend DB)
-    // Use 0 for missing durations to preserve index alignment
-    return queue.map(v => v.duration ?? 0);
-  }
-
-  /**
    * Get the restored state signal for VideoPlayerComponent to consume.
    */
   getRestoredState() {
@@ -423,8 +390,7 @@ export class QueueService {
   // Helper method: Create a saved channel state object
   private createSavedChannelState(
     queue: VideoItem[], 
-    currentIndex: number, 
-    includeCurrentBlock: boolean = true
+    currentIndex: number
   ): SavedChannelState {
     return {
       queue: [...queue],
@@ -433,8 +399,7 @@ export class QueueService {
         ids: new Set(this.playedVideoIds),
         orderedArray: [...this.playedVideosArray]
       },
-      usedPlaylistIds: new Set(this.usedPlaylistIds),
-      currentBlock: includeCurrentBlock ? this.currentBlockSignal() : undefined
+      usedPlaylistIds: new Set(this.usedPlaylistIds)
     };
   }
 
@@ -443,16 +408,8 @@ export class QueueService {
     this.playedVideoIds = new Set(savedState.playedVideos.ids);
     this.playedVideosArray = [...savedState.playedVideos.orderedArray];
     this.usedPlaylistIds = new Set(savedState.usedPlaylistIds);
-    this.unavailableVideoIds.clear();
     this.currentIndexSignal.set(targetIndex);
     this.queueSignal.set(savedState.queue);
-    
-    // Restore block information if available
-    if (savedState.currentBlock) {
-      this.currentBlockSignal.set(savedState.currentBlock);
-    } else {
-      this.currentBlockSignal.set(null);
-    }
     
     // Update playlist label to reflect the current video's playlist
     this.updatePlaylistLabel();
@@ -469,8 +426,7 @@ export class QueueService {
           ids: new Set(oldState.playedVideoIds),
           orderedArray: [...oldState.playedVideosArray]
         },
-        usedPlaylistIds: new Set(oldState.usedPlaylistIds),
-        currentBlock: oldState.currentBlock || null
+        usedPlaylistIds: new Set(oldState.usedPlaylistIds)
       };
     }
     // Already in new format
@@ -526,8 +482,6 @@ export class QueueService {
             // Set current playlist label if this is the first block (queue is empty)
             if (this.queueSignal().length === 0) {
               this.currentPlaylistLabelSignal.set(block.playlistLabel);
-              // Also set the current block signal for the first block
-              this.currentBlockSignal.set(block);
             }
 
             // Enrich video items with playlist metadata from the block
