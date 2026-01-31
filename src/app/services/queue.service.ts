@@ -453,6 +453,9 @@ export class QueueService {
     } else {
       this.currentBlockSignal.set(null);
     }
+    
+    // Update playlist label to reflect the current video's playlist
+    this.updatePlaylistLabel();
   }
 
   // Helper method: Migrate old saved queue format to new format (backwards compatibility)
