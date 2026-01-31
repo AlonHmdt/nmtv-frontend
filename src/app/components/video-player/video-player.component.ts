@@ -26,7 +26,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private youtubeService = inject(YoutubeService);
   private videoPlayerControl = inject(VideoPlayerControlService);
   private helpersService = inject(HelpersService);
-  private easterEggService = inject(EasterEggService);
+  public easterEggService = inject(EasterEggService);
   private customPlaylistService = inject(CustomPlaylistService);
   private modalState = inject(ModalStateService);
   private ngZone = inject(NgZone);

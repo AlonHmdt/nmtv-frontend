@@ -28,6 +28,9 @@ export class QueueService {
   private customPlaylistService = inject(CustomPlaylistService);
   private channelStateService = inject(ChannelStateService);
 
+  // Track blocks for proper currentBlock management
+  private currentPlaylistLabelSignal = signal<string>('');
+
   // Signals for reactive state management
   private queueSignal = signal<VideoItem[]>([]);
   private currentIndexSignal = signal<number>(0);
@@ -58,6 +61,7 @@ export class QueueService {
     // If current video doesn't match stored block, don't show playlist label
     return null;
   });
+  currentPlaylistLabel = computed(() => this.currentPlaylistLabelSignal());
 
   private playedVideoIds = new Set<string>();
   private playedVideosArray: string[] = []; // Track order for FIFO removal
@@ -82,6 +86,7 @@ export class QueueService {
     this.playedVideosArray = [];
     this.unavailableVideoIds.clear();
     this.usedPlaylistIds.clear();
+    this.currentPlaylistLabelSignal.set('');
     // Don't reset lastBlockWasCustomPerChannel - it persists across initialization
 
     // Clear any saved queue and state for this channel (fresh start)
@@ -97,6 +102,8 @@ export class QueueService {
     try {
       // Fetch initial block (random playlist)
       await this.fetchAndAppendBlock(channel, customPlaylistIds);
+      // Set initial playlist label
+      this.updatePlaylistLabel();
     } catch (error) {
       throw error;
     }
@@ -321,6 +328,9 @@ export class QueueService {
       this.currentIndexSignal.set(KEEP_PREVIOUS_VIDEOS + 1); // Adjust index after cleanup
     }
 
+    // Update playlist label if we've moved to a video from a different playlist
+    this.updatePlaylistLabel();
+
     // Check if we need to add more videos to maintain queue buffer
     // Fetch more when we have fewer than 6 videos left
     const remainingVideos = queue.length - this.currentIndexSignal();
@@ -510,14 +520,25 @@ export class QueueService {
             const isCustomBlock = customPlaylistIds.includes(block.playlistId);
             this.lastBlockWasCustomPerChannel.set(channel, isCustomBlock);
 
-            // Update current block
-            this.currentBlockSignal.set(block);
+            // Set current playlist label if this is the first block (queue is empty)
+            if (this.queueSignal().length === 0) {
+              this.currentPlaylistLabelSignal.set(block.playlistLabel);
+              // Also set the current block signal for the first block
+              this.currentBlockSignal.set(block);
+            }
 
-            // Append block items directly to queue (no conversion needed)
-            this.queueSignal.update(queue => [...queue, ...block.items]);
+            // Enrich video items with playlist metadata from the block
+            const enrichedVideos: VideoItem[] = block.items.map(item => ({
+              ...item,
+              playlistId: block.playlistId,
+              playlistLabel: block.playlistLabel
+            }));
+
+            // Append enriched videos to queue
+            this.queueSignal.update(queue => [...queue, ...enrichedVideos]);
 
             // Track video IDs
-            block.items.forEach(v => this.addPlayedVideo(v.id));
+            enrichedVideos.forEach(v => this.addPlayedVideo(v.id));
 
             resolve();
           },
@@ -531,6 +552,19 @@ export class QueueService {
   private async addMoreVideos(): Promise<void> {
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(this.currentChannelSignal());
     await this.fetchAndAppendBlock(this.currentChannelSignal(), customPlaylistIds);
+  }
+
+  private updatePlaylistLabel(): void {
+    const currentVideo = this.currentVideo();
+    if (!currentVideo) return;
+
+    // Check if we need to update the playlist label
+    const currentLabel = this.currentPlaylistLabelSignal();
+    const videoPlaylistLabel = (currentVideo as any).playlistLabel || '';
+    
+    if (currentLabel !== videoPlaylistLabel) {
+      this.currentPlaylistLabelSignal.set(videoPlaylistLabel);
+    }
   }
 
   // Remove a video from the local queue without notifying backend

@@ -11,7 +11,7 @@
   <!-- MTV Logo with Channel -->
   <div class="nmtv-logo-container" [style.display]="showChannelSwitchStatic() ? 'none' : 'flex'">
     <div class="logo-channel-group">
-      <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
+      <img [src]="easterEggService.isUnlocked() ? '/images/nmtv-logo-old.png' : '/images/nmtv-logo.png'" alt="NMTV" class="nmtv-logo">
       <div class="channel-info-row">
         @if (currentChannelConfig()) {
         <div class="channel-badge">{{ currentChannelConfig()!.icon }} {{ currentChannelConfig()!.name }}</div>
@@ -30,8 +30,8 @@
     } @else if (currentVideo().title) {
     <div class="playlist-name-badge">{{ currentVideo().title }}</div>
     }
-    } @else if (queueService.currentBlock()?.playlistLabel) {
-    <div class="playlist-name-badge">{{ queueService.currentBlock()!.playlistLabel }}</div>
+    } @else if (queueService.currentPlaylistLabel()) {
+    <div class="playlist-name-badge">{{ queueService.currentPlaylistLabel() }}</div>
     }
     }
   </div>

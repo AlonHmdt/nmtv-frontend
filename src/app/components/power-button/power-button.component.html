@@ -1,129 +1,149 @@
+@if (deviceType() !== 'androidtv') {
+<div class="product-hunt-top-strip">
+  <span>💜 SUPPORT AND UPVOTE NMTV ON PRODUCT HUNT 💜</span>
+</div>
+}
+
 <div class="crt-off-screen" [class.powering-on]="isAnimating()"
   [class.animation-complete]="!isAnimating() && isPoweredOn()">
   @if (!isAnimating()) {
-  <div class="remote-body">
-    <div class="remote-header">
-      <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
-    </div>
-
-    <div class="power-section">
-      <div class="power-label">POWER</div>
-      <button class="power-button" (click)="onPowerClick()" [disabled]="isLoading()">
-        <div class="button-inner">
-          @if (isLoading()) {
-          <svg class="spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
-            <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
-          </svg>
-          } @else {
-          <i class="bi bi-power"></i>
-          }
-        </div>
-      </button>
-      <div class="power-indicator" [class.loading]="isLoading()" [class.ready]="!isLoading()"></div>
-    </div>
-
-    <div class="power-text">
-      @if (showLoadingContent()) {
-      <div class="loading-container" [class.fade-out]="isFadingOut()">
-        <div class="loading-text">INITIALIZING...</div>
-        <div class="progress-bar-container">
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill" [style.width.%]="loadingProgress()"></div>
-          </div>
-          <div class="progress-text">{{ loadingProgress() }}%</div>
-        </div>
+  <div class="power-layout-wrapper">
+    <div class="remote-body">
+      <div class="remote-header">
+        <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">
       </div>
-      } @else if (deviceType() === 'androidtv') {
-      <span>PRESS SELECT TO START</span>
-      } @else if (deviceType() === 'desktop') {
-      <span>POWER ON/HIT ENTER TO START</span>
-      } @else {
-      <span>POWER ON TO START</span>
-      }
-    </div>
 
-    <div class="user-guide">
-      @if (deviceType() === 'androidtv') {
-      <div class="guide-item android-tv-hints">
-        <div class="remote-control-visual">
-          <div class="remote-ring">
-            <div class="remote-direction top">
-              <i class="bi bi-chevron-up"></i>
-              <span class="direction-label">CH +</span>
-            </div>
-            <div class="remote-direction left">
-              <span class="direction-label">VOL -</span>
-            </div>
-            <div class="remote-center">
-              <span class="center-text">SELECT</span>
-            </div>
-            <div class="remote-direction right">
-              <span class="direction-label">VOL +</span>
-            </div>
-            <div class="remote-direction bottom">
-              <i class="bi bi-chevron-down"></i>
-              <span class="direction-label">CH -</span>
-            </div>
+      <div class="power-section">
+        <div class="power-label">POWER</div>
+        <button class="power-button" (click)="onPowerClick()" [disabled]="isLoading()">
+          <div class="button-inner">
+            @if (isLoading()) {
+            <svg class="spinner" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <circle cx="12" cy="12" r="10" stroke-opacity="0.25" />
+              <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round" />
+            </svg>
+            } @else {
+            <i class="bi bi-power"></i>
+            }
           </div>
-          <div class="remote-instruction">
-            <span>HOLD SELECT TO TOGGLE MENU</span>
-          </div>
-        </div>
+        </button>
+        <div class="power-indicator" [class.loading]="isLoading()" [class.ready]="!isLoading()"></div>
       </div>
-      } @else if (deviceType() === 'desktop') {
-      <div class="guide-item keyboard-hints">
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <div class="keys-inline">
-              <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
-              <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+
+      <div class="power-text">
+        @if (showLoadingContent()) {
+        <div class="loading-container" [class.fade-out]="isFadingOut()">
+          <div class="loading-text">INITIALIZING...</div>
+          <div class="progress-bar-container">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="loadingProgress()"></div>
             </div>
-            <span class="hint-label">Switch Channel</span>
-          </span>
+            <div class="progress-text">{{ loadingProgress() }}%</div>
+          </div>
         </div>
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <div class="keys-inline">
-              <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
-              <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
-            </div>
-            <span class="hint-label">Volume Control</span>
-          </span>
-        </div>
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <span class="key-hint">SPACE</span>
-            <span class="hint-label">Menu Toggle</span>
-          </span>
-          <span class="hint-group horizontal">
-            <span class="key-hint">ENTER</span>
-            <span class="hint-label">Select</span>
-          </span>
-        </div>
-        <div class="hint-row">
-          <span class="hint-group horizontal">
-            <div class="arrow-keys-compact">
-              <div class="arrow-row">
-                <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
+        } @else if (deviceType() === 'androidtv') {
+        <span>PRESS SELECT TO START</span>
+        } @else if (deviceType() === 'desktop') {
+        <span>POWER ON/HIT ENTER TO START</span>
+        } @else {
+        <span>POWER ON TO START</span>
+        }
+      </div>
+
+      <div class="user-guide">
+        @if (deviceType() === 'androidtv') {
+        <div class="guide-item android-tv-hints">
+          <div class="remote-control-visual">
+            <div class="remote-ring">
+              <div class="remote-direction top">
+                <i class="bi bi-chevron-up"></i>
+                <span class="direction-label">CH +</span>
               </div>
-              <div class="arrow-row">
-                <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
+              <div class="remote-direction left">
+                <span class="direction-label">VOL -</span>
+              </div>
+              <div class="remote-center">
+                <span class="center-text">SELECT</span>
+              </div>
+              <div class="remote-direction right">
+                <span class="direction-label">VOL +</span>
+              </div>
+              <div class="remote-direction bottom">
+                <i class="bi bi-chevron-down"></i>
+                <span class="direction-label">CH -</span>
+              </div>
+            </div>
+            <div class="remote-instruction">
+              <span>HOLD SELECT TO TOGGLE MENU</span>
+            </div>
+          </div>
+        </div>
+        } @else if (deviceType() === 'desktop') {
+        <div class="guide-item keyboard-hints">
+          <div class="hint-row">
+            <span class="hint-group horizontal">
+              <div class="keys-inline">
+                <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
                 <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+              </div>
+              <span class="hint-label">Switch Channel</span>
+            </span>
+          </div>
+          <div class="hint-row">
+            <span class="hint-group horizontal">
+              <div class="keys-inline">
+                <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
                 <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
               </div>
-            </div>
-            <span class="hint-label">In Menu</span>
-          </span>
+              <span class="hint-label">Volume Control</span>
+            </span>
+          </div>
+          <div class="hint-row">
+            <span class="hint-group horizontal">
+              <span class="key-hint">SPACE</span>
+              <span class="hint-label">Menu Toggle</span>
+            </span>
+            <span class="hint-group horizontal">
+              <span class="key-hint">ENTER</span>
+              <span class="hint-label">Select</span>
+            </span>
+          </div>
+          <div class="hint-row">
+            <span class="hint-group horizontal">
+              <div class="arrow-keys-compact">
+                <div class="arrow-row">
+                  <span class="key-hint"><i class="bi bi-arrow-up"></i></span>
+                </div>
+                <div class="arrow-row">
+                  <span class="key-hint"><i class="bi bi-arrow-left"></i></span>
+                  <span class="key-hint"><i class="bi bi-arrow-down"></i></span>
+                  <span class="key-hint"><i class="bi bi-arrow-right"></i></span>
+                </div>
+              </div>
+              <span class="hint-label">In Menu</span>
+            </span>
+          </div>
         </div>
+        } @else if (deviceType() === 'mobile') {
+        <div class="guide-item">
+          <span class="hint-label">SWIPE UP/DOWN TO CHANGE CHANNEL</span>
+        </div>
+        }
       </div>
-      } @else if (deviceType() === 'mobile') {
-      <div class="guide-item">
-        <span class="hint-label">SWIPE UP/DOWN TO CHANGE CHANNEL</span>
-      </div>
-      }
     </div>
+
+    @if (deviceType() !== 'androidtv') {
+    <div class="product-hunt-section" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
+      <div class="product-hunt-text" style="font: 700 10px 'Roboto Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">SUPPORT AND UPVOTE NMTV HERE:</div>
+      <a href="https://www.producthunt.com/products/nmtv?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-nmtv"
+        target="_blank" rel="noopener noreferrer" class="product-hunt-badge" (click)="trackProductHuntClick()">
+        <img alt="NMTV - I built a 24/7 MTV time machine to save my wife's birthday | Product Hunt" width="200"
+          height="43"
+          src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1070031&theme=dark&t=1769786623123">
+      </a>
+    </div>
+    }
   </div>
   }
 
