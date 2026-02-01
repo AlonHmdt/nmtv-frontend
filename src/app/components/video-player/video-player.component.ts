@@ -103,7 +103,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly boundHandlers = {
     keyPress: this.handleKeyPress.bind(this),
     touchStart: this.handleTouchStart.bind(this),
-    touchEnd: this.handleTouchEnd.bind(this)
+    touchEnd: this.handleTouchEnd.bind(this),
+    visibilityChange: this.handleVisibilityChange.bind(this)
   }
   private readonly CHANNEL_SWITCH_DELAY_MS = 600; // Minimum duration for static effect visibility
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
@@ -309,6 +310,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Add touch event listeners for swipe gestures
     window.addEventListener('touchstart', this.boundHandlers.touchStart, { passive: true });
     window.addEventListener('touchend', this.boundHandlers.touchEnd, { passive: true });
+
+    // Add visibility change listener to handle background/foreground transitions
+    document.addEventListener('visibilitychange', this.boundHandlers.visibilityChange);
   }
 
   ngAfterViewInit(): void {
@@ -360,6 +364,31 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener('keydown', this.boundHandlers.keyPress);
     window.removeEventListener('touchstart', this.boundHandlers.touchStart);
     window.removeEventListener('touchend', this.boundHandlers.touchEnd);
+    document.removeEventListener('visibilitychange', this.boundHandlers.visibilityChange);
+  }
+
+  /**
+   * Handle page visibility changes (background/foreground transitions).
+   * Ensures video continues playing when user returns from background.
+   */
+  private handleVisibilityChange(): void {
+    if (!document.hidden && this.player) {
+      // Page became visible - resume playback if not explicitly paused by user
+      // and not in a state that should prevent playback
+      try {
+        const playerState = this.player.getPlayerState();
+        const shouldResume = 
+          playerState !== YT.PlayerState.PLAYING && 
+          !this.videoPlayerControl.shouldPause() && 
+          !this.showChannelSwitchStatic();
+
+        if (shouldResume) {
+          this.player.playVideo();
+        }
+      } catch (e) {
+        // Player might not be ready, ignore
+      }
+    }
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
