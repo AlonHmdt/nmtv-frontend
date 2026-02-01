@@ -364,7 +364,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener('keydown', this.boundHandlers.keyPress);
     window.removeEventListener('touchstart', this.boundHandlers.touchStart);
     window.removeEventListener('touchend', this.boundHandlers.touchEnd);
-    document.removeEventListener('visibilitychange', this.boundHandlers.visibilityChange);
+    // document.removeEventListener('visibilitychange', this.boundHandlers.visibilityChange);
   }
 
   /**
