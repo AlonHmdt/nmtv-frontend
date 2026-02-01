@@ -104,7 +104,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     keyPress: this.handleKeyPress.bind(this),
     touchStart: this.handleTouchStart.bind(this),
     touchEnd: this.handleTouchEnd.bind(this),
-    visibilityChange: this.handleVisibilityChange.bind(this)
+    // visibilityChange: this.handleVisibilityChange.bind(this)
   }
   private readonly CHANNEL_SWITCH_DELAY_MS = 600; // Minimum duration for static effect visibility
   private readonly VOLUME_STEP = 5; // Volume adjustment step (5%)
@@ -312,7 +312,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     window.addEventListener('touchend', this.boundHandlers.touchEnd, { passive: true });
 
     // Add visibility change listener to handle background/foreground transitions
-    document.addEventListener('visibilitychange', this.boundHandlers.visibilityChange);
+    // document.addEventListener('visibilitychange', this.boundHandlers.visibilityChange);
   }
 
   ngAfterViewInit(): void {
