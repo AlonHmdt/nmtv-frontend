@@ -369,25 +369,24 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * Handle page visibility changes (background/foreground transitions).
-   * Ensures video continues playing when user returns from background.
+   * Keeps video playing in background for authentic TV experience.
    */
   private handleVisibilityChange(): void {
-    if (!document.hidden && this.player) {
-      // Page became visible - resume playback if not explicitly paused by user
-      // and not in a state that should prevent playback
-      try {
-        const playerState = this.player.getPlayerState();
-        const shouldResume = 
-          playerState !== YT.PlayerState.PLAYING && 
-          !this.videoPlayerControl.shouldPause() && 
-          !this.showChannelSwitchStatic();
+    if (!this.player) return;
 
-        if (shouldResume) {
-          this.player.playVideo();
-        }
-      } catch (e) {
-        // Player might not be ready, ignore
+    try {
+      const playerState = this.player.getPlayerState();
+      const shouldBePlaying = 
+        !this.videoPlayerControl.shouldPause() && 
+        !this.showChannelSwitchStatic();
+
+      // Whether becoming visible or hidden, ensure video keeps playing
+      // This mimics a real TV that keeps playing even when you're not watching
+      if (shouldBePlaying && playerState !== YT.PlayerState.PLAYING) {
+        this.player.playVideo();
       }
+    } catch (e) {
+      // Player might not be ready, ignore
     }
   }
 
