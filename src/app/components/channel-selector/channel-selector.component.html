@@ -99,11 +99,7 @@
     </div>
 
     <div class="d-pad-actions-container">
-      <button class="support-button retro-small-button" (click)="openSupport()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
-        aria-label="Support NMTV">
-        <i class="bi bi-cup-hot-fill" aria-hidden="true"></i>
-        <span>Support</span>
-      </button>
+      <app-support-button [attr.tabindex]="isMenuOpen() ? 0 : -1"></app-support-button>
 
       @if (!isAndroidTV()) {
       @if (showInstallButton()) {
@@ -126,5 +122,4 @@
   <app-settings-modal></app-settings-modal>
   <app-about-modal></app-about-modal>
   <app-install-modal></app-install-modal>
-  <app-support-modal></app-support-modal>
 </div>

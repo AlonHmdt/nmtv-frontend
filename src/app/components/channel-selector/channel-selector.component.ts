@@ -8,7 +8,7 @@ import { Channel, Channels, getNavigationChannels } from '../../models/video.mod
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
 import { InstallModalComponent } from '../install-modal/install-modal.component';
-import { SupportModalComponent } from '../support-modal/support-modal.component';
+import { SupportButtonComponent } from '../support-button/support-button.component';
 import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
@@ -26,7 +26,7 @@ declare global {
 @Component({
   selector: 'app-channel-selector',
   standalone: true,
-  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent, SupportModalComponent],
+  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent, SupportButtonComponent],
   templateUrl: './channel-selector.component.html',
   styleUrls: ['./channel-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -46,7 +46,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
   @ViewChild(InstallModalComponent) installModal?: InstallModalComponent;
-  @ViewChild(SupportModalComponent) supportModal?: SupportModalComponent;
 
   powerOff = output<void>();
   menuStateChange = output<boolean>(); // Emit menu open/close state
@@ -484,16 +483,7 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     }
   }
 
-  openSupport(): void {
-    this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
 
-    if (this.isAndroidTV()) {
-      this.supportModal?.open();
-      return;
-    } else {
-      window.open('https://buymeacoffee.com/alonhmdt', '_blank');
-    }
-  }
 
   installApp(): void {
     let platform = 'unknown';
