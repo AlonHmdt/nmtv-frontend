@@ -160,7 +160,6 @@ export class QueueService {
         if (result.state.videoIndex >= savedQueue.queue.length) {
           // All videos ended - fetch fresh playlist from backend
           shouldFetchFresh = true;
-          console.log(`[QueueService] All ${savedQueue.queue.length} videos ended, fetching fresh playlist`);
         } else {
           targetIndex = result.state.videoIndex;
         }
@@ -450,11 +449,9 @@ export class QueueService {
         if (lastWasCustom === undefined) {
           // First block for this channel: start with custom playlists
           preferCustom = true;
-          console.log(`[Frontend] First block for channel ${channel} - preferCustom=true`);
         } else {
           // Zig-zag: alternate between custom and official
           preferCustom = !lastWasCustom;
-          console.log(`[Frontend] Zig-zag for channel ${channel} - lastBlockWasCustom=${lastWasCustom}, preferCustom=${preferCustom}`);
         }
       }
 

@@ -874,10 +874,10 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Update position immediately
     this.updatePlaybackPosition();
 
-    // Then update every 2 seconds
+    // Then update every 5 seconds (optimized for Android TV performance)
     this.positionUpdateInterval = window.setInterval(() => {
       this.updatePlaybackPosition();
-    }, 2000);
+    }, 5000);
   }
 
   /**
@@ -972,6 +972,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       ? `${video.artist} ${video.song}`
       : video.title || '';
 
+    // Debounce year fetch to prevent spamming backend during rapid channel switching
     this.setNamedTimeout('yearFetch', () => {
       // Pass videoId so backend can store the year in DB automatically
       this.youtubeService.getVideoYear(searchTitle, video.id).subscribe({
@@ -985,7 +986,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           // Silent fail
         }
       });
-    }, 5000);
+    }, 3000);
   }
 
   private scheduleOverlayStart(): void {

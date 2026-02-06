@@ -216,7 +216,6 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
         this.errorMessage.set('Could not add playlist. It may already exist or limit reached.');
       }
     } catch (error) {
-      console.error('Error validating playlist:', error);
       this.errorMessage.set('Failed to validate playlist. Please check the URL and try again.');
     } finally {
       this.isAdding.set(false);
@@ -242,7 +241,6 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
       // Close the modal after successful apply
       this.close();
     } catch (error) {
-      console.error('Error applying changes:', error);
       this.errorMessage.set('Failed to reload videos. Please try again.');
     } finally {
       this.isApplying.set(false);

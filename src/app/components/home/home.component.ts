@@ -59,8 +59,6 @@ export class HomeComponent implements OnInit {
         // Only load channel data after backend confirms it's ready
         const lastChannel = this.queueService.getLastSelectedChannel();
         await this.queueService.initializeQueue(lastChannel);
-      } else {
-        console.error('Backend not ready after timeout');
       }
     } catch (error) {
       console.error('Error initializing app:', error);
