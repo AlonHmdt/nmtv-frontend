@@ -162,6 +162,104 @@
     }
 }
 
+// Install options menu
+.install-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.install-option {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    text-align: left;
+    width: 100%;
+
+    .option-icon {
+        font-size: 24px;
+        color: #FFDD00;
+        flex-shrink: 0;
+    }
+
+    .option-text {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .option-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .option-desc {
+        font-size: 12px;
+        color: #999;
+        margin-top: 2px;
+    }
+
+    .option-arrow {
+        font-size: 16px;
+        color: #666;
+        flex-shrink: 0;
+    }
+
+    &:hover {
+        .option-arrow {
+            color: #FFDD00;
+        }
+    }
+
+    @media #{$mobile-and-tablet-portrait} {
+        padding: 12px;
+        gap: 12px;
+
+        .option-icon {
+            font-size: 20px;
+        }
+
+        .option-title {
+            font-size: 13px;
+        }
+
+        .option-desc {
+            font-size: 11px;
+        }
+    }
+}
+
+// Instructions view
+.instructions-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: none;
+    color: #FFDD00;
+    font-size: 13px;
+    padding: 0;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+
+    i {
+        font-size: 14px;
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

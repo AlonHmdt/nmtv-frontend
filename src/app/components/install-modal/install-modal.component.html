@@ -9,45 +9,74 @@
         </button>
 
         <div class="modal-header">
-            <h2>INSTALLATION</h2>
+            <h2>{{ currentView() === 'menu' ? 'GET THE APP' : 'INSTALLATION' }}</h2>
         </div>
 
         <div class="modal-body retro-inset-panel">
-            @if (platform() === 'ios') {
-            <div class="instructions-content">
-                <p>How to Install:</p>
-                <ol>
-                    <li>Tap the <strong>Share</strong> icon <i class="bi bi-box-arrow-up"></i> in your browser bar.</li>
-                    <li>Scroll down and tap <strong>Add to Home Screen</strong> <i class="bi bi-plus-square"></i>.</li>
-                    <li>Tap <strong>Add</strong> to finish.</li>
-                </ol>
+            @if (currentView() === 'menu') {
+            <div class="install-options">
+                <button class="install-option retro-button" (click)="selectThisDevice()">
+                    <i class="bi bi-phone option-icon"></i>
+                    <div class="option-text">
+                        <span class="option-title">Install on this device</span>
+                        <span class="option-desc">Add NMTV to your home screen</span>
+                    </div>
+                </button>
+
+                <button class="install-option retro-button" (click)="selectAndroidTV()">
+                    <i class="bi bi-tv option-icon"></i>
+                    <div class="option-text">
+                        <span class="option-title">Download for Android TV</span>
+                        <span class="option-desc">Get the APK for your TV</span>
+                    </div>
+                </button>
             </div>
             }
 
-            @if (platform() === 'mac') {
-            <div class="instructions-content">
-                <p>To install NMTV on your Mac:</p>
-                <div class="mac-instructions">
-                    <div class="browser-instruction">
-                        <strong>Safari:</strong>
-                        <p>File > Add to Dock...</p>
-                    </div>
-                    <div class="browser-instruction">
-                        <strong>Chrome:</strong>
-                        <p>Click the Install icon <i class="bi bi-download"></i> in the address bar.</p>
+            @if (currentView() === 'instructions') {
+            <div class="instructions-container">
+                <button class="back-button" (click)="backToMenu()">
+                    <i class="bi bi-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+
+                @if (platform() === 'ios') {
+                <div class="instructions-content">
+                    <p>How to Install:</p>
+                    <ol>
+                        <li>Tap the <strong>Share</strong> icon <i class="bi bi-box-arrow-up"></i> in your browser bar.</li>
+                        <li>Scroll down and tap <strong>Add to Home Screen</strong> <i class="bi bi-plus-square"></i>.</li>
+                        <li>Tap <strong>Add</strong> to finish.</li>
+                    </ol>
+                </div>
+                }
+
+                @if (platform() === 'mac') {
+                <div class="instructions-content">
+                    <p>To install NMTV on your Mac:</p>
+                    <div class="mac-instructions">
+                        <div class="browser-instruction">
+                            <strong>Safari:</strong>
+                            <p>File > Add to Dock...</p>
+                        </div>
+                        <div class="browser-instruction">
+                            <strong>Chrome:</strong>
+                            <p>Click the Install icon <i class="bi bi-download"></i> in the address bar.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            }
+                }
 
-            @if (platform() === 'android') {
-            <div class="instructions-content">
-                <p>How to Install:</p>
-                <ol>
-                    <li>Tap the <strong>Menu</strong> icon <i class="bi bi-three-dots-vertical"></i> in Chrome.</li>
-                    <li>Tap <strong>Install App</strong> or <strong>Add to Home screen</strong>.</li>
-                    <li>Follow the prompts to finish.</li>
-                </ol>
+                @if (platform() === 'android') {
+                <div class="instructions-content">
+                    <p>How to Install:</p>
+                    <ol>
+                        <li>Tap the <strong>Menu</strong> icon <i class="bi bi-three-dots-vertical"></i> in Chrome.</li>
+                        <li>Tap <strong>Install App</strong> or <strong>Add to Home screen</strong>.</li>
+                        <li>Follow the prompts to finish.</li>
+                    </ol>
+                </div>
+                }
             </div>
             }
         </div>

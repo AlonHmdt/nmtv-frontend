@@ -82,9 +82,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private stereoClickTimeout: number | null = null;
 
   showInstallButton = computed(() => {
-    // Show if we have an install prompt (Android/Desktop) OR if it's iOS/Mac/Android and not standalone
-    return !!this.pwaService.installPrompt() ||
-      ((this.pwaService.isIOS() || this.pwaService.isMac() || this.pwaService.isAndroid()) && !this.pwaService.isStandalone());
+    // Always show install button so users can access Android TV APK download
+    // Hide only on Android TV (already has the app)
+    return !this.helpersService.isAndroidTV();
   });
 
   isAndroidTV(): boolean {
@@ -486,23 +486,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
 
   installApp(): void {
-    let platform = 'unknown';
-    if (this.pwaService.installPrompt()) platform = 'native';
-    else if (this.pwaService.isIOS()) platform = 'ios';
-    else if (this.pwaService.isMac()) platform = 'mac';
-    else if (this.pwaService.isAndroid()) platform = 'android';
-
-    this.track('Install App Clicked', { platform });
-
-    if (this.pwaService.installPrompt()) {
-      this.pwaService.promptInstall();
-    } else if (this.pwaService.isIOS()) {
-      this.installModal?.open('ios');
-    } else if (this.pwaService.isMac()) {
-      this.installModal?.open('mac');
-    } else if (this.pwaService.isAndroid()) {
-      this.installModal?.open('android');
-    }
+    this.track('Install App Clicked');
+    this.installModal?.open();
   }
 
   async shareApp(): Promise<void> {
