@@ -251,6 +251,14 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
+    // Watch for video changes to update Media Session metadata
+    effect(() => {
+      const video = this.currentVideo();
+      if (video) {
+        this.updateMediaSessionMetadata(video);
+      }
+    });
+
     // Watch for channel switch requests from service
     effect(() => {
       const request = this.videoPlayerControl.channelSwitchRequest();
@@ -365,6 +373,87 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     window.removeEventListener('touchstart', this.boundHandlers.touchStart);
     window.removeEventListener('touchend', this.boundHandlers.touchEnd);
     document.removeEventListener('visibilitychange', this.boundHandlers.visibilityChange);
+  }
+
+  /**
+   * Initialize Media Session API for background audio playback.
+   * Provides media controls in notification area and lock screen.
+   */
+  private initializeMediaSession(): void {
+    if (!('mediaSession' in navigator)) {
+      return; // Media Session API not supported
+    }
+
+    // Set up action handlers for media controls
+    navigator.mediaSession.setActionHandler('play', () => {
+      if (this.player) {
+        this.player.playVideo();
+      }
+    });
+
+    navigator.mediaSession.setActionHandler('pause', () => {
+      if (this.player) {
+        this.player.pauseVideo();
+      }
+    });
+
+    navigator.mediaSession.setActionHandler('previoustrack', () => {
+      // Switch to previous channel
+      this.switchToNextChannel(true);
+    });
+
+    navigator.mediaSession.setActionHandler('nexttrack', () => {
+      // Play next video in queue
+      this.playNextVideo();
+    });
+
+    // Optional: Seek handlers for fine control
+    navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+      if (this.player) {
+        const currentTime = this.player.getCurrentTime();
+        const seekTime = details.seekOffset || 10;
+        this.player.seekTo(Math.max(0, currentTime - seekTime), true);
+      }
+    });
+
+    navigator.mediaSession.setActionHandler('seekforward', (details) => {
+      if (this.player) {
+        const currentTime = this.player.getCurrentTime();
+        const seekTime = details.seekOffset || 10;
+        this.player.seekTo(currentTime + seekTime, true);
+      }
+    });
+  }
+
+  /**
+   * Update Media Session metadata with current video information.
+   * Displays video info in notification area and lock screen.
+   */
+  private updateMediaSessionMetadata(video: VideoItem): void {
+    if (!('mediaSession' in navigator)) {
+      return;
+    }
+
+    const title = video.artist && video.song 
+      ? `${video.artist} - ${video.song}` 
+      : video.title || 'Unknown';
+    
+    const artist = video.artist || 'NMTV';
+    const album = this.currentChannelConfig()?.name || 'Channel';
+
+    // Get thumbnail from YouTube
+    const artwork = [
+      { src: `https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`, sizes: '1280x720', type: 'image/jpeg' },
+      { src: `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`, sizes: '480x360', type: 'image/jpeg' },
+      { src: `https://img.youtube.com/vi/${video.id}/default.jpg`, sizes: '120x90', type: 'image/jpeg' }
+    ];
+
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: title,
+      artist: artist,
+      album: album,
+      artwork: artwork
+    });
   }
 
   /**
@@ -842,6 +931,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private handlePlayingState(player: any): void {
     this.loadAttempts = 0;
 
+    // Update Media Session playback state
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'playing';
+    }
+
     // Start periodic position updates for channel state persistence
     this.startPositionUpdates();
 
@@ -932,6 +1026,11 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handlePausedState(player: any): void {
+    // Update Media Session playback state
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'paused';
+    }
+
     // Update position one last time when pausing
     this.updatePlaybackPosition();
     
