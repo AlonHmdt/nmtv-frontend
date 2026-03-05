@@ -975,7 +975,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     // Debounce year fetch to prevent spamming backend during rapid channel switching
     this.setNamedTimeout('yearFetch', () => {
       // Pass videoId so backend can store the year in DB automatically
-      this.youtubeService.getVideoYear(searchTitle, video.id).subscribe({
+      this.youtubeService.getVideoYear(searchTitle, video.id, video.artist, video.song).subscribe({
         next: (response) => {
           if (response.year) {
             video.year = response.year;
