@@ -10,9 +10,16 @@ export class OldTVEffect {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private animationId: number | null = null;
-  private vcrInterval: number | null = null;
   private isActive = false;
   private mode: EffectMode = 'oldTV';
+
+  // Reusable offscreen canvas for snow (avoids allocation every frame)
+  private snowCanvas: HTMLCanvasElement;
+  private snowCtx: CanvasRenderingContext2D;
+
+  // Cached static layers (rebuilt only on resize)
+  private scanlinesCache: HTMLCanvasElement | null = null;
+  private vignetteCache: HTMLCanvasElement | null = null;
 
   // VCR tracking config (default values from CodePen)
   private vcrConfig = {
@@ -24,10 +31,18 @@ export class OldTVEffect {
     blur: 1
   };
 
+  // Throttle to 30fps — noise effect is imperceptible above this on TV
+  private lastFrameTime = 0;
+  private readonly frameDuration = 1000 / 30;
+
   constructor(canvas: HTMLCanvasElement, mode: EffectMode = 'oldTV') {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
     this.mode = mode;
+
+    this.snowCanvas = document.createElement('canvas');
+    this.snowCtx = this.snowCanvas.getContext('2d')!;
+
     this.resize();
     window.addEventListener('resize', () => this.resize());
   }
@@ -36,6 +51,14 @@ export class OldTVEffect {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.vcrConfig.maxy = this.canvas.height;
+
+    // Snow canvas runs at half resolution
+    this.snowCanvas.width = Math.floor(this.canvas.width / 2);
+    this.snowCanvas.height = Math.floor(this.canvas.height / 2);
+
+    // Invalidate static caches so they're rebuilt at new size
+    this.scanlinesCache = null;
+    this.vignetteCache = null;
   }
 
   setMode(mode: EffectMode): void {
@@ -45,7 +68,8 @@ export class OldTVEffect {
   start(): void {
     if (this.isActive) return;
     this.isActive = true;
-    this.animate();
+    this.lastFrameTime = 0;
+    this.animationId = requestAnimationFrame((t) => this.animate(t));
   }
 
   stop(): void {
@@ -54,72 +78,56 @@ export class OldTVEffect {
       cancelAnimationFrame(this.animationId);
       this.animationId = null;
     }
-    if (this.vcrInterval) {
-      clearInterval(this.vcrInterval);
-      this.vcrInterval = null;
-    }
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
-  private animate(): void {
+  private animate(timestamp: number): void {
     if (!this.isActive) return;
+
+    if (timestamp - this.lastFrameTime < this.frameDuration) {
+      this.animationId = requestAnimationFrame((t) => this.animate(t));
+      return;
+    }
+    this.lastFrameTime = timestamp;
 
     const { width, height } = this.canvas;
 
-    // Clear canvas with fully transparent background
     this.ctx.clearRect(0, 0, width, height);
 
-    // For channel switch mode, add grey background to simulate TV snow
     if (this.mode === 'channelSwitch') {
       this.ctx.fillStyle = '#474545ff';
       this.ctx.fillRect(0, 0, width, height);
     }
 
-    // Reset any global composite operations
     this.ctx.globalCompositeOperation = 'source-over';
 
-    // Layer 1: Snow (CRT noise)
     this.drawSnow(width, height);
-
-    // Layer 2: VCR tracking noise
     this.drawVCRTracking(width, height);
-
-    // Layer 3: Scanlines
     this.drawScanlines(width, height);
 
-    // Layer 4: Vintage vignette effect (only for channel switch)
     if (this.mode === 'channelSwitch') {
       this.drawVignette(width, height);
     }
 
-    this.animationId = requestAnimationFrame(() => this.animate());
+    this.animationId = requestAnimationFrame((t) => this.animate(t));
   }
 
   // Generate CRT noise (snow)
   private drawSnow(width: number, height: number): void {
-    const w = width / 2; // Reduce resolution for performance
-    const h = height / 2;
-    const imageData = this.ctx.createImageData(w, h);
+    const w = this.snowCanvas.width;
+    const h = this.snowCanvas.height;
+    const imageData = this.snowCtx.createImageData(w, h);
     const b = new Uint32Array(imageData.data.buffer);
-    const len = b.length;
 
-    for (let i = 0; i < len; i++) {
+    for (let i = 0; i < b.length; i++) {
       b[i] = ((255 * Math.random()) | 0) << 24;
     }
+    this.snowCtx.putImageData(imageData, 0, 0);
 
-    // Draw scaled up for full coverage
     this.ctx.save();
-    this.ctx.globalAlpha = this.mode === 'channelSwitch' ? 0.6 : 0.2; // Higher opacity for channel switch
+    this.ctx.globalAlpha = this.mode === 'channelSwitch' ? 0.6 : 0.2;
     this.ctx.imageSmoothingEnabled = false;
-
-    // Create temporary canvas for scaling
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = w;
-    tempCanvas.height = h;
-    const tempCtx = tempCanvas.getContext('2d')!;
-    tempCtx.putImageData(imageData, 0, 0);
-
-    this.ctx.drawImage(tempCanvas, 0, 0, width, height);
+    this.ctx.drawImage(this.snowCanvas, 0, 0, width, height);
     this.ctx.restore();
   }
 
@@ -133,7 +141,6 @@ export class OldTVEffect {
 
     this.ctx.save();
     this.ctx.fillStyle = '#fff';
-    // Use stronger effect for channel switch
     this.ctx.globalAlpha = this.mode === 'channelSwitch' ? 0 : 0.4;
 
     this.ctx.beginPath();
@@ -170,42 +177,43 @@ export class OldTVEffect {
     }
   }
 
-  // Horizontal scanlines
+  // Horizontal scanlines — drawn once to an offscreen canvas, reused every frame
   private drawScanlines(width: number, height: number): void {
-    this.ctx.save();
-    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-
-    for (let y = 0; y < height; y += 4) {
-      this.ctx.fillRect(0, y, width, 2);
+    if (!this.scanlinesCache) {
+      this.scanlinesCache = document.createElement('canvas');
+      this.scanlinesCache.width = width;
+      this.scanlinesCache.height = height;
+      const cacheCtx = this.scanlinesCache.getContext('2d')!;
+      cacheCtx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      for (let y = 0; y < height; y += 4) {
+        cacheCtx.fillRect(0, y, width, 2);
+      }
     }
-
-    this.ctx.restore();
+    this.ctx.drawImage(this.scanlinesCache, 0, 0);
   }
 
-  // Vintage vignette effect (darkening around edges) - similar to CodePen implementation
+  // Vignette — drawn once to an offscreen canvas, reused every frame
   private drawVignette(width: number, height: number): void {
-    this.ctx.save();
-    
-    // Create radial gradient from center (matching CodePen vignette style)
-    const centerX = width / 2;
-    const centerY = height / 2;
-    const radius = Math.sqrt(centerX * centerX + centerY * centerY);
-    
-    const gradient = this.ctx.createRadialGradient(
-      centerX, centerY, radius * 0.2,  // Inner radius (clear center)
-      centerX, centerY, radius * 1.3   // Outer radius (extended for smooth fade)
-    );
-    
-    // Gradient stops for vintage look
-    gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');      // Fully transparent center
-    gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)'); // Subtle darkening starts
-    gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.5)');  // More visible darkening
-    gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');    // Strong dark edges
-    
-    this.ctx.fillStyle = gradient;
-    this.ctx.fillRect(0, 0, width, height);
-    
-    this.ctx.restore();
+    if (!this.vignetteCache) {
+      this.vignetteCache = document.createElement('canvas');
+      this.vignetteCache.width = width;
+      this.vignetteCache.height = height;
+      const cacheCtx = this.vignetteCache.getContext('2d')!;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.sqrt(centerX * centerX + centerY * centerY);
+      const gradient = cacheCtx.createRadialGradient(
+        centerX, centerY, radius * 0.2,
+        centerX, centerY, radius * 1.3
+      );
+      gradient.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      gradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)');
+      gradient.addColorStop(0.8, 'rgba(0, 0, 0, 0.5)');
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
+      cacheCtx.fillStyle = gradient;
+      cacheCtx.fillRect(0, 0, width, height);
+    }
+    this.ctx.drawImage(this.vignetteCache, 0, 0);
   }
 
   destroy(): void {
