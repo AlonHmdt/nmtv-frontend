@@ -8,7 +8,7 @@ import { Channel, Channels, getNavigationChannels } from '../../models/video.mod
 import { SettingsModalComponent } from '../settings-modal/settings-modal.component';
 import { AboutModalComponent } from '../about-modal/about-modal.component';
 import { InstallModalComponent } from '../install-modal/install-modal.component';
-import { SupportModalComponent } from '../support-modal/support-modal.component';
+import { SupportButtonComponent } from '../support-button/support-button.component';
 import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
@@ -26,7 +26,7 @@ declare global {
 @Component({
   selector: 'app-channel-selector',
   standalone: true,
-  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent, SupportModalComponent],
+  imports: [CommonModule, SettingsModalComponent, AboutModalComponent, InstallModalComponent, SupportButtonComponent],
   templateUrl: './channel-selector.component.html',
   styleUrls: ['./channel-selector.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -46,7 +46,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   @ViewChild(SettingsModalComponent) settingsModal?: SettingsModalComponent;
   @ViewChild(AboutModalComponent) aboutModal?: AboutModalComponent;
   @ViewChild(InstallModalComponent) installModal?: InstallModalComponent;
-  @ViewChild(SupportModalComponent) supportModal?: SupportModalComponent;
 
   powerOff = output<void>();
   menuStateChange = output<boolean>(); // Emit menu open/close state
@@ -83,9 +82,9 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private stereoClickTimeout: number | null = null;
 
   showInstallButton = computed(() => {
-    // Show if we have an install prompt (Android/Desktop) OR if it's iOS/Mac/Android and not standalone
-    return !!this.pwaService.installPrompt() ||
-      ((this.pwaService.isIOS() || this.pwaService.isMac() || this.pwaService.isAndroid()) && !this.pwaService.isStandalone());
+    // Always show install button so users can access Android TV APK download
+    // Hide only on Android TV (already has the app)
+    return !this.helpersService.isAndroidTV();
   });
 
   isAndroidTV(): boolean {
@@ -485,35 +484,11 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     }
   }
 
-  openSupport(): void {
-    this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
 
-    if (this.isAndroidTV()) {
-      this.supportModal?.open();
-      return;
-    } else {
-      window.open('https://buymeacoffee.com/alonhmdt', '_blank');
-    }
-  }
 
   installApp(): void {
-    let platform = 'unknown';
-    if (this.pwaService.installPrompt()) platform = 'native';
-    else if (this.pwaService.isIOS()) platform = 'ios';
-    else if (this.pwaService.isMac()) platform = 'mac';
-    else if (this.pwaService.isAndroid()) platform = 'android';
-
-    this.track('Install App Clicked', { platform });
-
-    if (this.pwaService.installPrompt()) {
-      this.pwaService.promptInstall();
-    } else if (this.pwaService.isIOS()) {
-      this.installModal?.open('ios');
-    } else if (this.pwaService.isMac()) {
-      this.installModal?.open('mac');
-    } else if (this.pwaService.isAndroid()) {
-      this.installModal?.open('android');
-    }
+    this.track('Install App Clicked');
+    this.installModal?.open();
   }
 
   async shareApp(): Promise<void> {
@@ -544,6 +519,21 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   onSpecialChannelClick(): void {
     this.track('Special Channel Clicked');
     this.selectChannel(Channel.SPECIAL);
+  }
+
+  getSpecialEventLabel(): string {
+    const specialEventData = this.youtubeService.specialEventData();
+    return specialEventData?.label || 'SPECIAL EVENT';
+  }
+
+  getSpecialEventIcon1(): string {
+    const specialEventData = this.youtubeService.specialEventData();
+    return specialEventData?.icon1 || '';
+  }
+
+  getSpecialEventIcon2(): string {
+    const specialEventData = this.youtubeService.specialEventData();
+    return specialEventData?.icon2 || '';
   }
 
   onLogoClick(): void {

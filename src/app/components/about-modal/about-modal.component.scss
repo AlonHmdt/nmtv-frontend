@@ -180,6 +180,14 @@
       letter-spacing: 1px;
     }
 
+    .support-buttons-row {
+      display: flex; 
+      gap: 16px; 
+      align-items: center; 
+      flex-wrap: wrap; 
+      justify-content: center;
+    }
+
     a {
       display: inline-block;
       transition: transform 0.2s ease, opacity 0.2s ease;
@@ -194,6 +202,10 @@
         border-radius: 6px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
         border: 1px solid #333;
+      }
+      
+      &.product-hunt-badge img {
+        width: auto;
       }
     }
   }

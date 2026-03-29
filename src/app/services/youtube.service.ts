@@ -34,14 +34,12 @@ export class YoutubeService {
     });
   }
 
-  getVideoYear(title: string, videoId?: string): Observable<{ year: number | null }> {
+  getVideoYear(title: string, videoId?: string, artist?: string, song?: string): Observable<{ year: number | null }> {
     const params: any = { title };
-    if (videoId) {
-      params.videoId = videoId;
-    }
-    return this.http.get<{ year: number | null }>(`${this.backendUrl}/video/year`, {
-      params
-    });
+    if (videoId) params.videoId = videoId;
+    if (artist) params.artist = artist;
+    if (song) params.song = song;
+    return this.http.get<{ year: number | null }>(`${this.backendUrl}/video/year`, { params });
   }
 
   async checkBackendReady(): Promise<boolean | { ready: boolean; cacheSize: number; bumpersLoaded: boolean; bumpersCount: number }> {

@@ -1,0 +1,9 @@
+<button class="support-button retro-small-button" (click)="openSupport()"
+  aria-label="Support NMTV">
+  <i class="bi bi-cup-hot-fill" aria-hidden="true"></i>
+  <span>Support</span>
+</button>
+
+@if (isAndroidTV()) {
+<app-support-modal></app-support-modal>
+}

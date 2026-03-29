@@ -115,7 +115,6 @@ export class AboutModalComponent implements OnInit, OnDestroy {
   private initIframePlayer(): void {
     // Check if YT API is loaded
     if (typeof YT === 'undefined' || !YT.Player) {
-      console.warn('YouTube API not loaded yet, will retry...');
       // Retry after a short delay
       setTimeout(() => this.initIframePlayer(), 500);
       return;
@@ -123,7 +122,6 @@ export class AboutModalComponent implements OnInit, OnDestroy {
 
     const iframe = document.getElementById('about-modal-video');
     if (!iframe) {
-      console.warn('Iframe not found');
       return;
     }
 
@@ -134,7 +132,7 @@ export class AboutModalComponent implements OnInit, OnDestroy {
         }
       });
     } catch (error) {
-      console.error('Error initializing iframe player:', error);
+      // Silent fail
     }
   }
 
@@ -155,7 +153,7 @@ export class AboutModalComponent implements OnInit, OnDestroy {
       try {
         this.iframePlayer.destroy();
       } catch (error) {
-        console.error('Error destroying iframe player:', error);
+        // Silent fail
       }
       this.iframePlayer = null;
     }

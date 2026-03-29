@@ -30,14 +30,14 @@ export class PowerButtonComponent {
   isAnimating = signal(false);
   showLoadingContent = signal(false); // Start as false, will be set based on isLoading
   isFadingOut = signal(false);
-  
+
   // Device type detection as signal for proper change detection
   protected readonly deviceType = signal<'androidtv' | 'desktop' | 'mobile'>('desktop');
 
   constructor() {
     // Set device type detection immediately
     this.deviceType.set(this.helpersService.getDeviceType());
-    
+
     // Reset animation state when powered off
     effect(() => {
       const poweredOn = this.isPoweredOn();
@@ -55,7 +55,7 @@ export class PowerButtonComponent {
     // Handle loading state changes with fade-out
     effect(() => {
       const loading = this.isLoading();
-      
+
       if (loading && !this.showLoadingContent()) {
         // Show loading content immediately when loading starts
         untracked(() => {
@@ -67,7 +67,7 @@ export class PowerButtonComponent {
         untracked(() => {
           this.isFadingOut.set(true);
         });
-        
+
         // Hide content after fade-out completes
         setTimeout(() => {
           this.showLoadingContent.set(false);
@@ -146,5 +146,11 @@ export class PowerButtonComponent {
         }, 1500);
       }
     }, 50);
+  }
+
+  trackProductHuntClick(): void {
+    if (typeof (window as any).umami !== 'undefined') {
+      (window as any).umami.track('product-hunt-click');
+    }
   }
 }

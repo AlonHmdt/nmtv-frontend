@@ -1,0 +1,65 @@
+@use '../../../styles/breakpoints' as *;
+
+:host {
+  display: contents;
+}
+
+.retro-small-button {
+  pointer-events: all;
+  flex: 1;
+  max-width: 100px;
+  height: 36px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #888;
+  font: 700 9px 'Roboto Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 1px 1px 1px rgba(255, 255, 255, 0.05);
+
+  i {
+    font-size: 14px;
+    color: #666;
+    transition: color 0.2s ease;
+  }
+
+  &:hover {
+    background: #222;
+    color: #ccc;
+    border-color: #444;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+
+    i {
+      color: #fff;
+    }
+  }
+
+  &:active {
+    transform: translateY(1px);
+    box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.6);
+  }
+
+  &.support-button:hover i {
+    color: #FFDD00;
+  }
+
+  @media #{$mobile-and-tablet-landscape} {
+    height: 30px;
+    font-size: 8px;
+  }
+}
+
+// Keyboard Navigation Focus Styles
+.retro-small-button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08), 0 3px 6px rgba(0, 0, 0, 0.5), inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+}
