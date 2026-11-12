@@ -759,15 +759,25 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     // Force disable captions on player ready (overrides user's YouTube account preferences)
-    try {
-      if (player.loadModule) {
-        player.loadModule('captions');
-        // Unload/clear any caption track
-        player.unloadModule('captions');
+    this.hideCaptions(player);
+  }
+
+  /**
+   * Turn off YouTube captions (cc_load_policy: 0 can't force them off).
+   * The captions module can load a moment after playback starts, so repeat once shortly after.
+   */
+  private hideCaptions(player: any): void {
+    const disable = () => {
+      try {
+        player.setOption?.('captions', 'track', {});
+        player.unloadModule?.('captions');
+        player.unloadModule?.('cc');
+      } catch (e) {
+        // Ignore errors if caption module not available
       }
-    } catch (e) {
-      // Ignore errors if caption module not available
-    }
+    };
+    disable();
+    setTimeout(disable, 1000);
   }
 
   private setupAudioForPlatform(player: any): void {
@@ -841,6 +851,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handlePlayingState(player: any): void {
     this.loadAttempts = 0;
+
+    // YouTube re-applies caption preferences on every loaded video, so turn them off each time
+    this.hideCaptions(player);
 
     // Start periodic position updates for channel state persistence
     this.startPositionUpdates();
