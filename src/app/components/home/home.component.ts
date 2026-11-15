@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, ChangeDetectionStrategy } from '@ang
 import { VideoPlayerComponent } from '../video-player/video-player.component';
 import { ChannelSelectorComponent } from '../channel-selector/channel-selector.component';
 import { PowerButtonComponent } from '../power-button/power-button.component';
+import { SupportCornerComponent } from '../support-corner/support-corner.component';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
 
@@ -34,7 +35,7 @@ type ReadyData = boolean | BackendReadyResponse;
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [VideoPlayerComponent, ChannelSelectorComponent, PowerButtonComponent],
+  imports: [VideoPlayerComponent, ChannelSelectorComponent, PowerButtonComponent, SupportCornerComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush

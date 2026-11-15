@@ -3,4 +3,5 @@
 @if (isPoweredOn()) {
 <app-video-player [isChannelSelectorOpen]="isChannelSelectorOpen()" />
 <app-channel-selector (powerOff)="onPowerOff()" (menuStateChange)="onMenuStateChange($event)" />
+<app-support-corner />
 }
