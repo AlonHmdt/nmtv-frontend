@@ -13,6 +13,7 @@ import { HelpersService } from '../../services/helpers.service';
 import { PwaService } from '../../services/pwa.service';
 import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
+import { ShareLinkService } from '../../services/share-link.service';
 import { environment } from '../../../environments/environment';
 
 declare global {
@@ -40,6 +41,11 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private customPlaylistService = inject(CustomPlaylistService);
   private modalState = inject(ModalStateService);
   private youtubeService = inject(YoutubeService); // Inject YoutubeService
+  private shareLinkService = inject(ShareLinkService);
+
+  // Briefly true after the share link was copied, so the button can confirm it
+  shareCopied = signal(false);
+  private shareCopiedTimeout: number | null = null;
 
   public isSpecialChannelEnabled = signal(false); // Change to signal
 
@@ -490,28 +496,17 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
     this.installModal?.open();
   }
 
+  /** Shares a link to the current channel and the clip playing on it */
   async shareApp(): Promise<void> {
-    const hasNativeShare = typeof navigator !== 'undefined' && typeof navigator.share === 'function';
-    this.track('Share App Clicked', { method: hasNativeShare ? 'native' : 'clipboard' });
+    // The service reports the analytics event, including the outcome
+    const result = await this.shareLinkService.share('menu');
 
-    if (hasNativeShare) {
-      try {
-        await navigator.share({
-          title: 'NMTV - Noa\'s Music Television',
-          text: 'Check out NMTV! A retro music TV experience.',
-          url: window.location.href
-        });
-      } catch (error) {
-        // Silent error
+    if (result === 'copied') {
+      this.shareCopied.set(true);
+      if (this.shareCopiedTimeout) {
+        clearTimeout(this.shareCopiedTimeout);
       }
-    } else {
-      // Fallback: Copy to clipboard
-      try {
-        await navigator.clipboard.writeText(window.location.href);
-        await navigator.clipboard.writeText(window.location.href);
-      } catch (err) {
-        // Silent fail
-      }
+      this.shareCopiedTimeout = window.setTimeout(() => this.shareCopied.set(false), 2000);
     }
   }
 

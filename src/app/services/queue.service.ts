@@ -61,7 +61,13 @@ export class QueueService {
   // Saved queues per channel for state persistence (allows returning to same video)
   private savedQueuesPerChannel = new Map<Channel, SavedChannelState>();
 
-  async initializeQueue(channel: Channel): Promise<void> {
+  /**
+   * Start a channel from scratch.
+   *
+   * @param channel - The channel to load
+   * @param sharedVideoId - Optional clip from a shared link: it plays first, then the channel continues as usual
+   */
+  async initializeQueue(channel: Channel, sharedVideoId?: string): Promise<void> {
     this.currentChannelSignal.set(channel);
     this.currentIndexSignal.set(0);
     this.queueSignal.set([]);
@@ -81,13 +87,46 @@ export class QueueService {
 
     const customPlaylistIds = this.customPlaylistService.getPlaylistIds(channel);
 
+    if (sharedVideoId) {
+      // Put the shared clip first. Its title is unknown until the player loads it
+      // (see fillVideoDetails). Tracking it as played keeps the backend from sending it again.
+      // No playlist label: the badge next to the logo stays blank while the shared clip plays
+      this.queueSignal.set([{ id: sharedVideoId, isShared: true, playlistLabel: '' }]);
+      this.addPlayedVideo(sharedVideoId);
+    }
+
     try {
       // Fetch initial block (random playlist)
       await this.fetchAndAppendBlock(channel, customPlaylistIds);
+
+      if (sharedVideoId) {
+        // Drop the shared clip if the block happens to contain it too
+        this.queueSignal.update(queue => queue.filter((v, index) => index === 0 || v.id !== sharedVideoId));
+      }
+    } finally {
       // Set initial playlist label
       this.updatePlaylistLabel();
-    } catch (error) {
-      throw error;
+    }
+  }
+
+  /**
+   * Fill in details that were unknown when a video was queued (shared clips arrive as a bare ID).
+   * Mutates the queued video in place, like the year lookup does: replacing the object would
+   * make the player think the video changed and reload it.
+   */
+  fillVideoDetails(videoId: string, details: Pick<VideoItem, 'artist' | 'song' | 'title' | 'duration'>): void {
+    const video = this.queueSignal().find(v => v.id === videoId);
+    if (!video) {
+      return;
+    }
+
+    if (!video.artist && !video.song && !video.title) {
+      if (details.artist) video.artist = details.artist;
+      if (details.song) video.song = details.song;
+      if (details.title) video.title = details.title;
+    }
+    if (!video.duration && details.duration && details.duration > 0) {
+      video.duration = details.duration;
     }
   }
 
@@ -514,7 +553,7 @@ export class QueueService {
 
     // Check if we need to update the playlist label
     const currentLabel = this.currentPlaylistLabelSignal();
-    const videoPlaylistLabel = (currentVideo as any).playlistLabel || '';
+    const videoPlaylistLabel = currentVideo.playlistLabel || '';
     
     if (currentLabel !== videoPlaylistLabel) {
       this.currentPlaylistLabelSignal.set(videoPlaylistLabel);

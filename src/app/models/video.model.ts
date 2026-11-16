@@ -9,6 +9,8 @@ export interface VideoItem {
   isBumper?: boolean; // Optional: true if this is a bumper/ident video
   isLimited?: boolean; // Optional: true if video has location/region restrictions
   playlistId?: string; // Optional: ID of the playlist this video belongs to
+  playlistLabel?: string; // Optional: label of the playlist this video belongs to
+  isShared?: boolean; // Optional: true if this clip arrived through a shared link
 }
 
 // Programming block structure (returned from backend)

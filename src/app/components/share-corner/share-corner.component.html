@@ -1,0 +1,15 @@
+@if (visible) {
+<button type="button" class="share-corner" [class.copied]="copied()" (click)="onClick()"
+  aria-label="Share what's playing">
+  <span class="label" aria-hidden="true">
+    @if (copied()) {
+    <span class="line-1">Link copied!</span>
+    <span class="line-2"><i class="bi bi-check-lg"></i></span>
+    } @else {
+    <span class="line-1">Share this clip</span>
+    <span class="line-2"><i class="bi bi-share-fill"></i></span>
+    }
+  </span>
+</button>
+<span class="visually-hidden" role="status">{{ copied() ? 'Link copied' : '' }}</span>
+}

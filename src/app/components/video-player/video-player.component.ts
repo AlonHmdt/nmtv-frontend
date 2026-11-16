@@ -9,6 +9,7 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { VideoItem, Channel, Channels, getNavigationChannels } from '../../models/video.model';
 import { OldTVEffect, EffectMode } from './tv-static-effect';
+import { parseVideoTitle } from '../../utils/share-link.utils';
 
 
 declare var YT: any;
@@ -77,6 +78,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
   private apiReady = signal(false);
   private overlaysStarted = false;
   private isFirstVideo = true; // Track if this is the first video (startup or channel change)
+  private firstVideoStartSeconds = 0; // Where the first video was started (random mid-song point)
+  private sharedClipRestarted = false; // A too-short shared clip is replayed from the start only once
 
   private loadAttempts = 0;
   private timeouts = new Map<string, number>(); // Centralized timeout management
@@ -158,6 +161,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             }
             
+            this.firstVideoStartSeconds = startSeconds;
             this.player.loadVideoById({
               videoId: video.id,
               startSeconds: startSeconds,
@@ -703,6 +707,8 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
 
+        this.firstVideoStartSeconds = startSeconds;
+
         const playerConfig: any = {
           videoId: video.id,
           width: '100%',
@@ -845,7 +851,59 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     } else if (event.data === YT.PlayerState.PAUSED) {
       this.handlePausedState(event.target);
     } else if (event.data === YT.PlayerState.ENDED) {
+      if (this.restartShortSharedClip(event.target)) {
+        return;
+      }
       this.playNextVideo();
+    }
+  }
+
+  /**
+   * The first video starts mid-song (100-160s in). A shared clip can be any YouTube video,
+   * so it may be shorter than that and "end" right away without playing.
+   * In that case play it once from the beginning instead of skipping it.
+   */
+  private restartShortSharedClip(player: any): boolean {
+    const video = this.currentVideo();
+    if (!video?.isShared || this.sharedClipRestarted || this.firstVideoStartSeconds <= 0) {
+      return false;
+    }
+
+    const duration = Number(player.getDuration?.()) || 0;
+    if (duration <= 0 || duration > this.firstVideoStartSeconds + 2) {
+      return false;
+    }
+
+    this.sharedClipRestarted = true;
+    player.loadVideoById({
+      videoId: video.id,
+      startSeconds: 0,
+      suggestedQuality: 'hd720'
+    });
+    return true;
+  }
+
+  /**
+   * A shared clip arrives as a bare video ID. Once the player has loaded it,
+   * take its title from YouTube so the overlays can show artist and song.
+   */
+  private fillSharedClipDetails(player: any): void {
+    const video = this.currentVideo();
+    if (!video?.isShared || video.artist || video.song || video.title) {
+      return;
+    }
+
+    try {
+      const data = player.getVideoData?.();
+      if (!data?.title || (data.video_id && data.video_id !== video.id)) {
+        return;
+      }
+      this.queueService.fillVideoDetails(video.id, {
+        ...parseVideoTitle(data.title, this.currentChannel()),
+        duration: Math.round(Number(player.getDuration?.()) || 0)
+      });
+    } catch (e) {
+      // Title stays unknown - overlays just have nothing to show for this clip
     }
   }
 
@@ -854,6 +912,9 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // YouTube re-applies caption preferences on every loaded video, so turn them off each time
     this.hideCaptions(player);
+
+    // Must run before the overlays and year lookup are set up below
+    this.fillSharedClipDetails(player);
 
     // Start periodic position updates for channel state persistence
     this.startPositionUpdates();
@@ -1059,6 +1120,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     const currentVideo = this.currentVideo();
     const currentChannel = this.currentChannel();
     if (!currentVideo) return;
+
+    // Shared clips come from a link, not from our database - skip without reporting
+    if (currentVideo.isShared) {
+      this.skipToNextVideo(currentVideo);
+      return;
+    }
 
     // Check if video is location-restricted (isLimited flag)
     // If so, just skip without marking as unavailable

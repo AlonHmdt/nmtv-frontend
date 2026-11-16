@@ -1,7 +1,8 @@
-import { Component, output, input, ChangeDetectionStrategy, ViewChild, ElementRef, signal, effect, untracked, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, output, input, ChangeDetectionStrategy, ViewChild, ElementRef, signal, effect, untracked, ChangeDetectorRef, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { OldTVEffect } from '../video-player/tv-static-effect';
 import { HelpersService } from '../../services/helpers.service';
+import { ShareLinkService } from '../../services/share-link.service';
 
 @Component({
   selector: 'app-power-button',
@@ -14,6 +15,12 @@ import { HelpersService } from '../../services/helpers.service';
 export class PowerButtonComponent {
   private cdr = inject(ChangeDetectorRef);
   private helpersService = inject(HelpersService);
+  private shareLinkService = inject(ShareLinkService);
+
+  // Notice for visitors who arrived through a shared clip link
+  protected readonly sharedClipNotice = computed(() =>
+    this.shareLinkService.sharedClipPending() ? 'Someone taped this one for you' : null
+  );
   @ViewChild('staticCanvas') staticCanvas?: ElementRef<HTMLCanvasElement>;
 
   private oldTVEffect: OldTVEffect | null = null;

@@ -216,6 +216,60 @@
 }
 
 // ============================================================================
+// SHARED CLIP NOTICE
+// A small tape-deck unit above the remote, shown when the visitor arrived
+// through a shared clip link. Same plastic body and green display as the rest.
+// ============================================================================
+
+.shared-clip-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 250px;
+  max-width: 80vw;
+  padding: 7px 10px;
+  margin-bottom: -16px; // Sit closer to the remote than the wrapper's 30px gap
+
+  // Vintage plastic, matching the remote body
+  background-color: #222;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 20px 20px;
+  border-radius: 10px;
+  border: 4px solid #1a1a1a;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.8),
+    inset 2px 2px 2px rgba(255, 255, 255, 0.1),
+    inset -2px -2px 2px rgba(0, 0, 0, 0.5);
+
+  @media #{$mobile-and-tablet-landscape} {
+    padding: 5px 8px;
+  }
+}
+
+// Inset green display, like a VCR front panel
+.shared-clip-display {
+  width: 100%;
+  padding: 4px 8px 5px;
+  background: #0a0f0a;
+  border: 2px solid #333;
+  border-radius: 4px;
+  box-shadow: inset 2px 2px 6px rgba(0, 0, 0, 0.9);
+  font-family: 'VT323', 'Courier New', monospace;
+  text-transform: uppercase;
+  text-align: center;
+  color: #0f0;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+}
+
+.shared-clip-headline {
+  font-size: 17px;
+  line-height: 1.05;
+  letter-spacing: 0.5px;
+}
+
+// ============================================================================
 // LOADING PROGRESS BAR
 // ============================================================================
 

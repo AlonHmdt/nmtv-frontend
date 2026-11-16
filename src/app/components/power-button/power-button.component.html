@@ -2,6 +2,15 @@
   [class.animation-complete]="!isAnimating() && isPoweredOn()">
   @if (!isAnimating()) {
   <div class="power-layout-wrapper">
+    <!-- Shown when the visitor arrived through a shared clip link -->
+    @if (sharedClipNotice(); as notice) {
+    <div class="shared-clip-notice" role="status">
+      <div class="shared-clip-display">
+        <div class="shared-clip-headline">{{ notice }}</div>
+      </div>
+    </div>
+    }
+
     <div class="remote-body">
       <div class="remote-header">
         <img src="/images/nmtv-logo.png" alt="NMTV" class="nmtv-logo">

@@ -110,9 +110,9 @@
       </button>
       }
       <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
-        aria-label="Share NMTV">
-        <i class="bi bi-share-fill" aria-hidden="true"></i>
-        <span>Share</span>
+        aria-label="Share what's playing">
+        <i class="bi" [class.bi-share-fill]="!shareCopied()" [class.bi-check-lg]="shareCopied()" aria-hidden="true"></i>
+        <span>{{ shareCopied() ? 'Copied' : 'Share' }}</span>
       </button>
       }
     </div>

@@ -3,8 +3,10 @@ import { VideoPlayerComponent } from '../video-player/video-player.component';
 import { ChannelSelectorComponent } from '../channel-selector/channel-selector.component';
 import { PowerButtonComponent } from '../power-button/power-button.component';
 import { SupportCornerComponent } from '../support-corner/support-corner.component';
+import { ShareCornerComponent } from '../share-corner/share-corner.component';
 import { QueueService } from '../../services/queue.service';
 import { YoutubeService } from '../../services/youtube.service';
+import { ShareLinkService } from '../../services/share-link.service';
 
 interface SpecialEventPlaylist {
   id: string;
@@ -35,7 +37,7 @@ type ReadyData = boolean | BackendReadyResponse;
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [VideoPlayerComponent, ChannelSelectorComponent, PowerButtonComponent, SupportCornerComponent],
+  imports: [VideoPlayerComponent, ChannelSelectorComponent, PowerButtonComponent, SupportCornerComponent, ShareCornerComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -43,6 +45,7 @@ type ReadyData = boolean | BackendReadyResponse;
 export class HomeComponent implements OnInit {
   private queueService = inject(QueueService);
   private youtubeService = inject(YoutubeService);
+  private shareLinkService = inject(ShareLinkService);
 
   isPoweredOn = signal(false);
   isLoading = signal(true); // Start true to disable button, then set based on backend status
@@ -51,6 +54,8 @@ export class HomeComponent implements OnInit {
   backendIsReady = signal(false); // Track if backend successfully responded
 
   async ngOnInit(): Promise<void> {
+    // Read the link the visitor arrived with: /rock opens a channel, ?v=<id> plays a shared clip first
+    const landing = this.shareLinkService.readLanding();
 
     try {
       // Wait for backend to be ready with data first
@@ -58,8 +63,9 @@ export class HomeComponent implements OnInit {
 
       if (backendReady) {
         // Only load channel data after backend confirms it's ready
-        const lastChannel = this.queueService.getLastSelectedChannel();
-        await this.queueService.initializeQueue(lastChannel);
+        // A channel in the link wins over the last selected channel
+        const channel = this.shareLinkService.resolveLandingChannel(this.queueService.getLastSelectedChannel());
+        await this.queueService.initializeQueue(channel, landing.videoId ?? undefined);
       }
     } catch (error) {
       console.error('Error initializing app:', error);
@@ -103,6 +109,7 @@ export class HomeComponent implements OnInit {
 
   onPowerOn(): void {
     this.isPoweredOn.set(true);
+    this.shareLinkService.markSharedClipOpened();
     // Power button click provides the user interaction needed for iOS autoplay
     // Video will start with the last selected channel (or default channel)
   }

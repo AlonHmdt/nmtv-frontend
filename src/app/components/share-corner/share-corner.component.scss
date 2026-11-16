@@ -1,0 +1,149 @@
+@use '../../../styles/breakpoints' as *;
+
+// Mirror image of the "Buy me a coffee" triangle (support-corner), on the bottom-left.
+// Size of the triangle's two straight edges. Everything inside scales from it.
+$size: 120px;
+$size-handheld: 100px;
+
+.share-corner {
+  --size: #{$size};
+
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: var(--size);
+  height: var(--size);
+  // Below the channel menu overlay (999) so the open menu covers it,
+  // above the video overlays (static canvas, channel number, volume).
+  z-index: 50;
+  display: block;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  opacity: 0.85;
+  transform-origin: 0 100%;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  // The black triangle, with a faint edge so it still reads on dark video.
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #000;
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top right, transparent calc(50% - 1px), rgba(255, 255, 255, 0.35) 50%, transparent calc(50% + 1px));
+    pointer-events: none;
+  }
+
+  &:hover,
+  &:focus-visible,
+  &.copied {
+    opacity: 1;
+
+    .line-2 i {
+      color: #9D00FF; // Same purple as the Share button in the menu
+    }
+  }
+
+  &:hover,
+  &:focus-visible {
+    transform: scale(1.08);
+  }
+
+  &.copied .line-2 i {
+    color: #0f0;
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    &::after {
+      background: linear-gradient(to top right, transparent calc(50% - 2px), rgba(255, 255, 255, 0.9) 50%, transparent calc(50% + 2px));
+    }
+  }
+
+  @media #{$handheld} {
+    --size: #{$size-handheld};
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+
+    &:hover,
+    &:focus-visible {
+      transform: none;
+    }
+  }
+}
+
+// Text sits parallel to the diagonal edge, nudged toward the corner.
+.label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform:
+    translate(-50%, -50%)
+    translate(calc(var(--size) * -0.12), calc(var(--size) * 0.12))
+    rotate(45deg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+  font-family: 'Roboto Mono', monospace;
+  text-transform: uppercase;
+  line-height: 1.1;
+  pointer-events: none;
+}
+
+.line-1 {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+.line-2 {
+  font-size: 8px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  color: #bbb;
+
+  i {
+    font-size: 16px;
+    color: #fff;
+    transition: color 0.2s ease;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media #{$handheld} {
+  .line-1 {
+    font-size: 7.5px;
+  }
+
+  .line-2 {
+    font-size: 6.5px;
+
+    i {
+      font-size: 13px;
+    }
+  }
+}
