@@ -37,7 +37,7 @@ export class SupportButtonComponent {
   }
 
   openSupport(): void {
-    this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web' });
+    this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web', source: 'menu' });
 
     if (this.isAndroidTV()) {
       this.supportModal?.open();

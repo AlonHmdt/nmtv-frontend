@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
 import { ModalStateService } from '../../services/modal-state.service';
+import { HelpersService } from '../../services/helpers.service';
 
 declare var YT: any;
 
@@ -17,6 +18,9 @@ declare var YT: any;
 export class AboutModalComponent implements OnInit, OnDestroy {
   private videoPlayerControl = inject(VideoPlayerControlService);
   private modalState = inject(ModalStateService);
+
+  // Used for Umami tracking on the Buy Me a Coffee link
+  readonly platform = inject(HelpersService).isAndroidTV() ? 'androidtv' : 'web';
 
   @ViewChild('modalBody') modalBody?: ElementRef<HTMLDivElement>;
 
