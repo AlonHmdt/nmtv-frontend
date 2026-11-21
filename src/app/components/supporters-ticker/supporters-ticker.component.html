@@ -1,0 +1,16 @@
+@if (names().length > 0) {
+<div class="ticker" role="marquee" [attr.aria-label]="accessibleText()">
+  <span class="ticker-badge" aria-hidden="true"><i class="bi bi-cup-hot-fill"></i> Thanks</span>
+  <div class="ticker-window" aria-hidden="true">
+    <div class="ticker-track" [style.animation-duration.s]="durationSeconds()">
+      @for (copy of [0, 1]; track copy) {
+      <span class="ticker-copy">
+        @for (name of names(); track $index) {
+        <span class="ticker-name"><bdi>{{ name }}</bdi></span>
+        }
+      </span>
+      }
+    </div>
+  </div>
+</div>
+}

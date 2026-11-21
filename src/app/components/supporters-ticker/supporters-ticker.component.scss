@@ -1,0 +1,145 @@
+@use '../../../styles/breakpoints' as *;
+
+// Must match the coffee triangle's size in support-corner.component.scss
+$corner-size: 120px;
+$corner-size-handheld: 100px;
+$height: 22px;
+
+// A black strip along the bottom edge that runs into the coffee triangle,
+// like a news crawl: a fixed red "THANKS" badge, then names scrolling right to left.
+:host {
+  position: fixed;
+  right: $corner-size;
+  bottom: 0;
+  width: min(340px, calc(100vw - #{$corner-size} * 2));
+  height: $height;
+  // Same layer as the corners: under the open channel menu, above video overlays
+  z-index: 50;
+  pointer-events: none;
+
+  @media #{$handheld} {
+    right: $corner-size-handheld;
+    width: min(240px, calc(100vw - #{$corner-size-handheld} * 2));
+    height: 18px;
+  }
+}
+
+// TV: no triangle, so the strip sits to the left of the QR code, scaled with the screen
+:host(.tv) {
+  right: 8.4vw;
+  bottom: 1vw;
+  width: 28vw;
+  height: 2.2vw;
+
+  .ticker {
+    border-radius: 0.4vw 0 0 0.4vw;
+  }
+
+  .ticker-badge,
+  .ticker-name {
+    font-size: 1.1vw;
+  }
+}
+
+.ticker {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  opacity: 0.85;
+  overflow: hidden;
+}
+
+.ticker-badge {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  background: #AA0000; // Same red as the Power button
+  color: #fff;
+  font: 700 9px 'Roboto Mono', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  i {
+    font-size: 11px;
+    color: #FFDD00;
+  }
+
+  @media #{$handheld} {
+    padding: 0 6px;
+    font-size: 7.5px;
+
+    i {
+      font-size: 9px;
+    }
+  }
+}
+
+.ticker-window {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  // Soft fade at both ends so names slide in and out instead of being cut
+  mask-image: linear-gradient(to right, transparent, #000 12px, #000 calc(100% - 12px), transparent);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation-name: ticker-scroll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.ticker-copy {
+  display: flex;
+  align-items: center;
+}
+
+.ticker-name {
+  display: flex;
+  align-items: center;
+  // Courier New covers Hebrew names, which Roboto Mono has no letters for
+  font: 700 9px 'Roboto Mono', 'Courier New', monospace;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+
+  // Separator dot after each name (also after the last, so the loop joins cleanly)
+  &::after {
+    content: '\2022';
+    margin: 0 10px;
+    color: #AA0000;
+  }
+
+  @media #{$handheld} {
+    font-size: 7.5px;
+
+    &::after {
+      margin: 0 8px;
+    }
+  }
+}
+
+// The track holds the names twice; moving it by half its width lands exactly on the second copy
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track {
+    animation: none;
+  }
+}

@@ -637,11 +637,43 @@
 }
 
 .support-text {
+  max-width: 90vw;
   font: 700 10px 'Roboto Mono', monospace;
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 6px;
   color: #888;
+  text-align: center;
+}
+
+// The supporter's name inside the support line, lit like the green VCR display
+.supporter-name {
+  display: block;
+  margin-top: 4px;
+  color: #0f0;
+  text-shadow: 0 0 6px rgba(0, 255, 0, 0.6);
+  // Courier New covers Hebrew names, which Roboto Mono has no letters for
+  font-family: 'Roboto Mono', 'Courier New', monospace;
+
+  &::before {
+    content: '\2615\FE0E\00a0'; // ☕ (text style) before the name
+    font-size: 14px; // A bit bigger than the 10px text around it
+    line-height: 0; // Don't let the bigger cup push the line taller
+    vertical-align: -1px;
+  }
+}
+
+// "This broadcast is brought to you by" - white, so the credit stands out from the grey hint text
+.support-credit {
+  display: block;
+  color: #fff;
+}
+
+// Call to action on its own line under the credit
+.support-cta {
+  display: block;
+  margin-top: 4px;
+  color: #fff;
 }
 
 .qr-code-small {

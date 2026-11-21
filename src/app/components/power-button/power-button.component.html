@@ -137,7 +137,16 @@
     </div>
 
     <div class="support-button">
-      <p class="support-text">Enjoying NMTV? Help keep the music playing!</p>
+      <!-- Three lines: the credit, a random supporter's name, then an invite to be the next one -->
+      <p class="support-text">
+        @if (thankedSupporter) {
+        <span class="support-credit">This broadcast is brought to you by</span>
+        <span class="supporter-name"><bdi>{{ thankedSupporter.name }}</bdi></span>
+        <span class="support-cta">Your name here next?</span>
+        } @else {
+        Enjoying NMTV? Help keep the music playing!
+        }
+      </p>
       <div class="support-buttons-row">
         @if (deviceType() === 'androidtv') {
         <img src="/images/qr-code.png" alt="Support NMTV" class="qr-code-small" />

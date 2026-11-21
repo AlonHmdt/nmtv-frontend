@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { OldTVEffect } from '../video-player/tv-static-effect';
 import { HelpersService } from '../../services/helpers.service';
 import { ShareLinkService } from '../../services/share-link.service';
+import { SupportersService } from '../../services/supporters.service';
 
 @Component({
   selector: 'app-power-button',
@@ -16,6 +17,10 @@ export class PowerButtonComponent {
   private cdr = inject(ChangeDetectorRef);
   private helpersService = inject(HelpersService);
   private shareLinkService = inject(ShareLinkService);
+  private supportersService = inject(SupportersService);
+
+  // A different supporter is thanked on each visit
+  protected readonly thankedSupporter = this.supportersService.pickRandom();
 
   // Notice for visitors who arrived through a shared clip link
   protected readonly sharedClipNotice = computed(() =>
