@@ -9,7 +9,7 @@
         </button>
 
         <div class="modal-header">
-            <h2>{{ currentView() === 'menu' ? 'GET THE APP' : 'INSTALLATION' }}</h2>
+            <h2>{{ currentView() === 'instructions' ? 'INSTALLATION' : 'GET THE APP' }}</h2>
         </div>
 
         <div class="modal-body retro-inset-panel">
@@ -30,6 +30,19 @@
                         <span class="option-desc">Get the APK for your TV</span>
                     </div>
                 </button>
+            </div>
+            }
+
+            @if (currentView() === 'tv-apk') {
+            <div class="instructions-container">
+                <div class="instructions-content">
+                    <p>Install NMTV on this TV:</p>
+                    <ol>
+                        <li>Install the free <strong>Downloader</strong> app from your TV's app store.</li>
+                        <li>Open it and enter: <strong>{{ SHORT_APK_URL }}</strong></li>
+                        <li>Install the downloaded file and open <strong>NMTV</strong> from your apps.</li>
+                    </ol>
+                </div>
             </div>
             }
 

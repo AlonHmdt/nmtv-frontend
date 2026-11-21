@@ -1,6 +1,7 @@
 import { Component, signal, ChangeDetectionStrategy, OnInit, OnDestroy, inject, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ModalStateService } from '../../services/modal-state.service';
+import { isBackKey } from '../../utils/tv-platform.utils';
 
 @Component({
   selector: 'app-support-modal',
@@ -45,7 +46,7 @@ export class SupportModalComponent implements OnInit, OnDestroy {
   }
 
   private handleEscapeKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.isOpen()) {
+    if (isBackKey(event) && this.isOpen()) {
       event.preventDefault();
       this.close();
     }

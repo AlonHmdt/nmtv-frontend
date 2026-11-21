@@ -1,4 +1,9 @@
-@if (visible) {
+@if (isTV) {
+<!-- TVs can't open links, so show the QR code for viewers to scan with their phone -->
+<div class="support-qr" role="img" aria-label="Enjoying NMTV? Scan to buy me a coffee">
+  <img src="/images/qr-code.png" alt="" class="qr-image" />
+</div>
+} @else {
 <a class="support-corner" [href]="url" target="_blank" rel="noopener" (click)="onClick()"
   aria-label="Enjoying NMTV? Buy me a coffee (opens in a new tab)">
   <span class="label" aria-hidden="true">

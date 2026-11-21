@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { TvPlatform, detectTvPlatform } from '../utils/tv-platform.utils';
 
 @Injectable({
     providedIn: 'root'
@@ -26,6 +27,24 @@ export class HelpersService {
         return ua.includes('nmtv_androidtv');
     }
 
+    /** The smart-TV platform of the current browser, or null when it isn't a TV. */
+    getTvPlatform(): TvPlatform | null {
+        if (typeof navigator === 'undefined') {
+            return null;
+        }
+        return detectTvPlatform(navigator.userAgent);
+    }
+
+    /** A smart TV's built-in browser (Samsung, LG, Fire TV...), not our Android TV app. */
+    isTvBrowser(): boolean {
+        return !this.isAndroidTV() && this.getTvPlatform() !== null;
+    }
+
+    /** Any TV: our Android TV app or a smart TV's browser. Use for remote-control UI. */
+    isTV(): boolean {
+        return this.isAndroidTV() || this.isTvBrowser();
+    }
+
     isDesktopDevice(): boolean {
         if (typeof window === 'undefined') {
             return false;
@@ -42,9 +61,9 @@ export class HelpersService {
         return window.matchMedia('(pointer: coarse)').matches;
     }
 
-    getDeviceType(): 'androidtv' | 'desktop' | 'mobile' {
-        if (this.isAndroidTV()) {
-            return 'androidtv';
+    getDeviceType(): 'tv' | 'desktop' | 'mobile' {
+        if (this.isTV()) {
+            return 'tv';
         }
         if (this.isDesktopDevice()) {
             return 'desktop';

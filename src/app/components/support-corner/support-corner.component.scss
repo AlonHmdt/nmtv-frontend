@@ -73,6 +73,28 @@ $size-handheld: 100px;
   }
 }
 
+// TV version: a small white card with just the QR code, about as big as the web triangle
+// (120px ≈ 6vw on a 1920px screen). Sized in vw so it's the same physical size whether
+// the TV reports a 1920px or a 960px wide screen (~8cm on a 55" TV).
+.support-qr {
+  position: fixed;
+  right: 1vw;
+  bottom: 1vw;
+  // Same layer as the web triangle: under the open channel menu, above video overlays
+  z-index: 50;
+  padding: 0.3vw;
+  background: #fff;
+  border-radius: 0.4vw;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.qr-image {
+  display: block;
+  width: 6.4vw;
+  height: 6.4vw;
+}
+
 // Text sits parallel to the diagonal edge, nudged toward the corner.
 .label {
   position: absolute;

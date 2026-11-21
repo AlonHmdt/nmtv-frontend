@@ -6,10 +6,11 @@ import { QueueService } from '../../services/queue.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { KeyboardNavigationService } from '../../services/keyboard-navigation.service';
 import { Channel, getSettingsChannels } from '../../models/video.model';
-import { 
-  extractPlaylistId, 
-  getPlaylistUrlError 
+import {
+  extractPlaylistId,
+  getPlaylistUrlError
 } from '../../utils/youtube-url.utils';
+import { isBackKey } from '../../utils/tv-platform.utils';
 
 interface ChannelData {
   id: Channel;
@@ -101,7 +102,7 @@ export class SettingsModalComponent implements OnInit, OnDestroy {
   }
 
   private handleEscapeKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.isOpen()) {
+    if (isBackKey(event) && this.isOpen()) {
       event.preventDefault();
       this.close();
     }

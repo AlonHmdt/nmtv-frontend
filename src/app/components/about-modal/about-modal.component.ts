@@ -4,6 +4,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { VideoPlayerControlService } from '../../services/video-player-control.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { HelpersService } from '../../services/helpers.service';
+import { isBackKey } from '../../utils/tv-platform.utils';
 
 declare var YT: any;
 
@@ -90,7 +91,7 @@ export class AboutModalComponent implements OnInit, OnDestroy {
   }
 
   private handleEscapeKey = (event: KeyboardEvent): void => {
-    if (event.key === 'Escape' && this.isOpen()) {
+    if (isBackKey(event) && this.isOpen()) {
       event.preventDefault();
       this.close();
     }

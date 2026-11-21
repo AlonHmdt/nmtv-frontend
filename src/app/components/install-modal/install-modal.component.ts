@@ -2,9 +2,12 @@ import { Component, signal, ChangeDetectionStrategy, OnInit, OnDestroy, inject }
 import { CommonModule } from '@angular/common';
 import { ModalStateService } from '../../services/modal-state.service';
 import { PwaService } from '../../services/pwa.service';
+import { HelpersService } from '../../services/helpers.service';
+import { isBackKey } from '../../utils/tv-platform.utils';
 
 export type InstallPlatform = 'ios' | 'mac' | 'android';
-export type ModalView = 'menu' | 'instructions';
+// 'tv-apk': opened from a Fire TV / Android TV browser, which can't download the APK itself
+export type ModalView = 'menu' | 'instructions' | 'tv-apk';
 
 declare global {
     interface Window {
@@ -25,8 +28,12 @@ declare global {
 export class InstallModalComponent implements OnInit, OnDestroy {
     private modalState = inject(ModalStateService);
     private pwaService = inject(PwaService);
+    private helpersService = inject(HelpersService);
 
+    // Keep in sync with the /apk redirect in vercel.json
     readonly ANDROID_TV_APK_URL = 'https://github.com/AlonHmdt/nmtv-android-tv/releases/download/v1.0.0/nmtv-app-release-1.apk';
+    // Short address to type into the Downloader app on a TV (redirects to the APK)
+    readonly SHORT_APK_URL = 'nmtv.online/apk';
 
     isOpen = signal(false);
     platform = signal<InstallPlatform>('ios');
@@ -48,7 +55,12 @@ export class InstallModalComponent implements OnInit, OnDestroy {
     }
 
     open(): void {
-        this.currentView.set('menu');
+        // On a TV browser the only option that makes sense is the APK, so go straight to it
+        const isTvBrowser = this.helpersService.isTvBrowser();
+        this.currentView.set(isTvBrowser ? 'tv-apk' : 'menu');
+        if (isTvBrowser) {
+            this.track('Install TV APK Instructions', { platform: this.helpersService.getTvPlatform() });
+        }
         this.isOpen.set(true);
         // Notify global modal state
         this.modalState.openModal();
@@ -108,7 +120,7 @@ export class InstallModalComponent implements OnInit, OnDestroy {
     }
 
     private handleEscapeKey = (event: KeyboardEvent): void => {
-        if (event.key === 'Escape' && this.isOpen()) {
+        if (isBackKey(event) && this.isOpen()) {
             event.preventDefault();
             this.close();
         }

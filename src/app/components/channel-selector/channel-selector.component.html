@@ -101,7 +101,6 @@
     <div class="d-pad-actions-container">
       <app-support-button [attr.tabindex]="isMenuOpen() ? 0 : -1"></app-support-button>
 
-      @if (!isAndroidTV()) {
       @if (showInstallButton()) {
       <button class="install-button retro-small-button" (click)="installApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
         aria-label="Install NMTV app">
@@ -109,6 +108,7 @@
         <span>App</span>
       </button>
       }
+      @if (!isTV()) {
       <button class="share-button retro-small-button" (click)="shareApp()" [attr.tabindex]="isMenuOpen() ? 0 : -1"
         aria-label="Share what's playing">
         <i class="bi" [class.bi-share-fill]="!shareCopied()" [class.bi-check-lg]="shareCopied()" aria-hidden="true"></i>

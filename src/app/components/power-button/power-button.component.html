@@ -45,7 +45,7 @@
             <div class="progress-text">{{ loadingProgress() }}%</div>
           </div>
         </div>
-        } @else if (deviceType() === 'androidtv') {
+        } @else if (deviceType() === 'tv') {
         <span>PRESS SELECT TO START</span>
         } @else if (deviceType() === 'desktop') {
         <span>POWER ON/HIT ENTER TO START</span>
@@ -55,7 +55,7 @@
       </div>
 
       <div class="user-guide">
-        @if (deviceType() === 'androidtv') {
+        @if (deviceType() === 'tv') {
         <div class="guide-item android-tv-hints">
           <div class="remote-control-visual">
             <div class="remote-ring">
@@ -78,7 +78,8 @@
               </div>
             </div>
             <div class="remote-instruction">
-              <span>HOLD SELECT TO TOGGLE MENU</span>
+              <!-- Only our app can tell a held Select apart; in TV browsers a short press opens the menu -->
+              <span>{{ isTvBrowser ? 'PRESS SELECT TO TOGGLE MENU' : 'HOLD SELECT TO TOGGLE MENU' }}</span>
             </div>
           </div>
         </div>
@@ -139,7 +140,7 @@
     <div class="support-button">
       <p class="support-text">Enjoying NMTV? Help keep the music playing!</p>
       <div class="support-buttons-row">
-        @if (deviceType() === 'androidtv') {
+        @if (deviceType() === 'tv') {
         <img src="/images/qr-code.png" alt="Support NMTV" class="qr-code-small" />
         } @else {
         <a href="https://www.buymeacoffee.com/alonhmdt" target="_blank" rel="noopener noreferrer"

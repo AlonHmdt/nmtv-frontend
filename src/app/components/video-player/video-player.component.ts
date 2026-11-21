@@ -164,8 +164,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             this.firstVideoStartSeconds = startSeconds;
             this.player.loadVideoById({
               videoId: video.id,
-              startSeconds: startSeconds,
-              suggestedQuality: 'hd720'
+              startSeconds: startSeconds
             });
             this.isFirstVideo = false;
             
@@ -175,8 +174,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           } else {
             this.player.loadVideoById({
-              videoId: video.id,
-              suggestedQuality: 'hd720'
+              videoId: video.id
             });
           }
         }
@@ -754,16 +752,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     player.getIframe().style.pointerEvents = 'none';
     player.setVolume(100);
 
-    // Set Full HD 1080p quality for Android TV to prevent 4K lag
-    if (this.helpersService.isAndroidTV()) {
-      try {
-        // We start with 720p for speed, then upgrade in handlePlayingState
-        // player.setPlaybackQuality('hd1080'); 
-      } catch (e) {
-        // Ignore if quality setting fails
-      }
-    }
-
     // Force disable captions on player ready (overrides user's YouTube account preferences)
     this.hideCaptions(player);
   }
@@ -819,8 +807,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
             const currentVid = this.currentVideo();
             if (currentVid) {
               player.loadVideoById({
-                videoId: currentVid.id,
-                suggestedQuality: 'hd720'
+                videoId: currentVid.id
               });
             }
           } else {
@@ -877,8 +864,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.sharedClipRestarted = true;
     player.loadVideoById({
       videoId: video.id,
-      startSeconds: 0,
-      suggestedQuality: 'hd720'
+      startSeconds: 0
     });
     return true;
   }
@@ -927,14 +913,12 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (!this.overlaysStarted) {
         this.initializeVideoOverlays();
       }
-      this.upgradeVideoQuality();
       return;
     }
 
     if (!this.overlaysStarted) {
       this.initializeVideoOverlays();
     }
-    this.upgradeVideoQuality();
   }
 
   /**
@@ -979,29 +963,6 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } catch (e) {
       // Player may not be ready, ignore
-    }
-  }
-
-  private upgradeVideoQuality(): void {
-    if (!this.player || !this.player.getPlaybackQuality) return;
-
-    // Check current quality to avoid loop
-    const currentQuality = this.player.getPlaybackQuality();
-    const isAndroid = this.helpersService.isAndroidTV();
-
-    // Upgrading quality after playback starts
-    if (isAndroid) {
-      // Android TV: Cap at 1080p. Only upgrade if lower.
-      if (currentQuality !== 'hd1080' && currentQuality !== 'highres') {
-        this.player.setPlaybackQuality('hd1080');
-      }
-    } else {
-      // Others: Go for max. Only set if not already highres.
-      // Note: 'highres' covers >1080p. If we are at hd1080, we might want to push to highres?
-      // Yes, if available.
-      if (currentQuality !== 'highres') {
-        this.player.setPlaybackQuality('highres');
-      }
     }
   }
 
@@ -1108,8 +1069,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
       setTimeout(() => {
         if (this.player && currentVideo) {
           this.player.loadVideoById({
-            videoId: currentVideo.id,
-            suggestedQuality: 'hd720'
+            videoId: currentVideo.id
           });
         }
       }, 1000); // Wait 1 second before retry
@@ -1164,8 +1124,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (nextVideo && this.player) {
       this.player.loadVideoById({
-        videoId: nextVideo.id,
-        suggestedQuality: 'hd720'
+        videoId: nextVideo.id
       });
     }
   }
@@ -1189,8 +1148,7 @@ export class VideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (video && this.player) {
       // Load from beginning (no startSeconds parameter)
       this.player.loadVideoById({
-        videoId: video.id,
-        suggestedQuality: 'hd720'
+        videoId: video.id
       });
     }
   }

@@ -32,14 +32,15 @@ export class SupportButtonComponent {
     }
   }
 
-  isAndroidTV(): boolean {
-    return this.helpersService.isAndroidTV();
+  /** TVs show a QR code in a modal instead of opening a new browser tab. */
+  isTV(): boolean {
+    return this.helpersService.isTV();
   }
 
   openSupport(): void {
-    this.track('Support Opened', { platform: this.isAndroidTV() ? 'androidtv' : 'web', source: 'menu' });
+    this.track('Support Opened', { platform: this.helpersService.isAndroidTV() ? 'androidtv' : 'web', source: 'menu' });
 
-    if (this.isAndroidTV()) {
+    if (this.isTV()) {
       this.supportModal?.open();
       return;
     } else {

@@ -5,7 +5,7 @@ import { ShareLinkService } from '../../services/share-link.service';
 /**
  * Small "Share" triangle pinned to the bottom-left corner, mirroring the
  * "Buy me a coffee" triangle on the right. Shares a link to the current channel and clip.
- * Hidden on Android TV (nothing to share to, and the remote can't easily reach it).
+ * Hidden on TVs (nothing to share to, and the remote can't easily reach it).
  */
 @Component({
   selector: 'app-share-corner',
@@ -18,7 +18,7 @@ export class ShareCornerComponent implements OnDestroy {
   private helpersService = inject(HelpersService);
   private shareLinkService = inject(ShareLinkService);
 
-  readonly visible = !this.helpersService.isAndroidTV();
+  readonly visible = !this.helpersService.isTV();
 
   // Briefly true after the link was copied, so the corner can confirm it
   readonly copied = signal(false);

@@ -1,6 +1,13 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/nmtv-music-channel/browser",
+  "redirects": [
+    {
+      "source": "/apk",
+      "destination": "https://github.com/AlonHmdt/nmtv-android-tv/releases/download/v1.0.0/nmtv-app-release-1.apk",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/(.*)",

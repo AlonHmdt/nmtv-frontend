@@ -15,6 +15,7 @@ import { CustomPlaylistService } from '../../services/custom-playlist.service';
 import { ModalStateService } from '../../services/modal-state.service';
 import { ShareLinkService } from '../../services/share-link.service';
 import { environment } from '../../../environments/environment';
+import { canInstallApk, isBackKey } from '../../utils/tv-platform.utils';
 
 declare global {
   interface Window {
@@ -88,13 +89,15 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   private stereoClickTimeout: number | null = null;
 
   showInstallButton = computed(() => {
-    // Always show install button so users can access Android TV APK download
-    // Hide only on Android TV (already has the app)
-    return !this.helpersService.isAndroidTV();
+    // Hidden in our Android TV app (already installed). In TV browsers, shown only where
+    // the APK can be installed (Fire TV / Android TV); Samsung and LG can't install it.
+    if (this.helpersService.isAndroidTV()) return false;
+    if (this.helpersService.isTvBrowser()) return canInstallApk(this.helpersService.getTvPlatform());
+    return true;
   });
 
-  isAndroidTV(): boolean {
-    return this.helpersService.isAndroidTV();
+  isTV(): boolean {
+    return this.helpersService.isTV();
   }
 
   constructor() {
@@ -159,8 +162,8 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
   }
 
   private handleKeyPress(event: KeyboardEvent): void {
-    // Handle Android TV back button / Escape key
-    if (event.key === 'Escape' || event.key === 'GoBack' || event.keyCode === 4) {
+    // Escape, or the Back button of a TV remote (Android TV app, Samsung, LG)
+    if (isBackKey(event)) {
       // Don't handle if a modal is open - let the modal handle it
       if (this.modalState.isAnyModalOpen()) {
         return;
@@ -168,8 +171,11 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
       event.preventDefault();
       if (this.isMenuOpen()) {
-        // Close menu if open
+        // Close menu if open, and drop focus from its (now hidden) buttons
         this.toggleMenu();
+        if (document.activeElement instanceof HTMLElement) {
+          document.activeElement.blur();
+        }
       } else {
         // Power off the app if menu is closed and no modals are open
         this.turnOff();
@@ -179,6 +185,15 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
 
     // Toggle menu with Space key (only if not in a modal or input field)
     if ((event.code === 'Space' || event.key === ' ' || event.keyCode === 32) && !this.isInInputField(event.target as HTMLElement)) {
+      event.preventDefault();
+      this.toggleMenu();
+      return;
+    }
+
+    // TV browsers: Select (Enter) opens the menu. Our Android TV app opens it with a long
+    // press instead, which TV browsers can't report. Skipped while a button has focus, so
+    // the press still clicks that button.
+    if (this.shouldOpenMenuOnSelect(event)) {
       event.preventDefault();
       this.toggleMenu();
       return;
@@ -203,6 +218,13 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
         this.activateFocusedElement();
       }
     }
+  }
+
+  private shouldOpenMenuOnSelect(event: KeyboardEvent): boolean {
+    const isEnter = event.key === 'Enter' || event.keyCode === 13;
+    const nothingFocused = !document.activeElement || document.activeElement === document.body;
+    return isEnter && !event.repeat && this.helpersService.isTvBrowser() && !this.isMenuOpen()
+      && !this.modalState.isAnyModalOpen() && nothingFocused;
   }
 
   private isInInputField(element: HTMLElement): boolean {

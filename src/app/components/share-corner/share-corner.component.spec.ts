@@ -7,7 +7,7 @@ import { ShareCornerComponent } from './share-corner.component';
 describe('ShareCornerComponent', () => {
   let fixture: ComponentFixture<ShareCornerComponent>;
   let share: jasmine.Spy;
-  let isAndroidTV: boolean;
+  let isTV: boolean;
 
   function button(): HTMLButtonElement | null {
     return fixture.nativeElement.querySelector('button.share-corner');
@@ -25,7 +25,7 @@ describe('ShareCornerComponent', () => {
       providers: [
         provideZonelessChangeDetection(),
         { provide: ShareLinkService, useValue: { share } },
-        { provide: HelpersService, useValue: { isAndroidTV: () => isAndroidTV } }
+        { provide: HelpersService, useValue: { isTV: () => isTV } }
       ]
     }).compileComponents();
 
@@ -34,7 +34,7 @@ describe('ShareCornerComponent', () => {
   }
 
   beforeEach(() => {
-    isAndroidTV = false;
+    isTV = false;
   });
 
   afterEach(() => {
@@ -48,8 +48,8 @@ describe('ShareCornerComponent', () => {
     expect(labelText()).toContain('Share this clip');
   });
 
-  it('is hidden on Android TV', async () => {
-    isAndroidTV = true;
+  it('is hidden on TVs', async () => {
+    isTV = true;
     await create();
 
     expect(button()).toBeNull();

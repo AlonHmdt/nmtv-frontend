@@ -3,7 +3,8 @@ import { HelpersService } from '../../services/helpers.service';
 
 /**
  * Small "Buy me a coffee" triangle pinned to the bottom-right corner.
- * Hidden on Android TV (no browser to open the link, and the remote can't easily reach it).
+ * On TVs (our app and TV browsers) it's a small QR code instead: the remote can't click
+ * a link, but viewers can scan it with their phone.
  */
 @Component({
   selector: 'app-support-corner',
@@ -16,7 +17,7 @@ export class SupportCornerComponent {
   private helpersService = inject(HelpersService);
 
   readonly url = 'https://buymeacoffee.com/alonhmdt';
-  readonly visible = !this.helpersService.isAndroidTV();
+  readonly isTV = this.helpersService.isTV();
 
   onClick(): void {
     if (typeof window !== 'undefined' && window.umami) {
