@@ -41,7 +41,7 @@ export const ANONYMOUS_SUPPORTER_NAME = 'A mystery supporter';
 export const MAX_SUPPORTER_NAME_LENGTH = 24;
 
 /**
- * The people who bought a coffee, for the power-screen thank-you and the ticker.
+ * The people who bought a coffee, for the thank-you on the power screen.
  * Currently serves the exported list above.
  */
 @Injectable({ providedIn: 'root' })

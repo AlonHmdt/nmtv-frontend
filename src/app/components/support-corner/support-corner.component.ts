@@ -1,6 +1,5 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { HelpersService } from '../../services/helpers.service';
-import { SupportersTickerComponent } from '../supporters-ticker/supporters-ticker.component';
 
 /**
  * Small "Buy me a coffee" triangle pinned to the bottom-right corner.
@@ -10,7 +9,6 @@ import { SupportersTickerComponent } from '../supporters-ticker/supporters-ticke
 @Component({
   selector: 'app-support-corner',
   standalone: true,
-  imports: [SupportersTickerComponent],
   templateUrl: './support-corner.component.html',
   styleUrls: ['./support-corner.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
