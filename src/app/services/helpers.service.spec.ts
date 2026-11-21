@@ -21,7 +21,8 @@ describe('HelpersService TV detection', () => {
     expect(service.isAndroidTV()).toBeFalse();
     expect(service.isTvBrowser()).toBeTrue();
     expect(service.isTV()).toBeTrue();
-    expect(service.getDeviceType()).toBe('tv');
+    // TV browsers keep the desktop/mobile UI (they use an on-screen cursor, not a D-pad)
+    expect(service.getDeviceType()).not.toBe('androidtv');
   });
 
   it('treats our Android TV app as a TV, but not as a TV browser', () => {
@@ -30,7 +31,7 @@ describe('HelpersService TV detection', () => {
     expect(service.isAndroidTV()).toBeTrue();
     expect(service.isTvBrowser()).toBeFalse();
     expect(service.isTV()).toBeTrue();
-    expect(service.getDeviceType()).toBe('tv');
+    expect(service.getDeviceType()).toBe('androidtv');
   });
 
   it('does not treat desktops as TVs', () => {
@@ -38,6 +39,6 @@ describe('HelpersService TV detection', () => {
 
     expect(service.isTvBrowser()).toBeFalse();
     expect(service.isTV()).toBeFalse();
-    expect(service.getDeviceType()).not.toBe('tv');
+    expect(service.getDeviceType()).not.toBe('androidtv');
   });
 });

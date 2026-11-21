@@ -73,26 +73,35 @@ $size-handheld: 100px;
   }
 }
 
-// TV version: a small white card with just the QR code, about as big as the web triangle
-// (120px ≈ 6vw on a 1920px screen). Sized in vw so it's the same physical size whether
-// the TV reports a 1920px or a 960px wide screen (~8cm on a 55" TV).
+// TV version: a small white card with just the QR code. Sized like the NMTV logo
+// (90px wide, 50px up to 1024px, see .nmtv-logo in the video player) and placed as
+// its mirror image (logo: 20px from the top, 40px from the left).
 .support-qr {
   position: fixed;
-  right: 1vw;
-  bottom: 1vw;
+  right: 40px;
+  bottom: 20px;
   // Same layer as the web triangle: under the open channel menu, above video overlays
   z-index: 50;
-  padding: 0.3vw;
+  padding: 4px;
   background: #fff;
-  border-radius: 0.4vw;
+  border-radius: 4px;
   opacity: 0.9;
   pointer-events: none;
+
+  @media #{$handheld} {
+    padding: 3px;
+  }
 }
 
 .qr-image {
   display: block;
-  width: 6.4vw;
-  height: 6.4vw;
+  width: 90px;
+  height: 90px;
+
+  @media #{$handheld} {
+    width: 50px;
+    height: 50px;
+  }
 }
 
 // Text sits parallel to the diagonal edge, nudged toward the corner.

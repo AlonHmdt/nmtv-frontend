@@ -61,9 +61,11 @@ export class HelpersService {
         return window.matchMedia('(pointer: coarse)').matches;
     }
 
-    getDeviceType(): 'tv' | 'desktop' | 'mobile' {
-        if (this.isTV()) {
-            return 'tv';
+    // Remote-control UI (start screen hints) is for our app only. TV browsers keep the
+    // desktop/mobile UI: they drive the page with an on-screen cursor, not a D-pad.
+    getDeviceType(): 'androidtv' | 'desktop' | 'mobile' {
+        if (this.isAndroidTV()) {
+            return 'androidtv';
         }
         if (this.isDesktopDevice()) {
             return 'desktop';

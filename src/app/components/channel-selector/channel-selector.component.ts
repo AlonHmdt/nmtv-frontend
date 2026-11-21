@@ -190,15 +190,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // TV browsers: Select (Enter) opens the menu. Our Android TV app opens it with a long
-    // press instead, which TV browsers can't report. Skipped while a button has focus, so
-    // the press still clicks that button.
-    if (this.shouldOpenMenuOnSelect(event)) {
-      event.preventDefault();
-      this.toggleMenu();
-      return;
-    }
-
     // Handle arrow keys and Enter when menu is open
     if (this.isMenuOpen()) {
       if (event.key === 'ArrowDown') {
@@ -218,13 +209,6 @@ export class ChannelSelectorComponent implements OnInit, OnDestroy {
         this.activateFocusedElement();
       }
     }
-  }
-
-  private shouldOpenMenuOnSelect(event: KeyboardEvent): boolean {
-    const isEnter = event.key === 'Enter' || event.keyCode === 13;
-    const nothingFocused = !document.activeElement || document.activeElement === document.body;
-    return isEnter && !event.repeat && this.helpersService.isTvBrowser() && !this.isMenuOpen()
-      && !this.modalState.isAnyModalOpen() && nothingFocused;
   }
 
   private isInInputField(element: HTMLElement): boolean {

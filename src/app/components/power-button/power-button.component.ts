@@ -39,8 +39,7 @@ export class PowerButtonComponent {
   isFadingOut = signal(false);
 
   // Device type detection as signal for proper change detection
-  protected readonly deviceType = signal<'tv' | 'desktop' | 'mobile'>('desktop');
-  protected readonly isTvBrowser = this.helpersService.isTvBrowser();
+  protected readonly deviceType = signal<'androidtv' | 'desktop' | 'mobile'>('desktop');
 
   constructor() {
     // Set device type detection immediately
@@ -108,9 +107,7 @@ export class PowerButtonComponent {
   }
 
   handleEnterKey = (event: KeyboardEvent) => {
-    // TV browsers often leave `code` empty for the remote's Select button, so check `key` too
-    const isEnter = event.code === 'Enter' || event.key === 'Enter' || event.keyCode === 13;
-    if (isEnter && !this.isLoading() && !this.isPoweredOn()) {
+    if (event.code === 'Enter' && !this.isLoading() && !this.isPoweredOn()) {
       this.onPowerClick();
     }
   };
